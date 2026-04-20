@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sankey Builder</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --accent:#059669;
+  --accent-dark:#047857;
+}
+body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:100vh;display:flex;flex-direction:column;}
+
+/* topbar */
+.topbar{background:#fff;border-bottom:1px solid #e0e0e0;padding:10px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.topbar h1{font-size:16px;font-weight:700;color:#1a1a2e;white-space:nowrap;}
+.topbar h1 span{color:var(--accent);}
+.topbar-sub{font-size:11px;color:#bbb;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.tbtn{background:none;border:1px solid #ddd;border-radius:6px;padding:5px 11px;font-size:12px;cursor:pointer;color:#555;transition:all .15s;white-space:nowrap;}
+.tbtn:hover{border-color:var(--accent);color:var(--accent);}
+.tbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* dropdowns */
+.dd-wrap{position:relative;}
+.dd-menu{position:absolute;top:calc(100% + 5px);right:0;background:#fff;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.12);min-width:220px;z-index:9999;overflow:hidden;display:none;}
+.dd-menu.open{display:block;}
+.dd-item{padding:10px 14px;font-size:12px;cursor:pointer;color:#333;border-bottom:1px solid #f0f0f0;transition:background .1s;}
+.dd-item:last-child{border-bottom:none;}
+.dd-item:hover{background:#fffbf0;}
+.dd-item strong{display:block;margin-bottom:1px;color:#1a1a2e;}
+.dd-item span{font-size:10px;color:#aaa;}
+
+/* palette */
+.palette-wrap{display:none;align-items:center;gap:5px;}
+.swatch{display:flex;gap:3px;}
+.swatch div{width:10px;height:10px;border-radius:2px;}
+.pal-sel{border:1px solid #ddd;border-radius:6px;padding:4px 7px;font-size:12px;color:#555;background:#fff;cursor:pointer;outline:none;}
+
+/* export dd */
+.export-dd{display:none;}
+
+/* workspace */
+.workspace{display:flex;flex:1;overflow:hidden;}
+
+/* panel */
+.panel{width:310px;flex-shrink:0;background:#fff;border-right:1px solid #e0e0e0;display:flex;flex-direction:column;overflow:hidden;transition:width .25s,opacity .25s;}
+.panel.collapsed{width:0;opacity:0;pointer-events:none;}
+.panel-inner{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;min-width:310px;}
+
+/* mode tabs */
+.mode-tabs{display:flex;gap:4px;padding:2px;}
+.mode-tab{flex:1;padding:7px;font-size:11px;font-weight:600;cursor:pointer;text-align:center;background:#f0f2f5;color:#666;border:1px solid #ddd;border-radius:5px;transition:all .15s;}
+.mode-tab:hover{background:#fffbf0;border-color:var(--accent);color:var(--accent);}
+.mode-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+.field label{display:block;font-size:10px;font-weight:600;color:#666;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;}
+.field input,.field textarea,.field select{width:100%;border:1px solid #ddd;border-radius:6px;padding:6px 9px;font-size:12px;font-family:'Segoe UI',monospace;color:#1a1a2e;background:#fafafa;outline:none;transition:border-color .15s;resize:vertical;}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);background:#fff;}
+.field textarea{min-height:220px;line-height:1.6;}
+.field-row{display:flex;gap:8px;}
+.field-row .field{flex:1;}
+.general-settings{display:none;flex-direction:column;gap:10px;}
+.general-settings.on{display:flex;}
+
+.hint{background:#fffbf0;border:1px solid #f0e0b0;border-radius:6px;padding:8px 10px;font-size:11px;color:#7a5c00;line-height:1.7;}
+.hint code{background:#f5e6c0;padding:1px 4px;border-radius:3px;font-family:monospace;}
+
+.section-title{font-size:10px;font-weight:700;color:#aaa;letter-spacing:.1em;text-transform:uppercase;padding:3px 0 2px;border-bottom:1px solid #f0f0f0;}
+
+.shortcut-hint{font-size:10px;color:#bbb;text-align:right;margin-top:-4px;}
+.btn-gen{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;}
+.btn-gen:hover{background:var(--accent-dark);}
+.btn-sec{background:none;border:1px solid #ddd;border-radius:6px;padding:6px 9px;font-size:11px;cursor:pointer;color:#888;transition:all .15s;}
+.btn-sec:hover{border-color:var(--accent);color:var(--accent);}
+
+.error-box{background:#fff0f0;border:1px solid #ffcccc;border-radius:6px;padding:8px 10px;font-size:11px;color:#c00;line-height:1.6;display:none;}
+.error-box.on{display:block;}
+
+/* history */
+.history-list{display:flex;flex-direction:column;gap:5px;}
+.history-item{background:#fafafa;border:1px solid #eee;border-radius:6px;padding:7px 9px;cursor:pointer;transition:all .15s;font-size:11px;}
+.history-item:hover{border-color:var(--accent);background:#fffbf0;}
+.history-item strong{display:block;font-size:11px;color:#1a1a2e;}
+.history-item span{color:#aaa;font-size:10px;}
+.history-empty{font-size:11px;color:#bbb;text-align:center;padding:8px 0;}
+
+/* chart area */
+.chart-area{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;}
+.chart-header{padding:16px 24px 6px;display:flex;justify-content:space-between;align-items:flex-end;flex-shrink:0;width:100%;max-width:1400px;}
+.chart-header h2{font-size:20px;font-weight:700;color:#1a1a2e;}
+.chart-header h2 span{color:var(--accent);}
+.chart-header p{font-size:11px;color:#999;margin-top:3px;letter-spacing:.06em;text-transform:uppercase;}
+.tot .v{font-size:18px;color:var(--accent);text-align:right;font-weight:600;}
+.tot .l{font-size:10px;color:#999;text-align:right;text-transform:uppercase;letter-spacing:.1em;margin-top:2px;}
+
+#wrap{padding:0 14px 8px;background:#fff;border-radius:8px;border:1px solid #e8e8e8;flex-shrink:0;width:100%;max-width:1400px;}
+svg{display:block;}
+
+.warn-box{width:100%;max-width:1400px;background:#fffbf0;border:1px solid #f0e0b0;border-radius:6px;padding:7px 12px;font-size:11px;color:#7a5c00;line-height:1.7;display:none;flex-shrink:0;margin-bottom:4px;}
+.warn-box.on{display:block;}
+
+.yoy-legend{width:100%;max-width:1400px;display:none;align-items:center;gap:14px;padding:4px 0 6px;font-size:11px;color:#666;flex-shrink:0;}
+.yoy-legend.on{display:flex;}
+.yoy-legend span{display:flex;align-items:center;gap:4px;}
+.yoy-dot{width:8px;height:8px;border-radius:50%;}
+
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:8px 0 16px;flex-shrink:0;width:100%;max-width:1400px;}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr);}}
+.card{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:11px 13px;}
+.card .lbl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#999;margin-bottom:3px;}
+.card .val{font-size:18px;font-weight:700;margin-bottom:2px;}
+.card .dsc{font-size:10px;color:#999;line-height:1.5;}
+
+.placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#bbb;gap:10px;padding:40px;text-align:center;}
+.placeholder p{font-size:13px;line-height:1.6;max-width:280px;}
+
+#tip{position:fixed;background:#fff;border:1px solid #ddd;border-radius:6px;padding:8px 12px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .12s;z-index:9999;line-height:1.7;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+#tip.on{opacity:1;}
+
+.label-edit{position:fixed;background:#fff;border:1px solid var(--accent);border-radius:6px;padding:4px 8px;font-size:12px;outline:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:120px;}
+
+/* YoY badge on SVG */
+.yoy-badge{font-size:9.5px;font-family:'Segoe UI',sans-serif;font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Sankey <span>Builder</span></h1>
+  <span class="topbar-sub">Financial Flow Visualiser</span>
+  <div class="topbar-right">
+    <!-- export dropdown -->
+    <button class="tbtn active" id="btnYoY" style="display:none;">▲▼ YoY</button>
+    <div class="dd-wrap export-dd" id="exportDd">
+      <button class="tbtn" onclick="toggleDd('exportDd')">⬇ Export ▾</button>
+      <div class="dd-menu" id="exportDdMenu">
+        <div class="dd-item" onclick="exportChart();toggleDd('exportDd')">
+          <strong>Export as PNG</strong><span>High-resolution image with header &amp; cards</span>
+        </div>
+        <div class="dd-item" onclick="exportPDF();toggleDd('exportDd')">
+          <strong>Export as PDF</strong><span>Chart + full flow data table</span>
+        </div>
+      </div>
+    </div>
+    <!-- palette -->
+    <div class="palette-wrap" id="paletteWrap">
+      <span style="font-size:11px;color:#aaa;">Palette:</span>
+      <div class="swatch" id="paletteSwatch"></div>
+      <select class="pal-sel" id="paletteSelect" onchange="switchPalette(this.value)"></select>
+    </div>
+    <!-- prompts -->
+    <div class="dd-wrap" id="promptDd">
+      <button class="tbtn" onclick="toggleDd('promptDd')">📋 Prompt ▾</button>
+      <div class="dd-menu" id="promptDdMenu">
+        <div class="dd-item" onclick="copyPrompt('csv');toggleDd('promptDd')">
+          <strong>CSV — Quick Extract</strong><span>Returns clean data only, no explanation</span>
+        </div>
+        <div class="dd-item" onclick="copyPrompt('comparative');toggleDd('promptDd')">
+          <strong>CSV — With Prior Year</strong><span>Comparative format for YoY badges</span>
+        </div>
+        <div class="dd-item" onclick="copyPrompt('detailed');toggleDd('promptDd')">
+          <strong>Detailed Extraction</strong><span>Full rules, edge cases &amp; verification notes</span>
+        </div>
+      </div>
+    </div>
+    <button class="tbtn" onclick="showHelp()">? How to Use</button>
+    <!-- theme picker -->
+    <div class="dd-wrap" id="themeDd">
+      <button class="tbtn" onclick="toggleDd('themeDd')" title="App theme color">🎨 Theme</button>
+      <div class="dd-menu" id="themeDdMenu" style="min-width:180px;">
+        <div style="padding:10px 12px 6px;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.08em;text-transform:uppercase;">App Accent Color</div>
+        <div id="themeSwatches" style="display:flex;flex-wrap:wrap;gap:7px;padding:6px 12px 12px;"></div>
+      </div>
+    </div>
+    <button class="tbtn active" id="btnPanel" onclick="togglePanel()">⟨ Panel</button>
+  </div>
+</div>
+
+<div class="workspace">
+  <!-- PANEL -->
+  <div class="panel" id="panel">
+    <div class="panel-inner">
+
+      <div class="section-title">Mode</div>
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tabPSX" onclick="setMode('psx')">PSX</button>
+        <button class="mode-tab" id="tabGeneral" onclick="setMode('general')">General</button>
+      </div>
+
+      <!-- general-only settings -->
+      <div class="general-settings" id="generalSettings">
+        <div class="field-row">
+          <div class="field">
+            <label>Currency</label>
+            <select id="inCurrency">
+              <option value="PKR">PKR</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+              <option value="SAR">SAR</option>
+              <option value="AED">AED</option>
+              <option value="INR">INR</option>
+              <option value="custom">Custom…</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Unit</label>
+            <select id="inUnit">
+              <option value="Millions">Millions</option>
+              <option value="Billions">Billions</option>
+              <option value="Thousands">Thousands</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" id="customCurrencyField" style="display:none;">
+          <label>Custom Currency Symbol</label>
+          <input type="text" id="inCustomCurrency" placeholder="e.g. BDT" maxlength="6"/>
+        </div>
+      </div>
+
+      <div class="section-title">Chart Details</div>
+      <div class="field">
+        <label>Company Name</label>
+        <input type="text" id="inCompany" placeholder="e.g. Lucky Cement"/>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Fiscal Year</label>
+          <input type="text" id="inYear" placeholder="FY 2025"/>
+        </div>
+        <div class="field">
+          <label>Statements</label>
+          <input type="text" id="inScope" placeholder="Consolidated"/>
+        </div>
+      </div>
+
+      <div class="section-title">Chart Settings</div>
+      <div class="field">
+        <label>Chart Height</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="range" id="inHeight" min="300" max="900" value="520" step="20"
+            style="flex:1;accent-color:var(--accent);cursor:pointer;"
+            oninput="document.getElementById('inHeightVal').textContent=this.value+'px'"/>
+          <span id="inHeightVal" style="font-size:11px;color:var(--accent);min-width:38px;">520px</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Column Spacing</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="range" id="inColSpacing" min="0" max="200" value="0" step="10"
+            style="flex:1;accent-color:var(--accent);cursor:pointer;"
+            oninput="document.getElementById('inColSpacingVal').textContent='+'+this.value+'px'"/>
+          <span id="inColSpacingVal" style="font-size:11px;color:var(--accent);min-width:42px;">+0px</span>
+        </div>
+      </div>
+
+      <div class="section-title">Flow Data</div>
+      <div class="hint">
+        One flow per line:<br>
+        <code>Source, Target, CurrentValue, PriorValue</code><br>
+        PriorValue is optional — omit for no YoY badges.<br>
+        Lines starting with <code>#</code> are ignored.
+      </div>
+
+      <div class="field">
+        <label>Flow Data (CSV)</label>
+        <textarea id="inData" spellcheck="false" placeholder="# With prior year (YoY badges):
+Total Revenue, Net Sales, 25789, 22340
+Net Sales, Cost of Sales, 11662, 10100
+Net Sales, Gross Profit, 14127, 12240
+
+# Or without prior year:
+Total Revenue, Net Sales, 25789
+Net Sales, Cost of Sales, 11662"></textarea>
+      </div>
+
+      <div class="error-box" id="errBox"></div>
+
+      <div style="display:flex;gap:7px;">
+        <button class="btn-sec" style="flex:1;" onclick="loadSample()">Example</button>
+        <button class="btn-gen" style="flex:2;" onclick="generate()">Generate →</button>
+      </div>
+      <div class="shortcut-hint">Ctrl + Enter to generate</div>
+
+      <div class="section-title">Recent Charts</div>
+      <div class="history-list" id="historyList"></div>
+    </div>
+  </div>
+
+  <!-- CHART AREA -->
+  <div class="chart-area" id="chartArea">
+    <div class="placeholder" id="placeholder">
+      <svg width="60" height="60" viewBox="0 0 64 64" fill="none">
+        <rect x="4" y="20" width="10" height="24" rx="2" fill="#ccc"/>
+        <rect x="27" y="12" width="10" height="40" rx="2" fill="#ccc"/>
+        <rect x="50" y="28" width="10" height="16" rx="2" fill="#ccc"/>
+        <path d="M14 28 Q20 28 27 22" stroke="#ddd" stroke-width="4" fill="none"/>
+        <path d="M14 36 Q20 44 27 44" stroke="#ddd" stroke-width="4" fill="none"/>
+        <path d="M37 24 Q44 20 50 30" stroke="#ddd" stroke-width="4" fill="none"/>
+        <path d="M37 44 Q44 44 50 38" stroke="#ddd" stroke-width="4" fill="none"/>
+      </svg>
+      <p>Fill in details, paste flow data, click <strong>Generate</strong></p>
+      <p style="font-size:11px;color:#ccc;">Ctrl+Enter to generate</p>
+    </div>
+
+    <div id="chartInner" style="display:none;flex-direction:column;flex:1;width:100%;align-items:center;">
+      <div class="chart-header">
+        <div>
+          <h2 id="chartTitle">—</h2>
+          <p id="chartSubtitle">—</p>
+        </div>
+        <div class="tot">
+          <div class="v" id="chartTotal">—</div>
+          <div class="l">Total Inflow</div>
+        </div>
+      </div>
+      <div class="warn-box" id="warnBox"></div>
+      <div class="yoy-legend" id="yoyLegend">
+        <span><div class="yoy-dot" style="background:#22c55e"></div> Growth vs prior year</span>
+        <span><div class="yoy-dot" style="background:#ef4444"></div> Decline vs prior year</span>
+        <span style="color:#aaa;font-size:10px;">Pills on node bars show weighted YoY % · hover for flow detail</span>
+      </div>
+      <div id="wrap"><svg id="svg"></svg></div>
+      <div class="cards" id="cards"></div>
+    </div>
+  </div>
+</div>
+<div id="tip"></div>
+
+<!-- ── How To Use Dialog ───────────────────────────────────────────────────── -->
+<div id="helpOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:12px;width:min(680px,92vw);max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.2);display:flex;flex-direction:column;">
+    <!-- header -->
+    <div style="padding:24px 28px 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+      <div>
+        <h2 style="font-size:20px;font-weight:700;color:#1a1a2e;">How to Use</h2>
+        <p style="font-size:11px;color:#aaa;margin-top:3px;text-transform:uppercase;letter-spacing:.06em;">Sankey Builder — Step by Step</p>
+      </div>
+      <button onclick="hideHelp()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;line-height:1;padding:4px 8px;border-radius:4px;" title="Close">✕</button>
+    </div>
+    <!-- steps -->
+    <div style="padding:20px 28px 28px;display:flex;flex-direction:column;gap:18px;">
+
+      <div class="help-step">
+        <div class="help-num">1</div>
+        <div class="help-body">
+          <strong>Copy the extraction prompt</strong>
+          <p>Click <strong>📋 Prompt ▾</strong> in the top bar. Choose <em>CSV — With Prior Year</em> if the annual report shows two years side by side (recommended), or <em>CSV — Quick Extract</em> for current year only.</p>
+        </div>
+      </div>
+
+      <div class="help-step">
+        <div class="help-num">2</div>
+        <div class="help-body">
+          <strong>Extract data from NotebookLM</strong>
+          <p>Upload your annual report PDF to <a href="https://notebooklm.google.com" target="_blank">NotebookLM</a>, paste the prompt, and it will return your flow data as CSV lines like:</p>
+          <code style="display:block;background:#f5f5f5;padding:8px 10px;border-radius:6px;font-size:11px;margin-top:6px;line-height:1.8;">
+            Total Revenue, Net Sales, 25789, 22340<br>
+            Net Sales, Cost of Sales, 11662, 10100<br>
+            Net Sales, Gross Profit, 14127, 12240
+          </code>
+        </div>
+      </div>
+
+      <div class="help-step">
+        <div class="help-num">3</div>
+        <div class="help-body">
+          <strong>Fill in details and paste data</strong>
+          <p>Enter the <em>Company Name</em>, <em>Fiscal Year</em>, and <em>Statements</em> type in the left panel. Paste the CSV into the <em>Flow Data</em> box. Lines starting with <code>#</code> are ignored.</p>
+        </div>
+      </div>
+
+      <div class="help-step">
+        <div class="help-num">4</div>
+        <div class="help-body">
+          <strong>Generate</strong>
+          <p>Click <strong>Generate →</strong> or press <kbd>Ctrl+Enter</kbd>. The chart renders immediately. A yellow warning bar appears if any flow balances look off — usually harmless when income streams converge.</p>
+        </div>
+      </div>
+
+      <div class="help-step">
+        <div class="help-num">5</div>
+        <div class="help-body">
+          <strong>Interact with the chart</strong>
+          <ul style="margin-top:6px;padding-left:18px;line-height:2.1;">
+            <li><strong>Hover</strong> any band or node to see values and YoY % in a tooltip</li>
+            <li><strong>Drag</strong> any node bar up or down to reposition it</li>
+            <li><strong>Double-click</strong> a node bar to rename its label inline</li>
+            <li><strong>▲▼ YoY</strong> button toggles YoY delta labels (when prior year data is present)</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="help-step">
+        <div class="help-num">6</div>
+        <div class="help-body">
+          <strong>Export</strong>
+          <p>Click <strong>⬇ Export ▾</strong> to save as a <em>PNG</em> (high-res image with header and insight cards) or <em>PDF</em> (chart + full flow data table on page 2).</p>
+          <div class="help-tip">💡 Recent charts are saved automatically — find them in the <em>Recent Charts</em> section of the panel to reload without re-pasting data.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<style>
+.help-step{display:flex;gap:14px;align-items:flex-start;}
+.help-num{
+  width:26px;height:26px;border-radius:50%;
+  background:var(--accent);color:#fff;
+  font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-top:1px;
+}
+.help-body{flex:1;font-size:13px;color:#333;line-height:1.6;}
+.help-body strong{display:block;font-size:14px;color:#1a1a2e;margin-bottom:4px;}
+.help-body p{color:#555;font-size:12px;}
+.help-body ul{color:#555;font-size:12px;}
+.help-body code{font-family:monospace;font-size:11px;background:#f0f0f0;padding:1px 5px;border-radius:3px;}
+.help-body kbd{background:#f0f0f0;border:1px solid #ddd;border-radius:3px;padding:1px 6px;font-size:11px;font-family:monospace;}
+.help-body a{color:var(--accent);text-decoration:none;}
+.help-body a:hover{text-decoration:underline;}
+.help-tip{margin-top:8px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:7px 10px;font-size:11px;color:#166534;line-height:1.5;}
+</style>
+
+<script>
+// ─── PALETTES ─────────────────────────────────────────────────────────────────
+const PALETTES={
+  "Vivid":      ["#d4a853","#14b8a6","#3b82f6","#a78bfa","#22c55e","#f43f5e","#fb923c","#6366f1","#8b949e","#fbbf24","#e11d48","#0ea5e9","#84cc16","#f97316","#ec4899","#10b981","#ef4444","#60a5fa","#a3e635","#c084fc"],
+  "Corporate":  ["#1e3a5f","#2e6da4","#4a9fd4","#6cb4e4","#0077b6","#0096c7","#00b4d8","#48cae4","#264653","#2a9d8f","#57cc99","#023e8a","#03045e","#90e0ef","#38b000","#008000","#005f73","#0a9396","#94d2bd","#e9d8a6"],
+  "Warm":       ["#c1121f","#e85d04","#f48c06","#faa307","#ffba08","#d62828","#f77f00","#fcbf49","#9b2226","#ae2012","#bb3e03","#ca6702","#ee9b00","#780000","#a44200","#e9c46a","#f4a261","#e76f51","#ef233c","#d90429"],
+  "Pastel":     ["#a8dadc","#457b9d","#1d3557","#e63946","#06d6a0","#118ab2","#073b4c","#ffd166","#ef476f","#84a98c","#52796f","#354f52","#b7d5ea","#8fb8d1","#6a9ab0","#c9cba3","#ffe1a8","#e26d5c","#723d46","#472d30"],
+  "Green–Gold": ["#606c38","#283618","#dda15e","#bc6c25","#588157","#3a5a40","#a3b18a","#dad7cd","#b5838d","#6d6875","#e9c46a","#f4a261","#264653","#2a9d8f","#57cc99","#80ed99","#386641","#6a994e","#a7c957","#bc4749"],
+  "Monochrome": ["#111","#222","#333","#444","#555","#666","#777","#888","#999","#aaa","#bbb","#ccc","#0d0d0d","#1a1a1a","#2d2d2d","#404040","#595959","#737373","#8c8c8c","#a6a6a6"],
+  "Ocean":      ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#90e0ef","#ade8f4","#caf0f8","#005f73","#0a9396","#94d2bd","#e9d8a6","#ee9b00","#ca6702","#bb3e03","#ae2012","#9b2226","#001219","#006400"],
+  "Sunset":     ["#ff6b6b","#ff8e53","#ff9f43","#ffd32a","#0be881","#0fbcf9","#f53b57","#3c40c4","#ffd42a","#ffdd59","#ff5e57","#ff3f34","#ff9f43","#ffa502","#ff6348","#ff4757","#2ed573","#1e90ff","#eccc68","#a29bfe"],
+  "Berry":      ["#6c3483","#884ea0","#a569bd","#c39bd3","#d2b4de","#4a235a","#7d3c98","#9b59b6","#af7ac5","#c8a2c8","#512e5f","#76448a","#8e44ad","#a569bd","#b784c7","#1a5276","#1f618d","#2874a6","#3498db","#5dade2"],
+  "Earth":      ["#7b3f00","#a0522d","#b8860b","#cd853f","#d2691e","#8b4513","#a52a2a","#800000","#556b2f","#6b8e23","#808000","#8fbc8f","#2e8b57","#3cb371","#20b2aa","#008080","#4682b4","#708090","#696969","#808080"],
+  "Neon":       ["#ff00ff","#00ffff","#ff6600","#ffff00","#00ff00","#ff0066","#6600ff","#ff3300","#00ff99","#ff0099","#33ccff","#ff6633","#99ff00","#cc00ff","#ff9900","#00ccff","#ff0033","#66ff00","#ff00cc","#0033ff"],
+  "PSX Classic":["#006633","#009933","#00cc44","#ffcc00","#ff9900","#cc0000","#990000","#003366","#0066cc","#3399ff","#66ccff","#99ffcc","#ccff99","#ffff66","#ffcc66","#ff9966","#ff6666","#cc3333","#336699","#6699cc"],
+};
+let activePalette="Vivid";
+const getPalette=()=>PALETTES[activePalette];
+
+// ─── MODE ─────────────────────────────────────────────────────────────────────
+let appMode="psx"; // "psx" | "general"
+function setMode(m){
+  appMode=m;
+  document.getElementById("tabPSX").classList.toggle("active",m==="psx");
+  document.getElementById("tabGeneral").classList.toggle("active",m==="general");
+  document.getElementById("generalSettings").classList.toggle("on",m==="general");
+}
+document.getElementById("inCurrency").addEventListener("change",function(){
+  document.getElementById("customCurrencyField").style.display=this.value==="custom"?"block":"none";
+});
+function getCurrencySymbol(){
+  if(appMode==="psx") return "PKR";
+  const sel=document.getElementById("inCurrency").value;
+  if(sel==="custom") return document.getElementById("inCustomCurrency").value.trim()||"$";
+  return sel;
+}
+function getUnit(){
+  if(appMode==="psx") return "Millions";
+  return document.getElementById("inUnit").value;
+}
+function fmtVal(v){
+  const cur=getCurrencySymbol(), unit=getUnit();
+  if(unit==="Billions") return `${cur} ${(v/1000).toFixed(2)}B`;
+  if(unit==="Thousands") return `${cur} ${(v*1000).toLocaleString()}K`;
+  return v>=1000?`${cur} ${(v/1000).toFixed(2)}B`:`${cur} ${v.toLocaleString()}M`;
+}
+
+// ─── APP THEME ────────────────────────────────────────────────────────────────
+const APP_THEMES = [
+  {name:"Gold",      accent:"#b8860b", dark:"#9a6f09"},
+  {name:"Slate",     accent:"#475569", dark:"#334155"},
+  {name:"Indigo",    accent:"#4f46e5", dark:"#3730a3"},
+  {name:"Teal",      accent:"#0d9488", dark:"#0f766e"},
+  {name:"Rose",      accent:"#e11d48", dark:"#be123c"},
+  {name:"Violet",    accent:"#7c3aed", dark:"#6d28d9"},
+  {name:"Sky",       accent:"#0284c7", dark:"#0369a1"},
+  {name:"Emerald",   accent:"#059669", dark:"#047857"},
+  {name:"Orange",    accent:"#ea580c", dark:"#c2410c"},
+  {name:"Charcoal",  accent:"#374151", dark:"#1f2937"},
+];
+
+let activeTheme = APP_THEMES.find(t=>t.name==="Emerald");
+
+function setTheme(theme){
+  activeTheme = theme;
+  document.documentElement.style.setProperty("--accent", theme.accent);
+  document.documentElement.style.setProperty("--accent-dark", theme.dark);
+  document.querySelectorAll(".theme-swatch").forEach(el=>{
+    el.style.outline = el.dataset.name===theme.name ? `2px solid ${theme.accent}` : "2px solid transparent";
+  });
+}
+
+window.addEventListener("DOMContentLoaded",()=>{
+  // build theme swatches
+  const wrap = document.getElementById("themeSwatches");
+  APP_THEMES.forEach(theme=>{
+    const dot = document.createElement("div");
+    dot.className = "theme-swatch";
+    dot.dataset.name = theme.name;
+    dot.title = theme.name;
+    dot.style.width = "22px";
+    dot.style.height = "22px";
+    dot.style.borderRadius = "50%";
+    dot.style.background = theme.accent;
+    dot.style.cursor = "pointer";
+    dot.style.transition = "transform .15s";
+    dot.style.outline = `2px solid ${theme===activeTheme ? theme.accent : "transparent"}`;
+    dot.style.outlineOffset = "2px";
+    dot.style.flexShrink = "0";
+    dot.addEventListener("click",()=>setTheme(theme));
+    dot.addEventListener("mouseenter",()=>{ dot.style.transform="scale(1.2)"; });
+    dot.addEventListener("mouseleave",()=>{ dot.style.transform="scale(1)"; });
+    wrap.appendChild(dot);
+  });
+
+  // existing palette + history init
+  const sel=document.getElementById("paletteSelect");
+  Object.keys(PALETTES).forEach(n=>{
+    const o=document.createElement("option");
+    o.value=n;o.textContent=n;
+    if(n===activePalette)o.selected=true;
+    sel.appendChild(o);
+  });
+  renderSwatch(activePalette);
+  renderHistory();
+});
+function toggleDd(id){
+  const menu=document.getElementById(id+"Menu");
+  const isOpen=menu.classList.contains("open");
+  document.querySelectorAll(".dd-menu").forEach(m=>m.classList.remove("open"));
+  if(!isOpen) menu.classList.add("open");
+}
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".dd-wrap")) document.querySelectorAll(".dd-menu").forEach(m=>m.classList.remove("open"));
+});
+
+// ─── PALETTE ──────────────────────────────────────────────────────────────────
+function renderSwatch(name){
+  const w=document.getElementById("paletteSwatch");
+  w.innerHTML="";
+  PALETTES[name].slice(0,8).forEach(c=>{
+    const d=document.createElement("div");
+    d.style.cssText=`width:10px;height:10px;border-radius:2px;background:${c};`;
+    w.appendChild(d);
+  });
+}
+function switchPalette(name){
+  activePalette=name;renderSwatch(name);
+  if(currentNodes) applyPalette();
+}
+function applyPalette(){
+  const pal=getPalette(),svgEl=document.getElementById("svg");
+  currentNodes.forEach(n=>{
+    n.color=pal[n.id%pal.length];
+    if(n._rect)n._rect.setAttribute("fill",n.color);
+  });
+  currentLinks.forEach((l,i)=>{
+    const g=svgEl.querySelector(`#gr${i}`);if(!g)return;
+    const s=g.querySelectorAll("stop");
+    if(s[0])s[0].setAttribute("stop-color",l.source.color);
+    if(s[1])s[1].setAttribute("stop-color",l.target.color);
+  });
+}
+
+// ─── HISTORY ──────────────────────────────────────────────────────────────────
+const HIST_KEY="sankeyHistory2";
+function saveHistory(company,year,scope,data){
+  let h=getHistory().filter(x=>!(x.company===company&&x.year===year));
+  h.unshift({company,year,scope,data,ts:Date.now()});
+  h=h.slice(0,5);
+  try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}
+  renderHistory();
+}
+function getHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||"[]");}catch(e){return[];}}
+function renderHistory(){
+  const list=document.getElementById("historyList");
+  const h=getHistory();
+  if(!h.length){list.innerHTML='<div class="history-empty">No recent charts</div>';return;}
+  list.innerHTML=h.map((it,i)=>`
+    <div class="history-item" onclick="loadHistory(${i})">
+      <strong>${it.company||"Unnamed"}</strong>
+      <span>${[it.year,it.scope].filter(Boolean).join(" · ")} · ${new Date(it.ts).toLocaleDateString()}</span>
+    </div>`).join("");
+}
+function loadHistory(i){
+  const it=getHistory()[i];if(!it)return;
+  document.getElementById("inCompany").value=it.company||"";
+  document.getElementById("inYear").value=it.year||"";
+  document.getElementById("inScope").value=it.scope||"";
+  document.getElementById("inData").value=it.data||"";
+  generate();
+}
+
+// ─── PROMPTS ──────────────────────────────────────────────────────────────────
+function copyPrompt(type){
+  const texts={
+    csv:`Extract financial flow data from this annual report. Return ONLY comma-separated data, one flow per line, no headers, no explanation:
+
+Source, Target, Value
+
+Values in PKR Millions, rounded to 2 decimal places. Example:
+Total Revenue, Net Sales, 25789.24
+Total Revenue, Other Income, 446.67
+Net Sales, Cost of Sales, 11662.35
+Net Sales, Gross Profit, 14126.89
+Gross Profit, Selling & Distribution, 6311.93
+Gross Profit, Admin Expenses, 1028.85
+Gross Profit, Other Operating Expenses, 516.44
+Gross Profit, Operating Profit, 6258.87
+Operating Profit, Finance Cost, 121.50
+Operating Profit, Profit Before Tax, 6584.05
+Other Income, Profit Before Tax, 446.67
+Profit Before Tax, Taxation, 2464.73
+Profit Before Tax, Net Profit, 4119.31
+Net Profit, Dividends, 2119.34
+Net Profit, Retained Earnings, 1999.98
+
+Return only the CSV lines. Nothing else.`,
+
+    comparative:`Extract financial flow data from this annual report. This report contains a COMPARATIVE P&L with current year and prior year columns. Return ONLY comma-separated data, one flow per line, no headers, no explanation:
+
+Source, Target, CurrentYearValue, PriorYearValue
+
+Both values in PKR Millions, rounded to 2 decimal places.
+- If a prior year value is missing or unavailable for a specific line, leave the 4th column empty: "Source, Target, CurrentValue,"
+- If prior year data is entirely absent from the report, return only 3 columns per line (Source, Target, CurrentValue) and note this at the very end as a single comment line starting with #
+
+Example output (with comparative data):
+Total Revenue, Net Sales, 25789.24, 22340.11
+Total Revenue, Other Income, 446.67, 380.20
+Net Sales, Cost of Sales, 11662.35, 10234.56
+Net Sales, Gross Profit, 14126.89, 12105.55
+Gross Profit, Selling & Distribution, 6311.93, 5820.40
+Gross Profit, Admin Expenses, 1028.85, 944.20
+Gross Profit, Other Operating Expenses, 516.44, 490.10
+Gross Profit, Operating Profit, 6258.87, 4850.85
+Operating Profit, Finance Cost, 121.50, 98.30
+Operating Profit, Profit Before Tax, 6584.05, 5133.15
+Other Income, Profit Before Tax, 446.67, 380.20
+Profit Before Tax, Taxation, 2464.73, 1920.50
+Profit Before Tax, Net Profit, 4119.31, 3212.65
+Net Profit, Dividends, 2119.34, 1680.00
+Net Profit, Retained Earnings, 1999.98, 1532.65
+
+Rules:
+- All values in PKR Millions, rounded to 2 decimal places
+- Do NOT compute % changes — the app will do this automatically
+- If a line item doesn't exist in either year, omit that row entirely
+- If additional discrete expense lines exist (e.g. Exploration, R&D), add as "Gross Profit, [Name], cur, prior"
+- If additional income streams exist beyond Other Income, add as "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
+- Verify: Cost of Sales + Gross Profit = Net Sales for both years; Dividends + Retained Earnings = Net Profit for both years
+- Flag any derived figures with a trailing comment on that line`,
+
+    detailed:`I need to extract financial flow data from this annual report to build a Sankey chart. Extract from the Profit & Loss / Income Statement and Statement of Value Addition. Return data in this exact format — one flow per line, comma-separated, no headers:
+
+Source Node, Target Node, CurrentYearValue, PriorYearValue
+
+Standard flows to extract in order:
+Total Revenue, Net Sales, [cur], [prior]
+Total Revenue, Other Income, [cur], [prior]
+Net Sales, Cost of Sales, [cur], [prior]
+Net Sales, Gross Profit, [cur], [prior]
+Gross Profit, Selling & Distribution, [cur], [prior]
+Gross Profit, Admin Expenses, [cur], [prior]
+Gross Profit, Other Operating Expenses, [cur], [prior]
+Gross Profit, Operating Profit, [cur], [prior]
+Operating Profit, Finance Cost, [cur], [prior]
+Operating Profit, Profit Before Tax, [cur], [prior]
+Other Income, Profit Before Tax, [cur], [prior]
+Profit Before Tax, Taxation, [cur], [prior]
+Profit Before Tax, Net Profit, [cur], [prior]
+Net Profit, Dividends, [cur], [prior]
+Net Profit, Retained Earnings, [cur], [prior]
+
+Rules:
+- All values in PKR Millions, rounded to 2 decimal places
+- If prior year column is absent, omit the 4th column — return 3 columns only
+- If a specific prior year value is missing, leave 4th column blank: "A, B, 1234,"
+- Do NOT compute % changes — the app handles this automatically
+- If discrete expense lines exist (Exploration, R&D, Levies etc.), add as extra "Gross Profit, [Name], cur, prior" rows
+- If additional income streams exist beyond Other Income, add "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior" — unless it bypasses PBT, then "[Name], Net Profit, cur, prior"
+- Verify for BOTH years: CoS + Gross Profit = Net Sales; Dividends + Retained Earnings = Net Profit
+- Flag all derived figures and rounding adjustments`
+  };
+  navigator.clipboard.writeText(texts[type]).then(()=>{
+    const btn=document.querySelector("#promptDd .tbtn");
+    const orig=btn.textContent;
+    btn.textContent="✓ Copied!";btn.style.borderColor="#2d9e6b";btn.style.color="#2d9e6b";
+    setTimeout(()=>{btn.textContent=orig;btn.style.borderColor="";btn.style.color="";},2000);
+  });
+}
+
+// ─── PANEL TOGGLE ─────────────────────────────────────────────────────────────
+function togglePanel(){
+  const p=document.getElementById("panel"),b=document.getElementById("btnPanel");
+  p.classList.toggle("collapsed");b.classList.toggle("active");
+  b.textContent=p.classList.contains("collapsed")?"⟩ Panel":"⟨ Panel";
+  setTimeout(()=>{if(currentNodes)generate();},280);
+}
+
+// ─── SAMPLE DATA ──────────────────────────────────────────────────────────────
+function loadSample(){
+  document.getElementById("inCompany").value="Fauji Fertilizer";
+  document.getElementById("inYear").value="FY 2025";
+  document.getElementById("inScope").value="Unconsolidated";
+  document.getElementById("inData").value=
+`# Fauji Fertilizer — FY 2025 vs FY 2024 (comparative)
+Total Revenue, Net Sales, 25789, 22340
+Total Revenue, Other Income, 447, 380
+Net Sales, Cost of Sales, 11662, 10234
+Net Sales, Gross Profit, 14127, 12106
+Gross Profit, Selling & Distribution, 6312, 5820
+Gross Profit, Admin Expenses, 1029, 944
+Gross Profit, Other Op. Expenses, 516, 490
+Gross Profit, Operating Profit, 6259, 4851
+Operating Profit, Finance Cost, 122, 98
+Operating Profit, Profit Before Tax, 6584, 5133
+Other Income, Profit Before Tax, 447, 380
+Profit Before Tax, Taxation, 2465, 1921
+Profit Before Tax, Net Profit, 4119, 3213
+Net Profit, Dividends, 2119, 1680
+Net Profit, Retained Earnings, 2000, 1533`;
+}
+
+// ─── PARSE ────────────────────────────────────────────────────────────────────
+function parseData(raw){
+  const lines=raw.split("\n").map(l=>l.trim()).filter(l=>l&&!l.startsWith("#"));
+  const nodeIndex=new Map();
+  const links=[];
+  let hasYoY=false;
+  const getNode=name=>{
+    name=name.trim();
+    if(!nodeIndex.has(name))nodeIndex.set(name,nodeIndex.size);
+    return nodeIndex.get(name);
+  };
+  for(const line of lines){
+    const parts=line.split(",");
+    if(parts.length<3) throw new Error(`Bad line: "${line}" — need at least Source, Target, Value`);
+    const s=getNode(parts[0]),t=getNode(parts[1]);
+    const v=parseFloat(parts[2].replace(/[^0-9.-]/g,""));
+    if(isNaN(v)||v<=0) throw new Error(`Invalid value on line: "${line}"`);
+    if(s===t) throw new Error(`Source equals target: "${line}"`);
+    // prior year — 4th column, may be empty
+    let prior=null;
+    if(parts.length>=4&&parts[3].trim()!==""){
+      const pv=parseFloat(parts[3].replace(/[^0-9.-]/g,""));
+      if(!isNaN(pv)&&pv>0){prior=pv;hasYoY=true;}
+    }
+    links.push({s,t,v,prior});
+  }
+  return{nodeNames:[...nodeIndex.keys()],links,hasYoY};
+}
+
+// ─── VALIDATION ───────────────────────────────────────────────────────────────
+function validateFlows(nodes,links){
+  const warnings=[];
+  nodes.forEach(n=>{
+    const inLinks =links.filter(l=>l.target===n);
+    const outLinks=links.filter(l=>l.source===n);
+    if(!inLinks.length||!outLinks.length) return;
+    // Skip if any downstream target also receives from other sources (merger node downstream)
+    const hasDownstreamMerge=outLinks.some(l=>
+      links.filter(x=>x.target===l.target).length>1
+    );
+    if(hasDownstreamMerge) return;
+    // Skip multi-source nodes (they are mergers themselves)
+    if(inLinks.length>1) return;
+    const inSum =inLinks.reduce((a,l)=>a+l.v,0);
+    const outSum=outLinks.reduce((a,l)=>a+l.v,0);
+    const diff=Math.abs(inSum-outSum);
+    if(diff/Math.max(inSum,outSum)>0.02&&diff>10)
+      warnings.push(`"${n.name}" inflow (${fmtVal(inSum)}) ≠ outflow (${fmtVal(outSum)}) — Δ${fmtVal(diff)}`);
+  });
+  return warnings;
+}
+
+// ─── LAYOUT ───────────────────────────────────────────────────────────────────
+function buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,extraColSpacing=0){
+  const nodes=nodeNames.map((name,id)=>({id,name,sourceLinks:[],targetLinks:[],value:0,col:0}));
+  const links=rawLinks.map((l,i)=>({...l,index:i,source:nodes[l.s],target:nodes[l.t]}));
+  links.forEach(l=>{l.source.sourceLinks.push(l);l.target.targetLinks.push(l);});
+  nodes.forEach(n=>{n.value=Math.max(n.sourceLinks.reduce((a,l)=>a+l.v,0),n.targetLinks.reduce((a,l)=>a+l.v,0));});
+  // column assignment
+  let changed=true;
+  while(changed){changed=false;links.forEach(l=>{if(l.target.col<=l.source.col){l.target.col=l.source.col+1;changed=true;}});}
+  const numCols=Math.max(...nodes.map(n=>n.col))+1;
+
+  // ── column drag state ──────────────────────────────────────────────────────
+  // Store column order as array of col indices, initially [0,1,2,...,numCols-1]
+  const colOrder=Array.from({length:numCols},(_,i)=>i);
+
+  const colX=col=>{
+    const pos=colOrder.indexOf(col);
+    return MARGIN.left+pos*(IW/Math.max(numCols-1,1)+extraColSpacing);
+  };
+  nodes.forEach(n=>{n.x0=colX(n.col);n.x1=n.x0+NODE_W;});
+
+  const byCol={};
+  nodes.forEach(n=>{(byCol[n.col]=byCol[n.col]||[]).push(n);});
+
+  let globalKy=Infinity;
+  Object.values(byCol).forEach(col=>{
+    const total=col.reduce((a,n)=>a+n.value,0);
+    const ky=(IH-NODE_PAD*(col.length-1))/total;
+    if(ky<globalKy)globalKy=ky;
+  });
+  Object.values(byCol).forEach(col=>{
+    col.sort((a,b)=>b.value-a.value);
+    const totalH=col.reduce((a,n)=>a+n.value*globalKy,0)+NODE_PAD*(col.length-1);
+    let y=MARGIN.top+(IH-totalH)/2;
+    col.forEach(n=>{n.y0=y;n.h=n.value*globalKy;n.y1=y+n.h;n.ky=globalKy;y=n.y1+NODE_PAD;});
+  });
+
+  function resolveCol(col){
+    const s=[...col].sort((a,b)=>a.y0-b.y0);
+    let y=MARGIN.top;s.forEach(n=>{if(n.y0<y){n.y1+=y-n.y0;n.y0=y;}y=n.y1+NODE_PAD;});
+    y=MARGIN.top+IH;[...s].reverse().forEach(n=>{if(n.y1>y){n.y0-=n.y1-y;n.y1=y;}y=n.y0-NODE_PAD;});
+  }
+  for(let it=0;it<80;it++){
+    const a=Math.pow(0.99,it);
+    for(let c=1;c<numCols;c++){
+      (byCol[c]||[]).forEach(n=>{
+        if(!n.targetLinks.length)return;
+        const ws=n.targetLinks.reduce((a,l)=>a+((l.source.y0+l.source.y1)/2)*l.v,0);
+        const vs=n.targetLinks.reduce((a,l)=>a+l.v,0);
+        const dy=(ws/vs-(n.y0+n.y1)/2)*a;n.y0+=dy;n.y1+=dy;
+      });resolveCol(byCol[c]||[]);
+    }
+    for(let c=numCols-2;c>=0;c--){
+      (byCol[c]||[]).forEach(n=>{
+        if(!n.sourceLinks.length)return;
+        const ws=n.sourceLinks.reduce((a,l)=>a+((l.target.y0+l.target.y1)/2)*l.v,0);
+        const vs=n.sourceLinks.reduce((a,l)=>a+l.v,0);
+        const dy=(ws/vs-(n.y0+n.y1)/2)*a;n.y0+=dy;n.y1+=dy;
+      });resolveCol(byCol[c]||[]);
+    }
+  }
+  return{nodes,links,byCol,numCols,colOrder,colX};
+}
+
+function computeLinkOffsets(nodes){
+  nodes.forEach(n=>{
+    n.sourceLinks.sort((a,b)=>a.target.y0-b.target.y0);
+    n.targetLinks.sort((a,b)=>a.source.y0-b.source.y0);
+    let sy=n.y0,ty=n.y0;
+    n.sourceLinks.forEach(l=>{l.sy0=sy;l.sh=l.v*n.ky;l.sy1=sy+l.sh;sy+=l.sh;});
+    n.targetLinks.forEach(l=>{l.ty0=ty;l.th=l.v*n.ky;l.ty1=ty+l.th;ty+=l.th;});
+  });
+}
+
+function ribbonPath(l){
+  const x0=l.source.x1,x1=l.target.x0,mx=(x0+x1)/2;
+  return`M ${x0} ${l.sy0} C ${mx} ${l.sy0}, ${mx} ${l.ty0}, ${x1} ${l.ty0} L ${x1} ${l.ty1} C ${mx} ${l.ty1}, ${mx} ${l.sy1}, ${x0} ${l.sy1} Z`;
+}
+
+// ─── INSIGHT CARDS ────────────────────────────────────────────────────────────
+function buildCards(nodes,links){
+  const find=(...ps)=>nodes.find(n=>ps.some(p=>n.name.toLowerCase().includes(p.toLowerCase())));
+  const netSales=find("Net Sales","Net Revenue");
+  const grossProfit=find("Gross Profit");
+  const netProfit=find("Net Profit","NPAT");
+  const dividends=find("Dividend");
+  const cos=find("Cost of Sales","Cost of Goods");
+  const tax=find("Tax");
+  const cards=[];
+  if(grossProfit&&netSales&&netSales.value>0){
+    const pct=Math.round(grossProfit.value/netSales.value*100);
+    cards.push({lbl:"Gross Margin",val:`${pct}%`,color:"#2d9e6b",dsc:`${fmtVal(grossProfit.value)} on net sales of ${fmtVal(netSales.value)}`});
+  }
+  if(cos){
+    const pct=netSales?Math.round(cos.value/netSales.value*100):null;
+    cards.push({lbl:"Cost of Sales",val:fmtVal(cos.value),color:"#e63946",dsc:pct?`${pct}% of net revenue`:"Direct cost of production"});
+  }
+  if(tax){
+    const pbt=find("Profit Before Tax","PBT");
+    const rate=pbt&&pbt.value>0?Math.round(tax.value/pbt.value*100):null;
+    cards.push({lbl:"Taxation",val:fmtVal(tax.value),color:"#e07b39",dsc:rate?`${rate}% effective rate on PBT of ${fmtVal(pbt.value)}`:"Total tax outflow"});
+  }
+  if(dividends&&netProfit&&netProfit.value>0){
+    const pct=Math.round(dividends.value/netProfit.value*100);
+    cards.push({lbl:"Dividend Payout",val:`${pct}%`,color:"var(--accent)",dsc:`${fmtVal(dividends.value)} paid to shareholders`});
+  }
+  while(cards.length<4)cards.push({lbl:"—",val:"—",color:"#ccc",dsc:""});
+  return cards.slice(0,4);
+}
+
+// ─── GENERATE ─────────────────────────────────────────────────────────────────
+let currentNodes=null,currentLinks=null,currentLinkPaths=[],currentLinkBadges=[],dragging=null;
+let currentCompany="",currentYear="",currentScope="",currentHasYoY=false,currentW=0,currentH=0;
+let currentRawLinks=null,currentNodeNames=null;
+
+function generate(){
+  const errBox=document.getElementById("errBox");
+  errBox.classList.remove("on");
+  const company=document.getElementById("inCompany").value.trim()||"Company";
+  const year=document.getElementById("inYear").value.trim()||"";
+  const scope=document.getElementById("inScope").value.trim()||"";
+  const raw=document.getElementById("inData").value.trim();
+  if(!raw){errBox.textContent="Please enter flow data.";errBox.classList.add("on");return;}
+  let parsed;
+  try{parsed=parseData(raw);}
+  catch(e){errBox.textContent=e.message;errBox.classList.add("on");return;}
+  const{nodeNames,links:rawLinks,hasYoY}=parsed;
+
+  // cache for re-use by export functions
+  currentCompany=company;currentYear=year;currentScope=scope;currentHasYoY=hasYoY;
+  currentRawLinks=rawLinks;currentNodeNames=nodeNames;
+
+  document.getElementById("placeholder").style.display="none";
+  const ci=document.getElementById("chartInner");ci.style.display="flex";
+  document.getElementById("chartTitle").innerHTML=`${company}${year?` — <span>${year}</span>`:""}`;
+  const unit=getUnit(),cur=getCurrencySymbol();
+  document.getElementById("chartSubtitle").textContent=[scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
+
+  const H=parseInt(document.getElementById("inHeight").value)||520;
+  currentH=H;
+  const NODE_W=18, NODE_PAD=16;
+  const MARGIN={top:30, right:160, bottom:42, left:160};
+  const chartArea=document.querySelector(".chart-area");
+  const W=Math.min(Math.max(chartArea.clientWidth-56, 900), 1400);
+  currentW=W;
+  const IW=W-MARGIN.left-MARGIN.right, IH=H-MARGIN.top-MARGIN.bottom;
+  const extraColSpacing=parseInt(document.getElementById("inColSpacing").value)||0;
+
+  const{nodes,links,byCol,numCols,colOrder,colX}=buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,extraColSpacing);
+  // svgW = left margin + column spans + right margin — both sides equal
+  const baseColSpacing=IW/Math.max(numCols-1,1);
+  const svgW=MARGIN.left + Math.max(numCols-1,0)*(baseColSpacing+extraColSpacing) + NODE_W + MARGIN.right;
+  currentNodes=nodes;currentLinks=links;
+
+  const sources=nodes.filter(n=>n.targetLinks.length===0);
+  document.getElementById("chartTotal").textContent=fmtVal(sources.reduce((a,n)=>a+n.value,0));
+  nodes.forEach(n=>{n.color=getPalette()[n.id%getPalette().length];});
+
+  // warnings
+  const warnings=validateFlows(nodes,links);
+  const wb=document.getElementById("warnBox");
+  if(warnings.length){wb.innerHTML="⚠ Possible imbalances:<br>"+warnings.map(w=>`• ${w}`).join("<br>");wb.classList.add("on");}
+  else{wb.classList.remove("on");wb.innerHTML="";}
+
+  // YoY legend
+  const yoyLeg=document.getElementById("yoyLegend");
+  yoyLeg.classList.toggle("on",hasYoY);
+
+  computeLinkOffsets(nodes);
+
+  const NS="http://www.w3.org/2000/svg";
+  const svgEl=document.getElementById("svg");
+  svgEl.innerHTML="";
+  svgEl.setAttribute("width",svgW);svgEl.setAttribute("height",H);
+
+  // defs
+  const defs=document.createElementNS(NS,"defs");svgEl.appendChild(defs);
+  links.forEach((l,i)=>{
+    const g=document.createElementNS(NS,"linearGradient");
+    g.setAttribute("id",`gr${i}`);g.setAttribute("x1","0%");g.setAttribute("x2","100%");
+    [[0,l.source.color],[1,l.target.color]].forEach(([off,col])=>{
+      const s=document.createElementNS(NS,"stop");
+      s.setAttribute("offset",off===0?"0%":"100%");s.setAttribute("stop-color",col);s.setAttribute("stop-opacity","0.45");
+      g.appendChild(s);
+    });
+    defs.appendChild(g);
+  });
+
+  const tip=document.getElementById("tip");
+
+  // ── link layer ───────────────────────────────────────────────────────────────
+  const linkGroup=document.createElementNS(NS,"g");svgEl.appendChild(linkGroup);
+  currentLinkPaths=[];currentLinkBadges=[];
+
+  links.forEach((l,i)=>{
+    const path=document.createElementNS(NS,"path");
+    path.setAttribute("fill",`url(#gr${i})`);path.setAttribute("stroke","none");
+    path.setAttribute("fill-opacity","0.5");path.style.cursor="pointer";path.style.transition="fill-opacity 0.15s";
+    const yoyPct=hasYoY&&l.prior!=null&&l.prior>0?((l.v-l.prior)/l.prior*100):null;
+    path.addEventListener("mousemove",e=>{
+      if(dragging)return;
+      path.setAttribute("fill-opacity","0.85");
+      let html=`<strong style="color:#1a1a2e">${l.source.name}</strong> <span style="color:#aaa">→</span> <strong style="color:#1a1a2e">${l.target.name}</strong><br><span style="color:var(--accent);font-weight:600">${fmtVal(l.v)}</span>`;
+      if(yoyPct!=null){
+        const sign=yoyPct>=0?"▲":"▼",col=yoyPct>=0?"#22c55e":"#ef4444";
+        html+=` <span style="color:${col};font-weight:600">${sign}${Math.abs(yoyPct).toFixed(1)}%</span>`;
+        if(l.prior!=null) html+=`<br><span style="color:#aaa;font-size:11px;">Prior: ${fmtVal(l.prior)}</span>`;
+      }
+      tip.innerHTML=html;tip.classList.add("on");
+      tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";
+    });
+    path.addEventListener("mouseleave",()=>{path.setAttribute("fill-opacity","0.5");tip.classList.remove("on");});
+    linkGroup.appendChild(path);currentLinkPaths.push(path);
+  });
+
+  // ── per-node YoY delta map (used by label and tooltip) ──────────────────────
+  const nodeYoY=new Map(); // node.id → pct
+  if(hasYoY){
+    nodes.forEach(n=>{
+      const relevant=n.targetLinks.filter(l=>l.prior!=null&&l.prior>0).length
+        ?n.targetLinks.filter(l=>l.prior!=null&&l.prior>0)
+        :n.sourceLinks.filter(l=>l.prior!=null&&l.prior>0);
+      if(!relevant.length)return;
+      const totalCur=relevant.reduce((a,l)=>a+l.v,0);
+      const totalPrior=relevant.reduce((a,l)=>a+(l.prior||0),0);
+      if(totalPrior===0)return;
+      nodeYoY.set(n.id,(totalCur-totalPrior)/totalPrior*100);
+    });
+  }
+
+  // badge visibility state (controls whether delta shows in labels)
+  let badgesVisible=true;
+  const btnYoY=document.getElementById("btnYoY");
+  if(btnYoY){
+    btnYoY.style.display=hasYoY?"":"none";
+    btnYoY.classList.toggle("active",true);
+    btnYoY.onclick=()=>{
+      badgesVisible=!badgesVisible;
+      btnYoY.classList.toggle("active",badgesVisible);
+      nodes.forEach(n=>{
+        if(n._t3) n._t3.style.display=badgesVisible?"":"none";
+      });
+    };
+  }
+
+  // ── node layer ───────────────────────────────────────────────────────────────
+  const nodeGroup=document.createElementNS(NS,"g");svgEl.appendChild(nodeGroup);
+  dragging=null;
+
+  // watermark
+  const wm=document.createElementNS(NS,"text");
+  wm.setAttribute("x",MARGIN.left);wm.setAttribute("y",H-14);
+  wm.setAttribute("font-size","10");wm.setAttribute("fill","#bbb");
+  wm.setAttribute("font-family","Segoe UI,sans-serif");wm.setAttribute("pointer-events","none");
+  wm.textContent=[company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
+  svgEl.appendChild(wm);
+
+  function recomputeLinks(){
+    nodes.forEach(n=>{
+      n.sourceLinks.sort((a,b)=>a.target.y0-b.target.y0);
+      n.targetLinks.sort((a,b)=>a.source.y0-b.source.y0);
+      let sy=n.y0,ty=n.y0;
+      n.sourceLinks.forEach(l=>{l.sy0=sy;l.sh=l.v*n.ky;l.sy1=sy+l.sh;sy+=l.sh;});
+      n.targetLinks.forEach(l=>{l.ty0=ty;l.th=l.v*n.ky;l.ty1=ty+l.th;ty+=l.th;});
+    });
+  }
+  function redrawAll(){
+    recomputeLinks();
+    links.forEach((l,i)=>currentLinkPaths[i].setAttribute("d",ribbonPath(l)));
+    nodes.forEach(n=>{
+      n._rect.setAttribute("y",n.y0);n._rect.setAttribute("height",Math.max(n.y1-n.y0,2));
+      const cy=(n.y0+n.y1)/2;
+      // update tspan y positions for wrapped labels
+      const tspans=[...n._t1.querySelectorAll("tspan")];
+      const lineH=14;
+      const numLines=tspans.length||1;
+      const t1BaseY=numLines===1?cy-4:cy-(numLines-1)*lineH/2-4;
+      tspans.forEach((ts,li)=>ts.setAttribute("y",t1BaseY+li*lineH));
+      n._t1.setAttribute("y",t1BaseY);
+      const t2BaseY=t1BaseY+numLines*lineH+2;
+      n._t2.setAttribute("y",t2BaseY);
+      if(n._t3) n._t3.setAttribute("y",t2BaseY+13);
+    });
+  }
+
+  recomputeLinks();
+  links.forEach((l,i)=>currentLinkPaths[i].setAttribute("d",ribbonPath(l)));
+
+
+  // ── node vertical drag ────────────────────────────────────────────────────
+  // clean up stale listeners from previous generate() calls
+  const oldBar=document.getElementById("colHandleBar");
+  if(oldBar) oldBar.remove();
+  if(window._onColMove) document.removeEventListener("mousemove",window._onColMove);
+  if(window._onColUp)   document.removeEventListener("mouseup",  window._onColUp);
+  if(window._svgMove)   document.removeEventListener("mousemove",window._svgMove);
+  if(window._svgUp)     document.removeEventListener("mouseup",  window._svgUp);
+
+  window._svgMove=e=>{
+    if(!dragging) return;
+    const n=dragging.node;
+    const h=dragging.startY1-dragging.startY0;
+    let newY0=dragging.startY0+(e.clientY-dragging.startMouseY);
+    newY0=Math.max(MARGIN.top,Math.min(MARGIN.top+IH-h,newY0));
+    n.y0=newY0;n.y1=newY0+h;redrawAll();
+  };
+  window._svgUp=()=>{
+    if(!dragging) return;
+    dragging.node._rect.style.cursor="grab";
+    dragging=null;
+    document.body.style.userSelect="";
+  };
+  // mousemove/mouseup on document so drag works even when mouse leaves SVG bounds
+  document.addEventListener("mousemove", window._svgMove);
+  document.addEventListener("mouseup",   window._svgUp);
+
+  nodes.forEach(n=>{
+    const onRight=n.x0>svgW/2;
+    const tx=onRight?n.x0-8:n.x1+8;
+    const anchor=onRight?"end":"start";
+    const cy=(n.y0+n.y1)/2;
+
+    const rect=document.createElementNS(NS,"rect");
+    rect.setAttribute("x",n.x0);rect.setAttribute("y",n.y0);
+    rect.setAttribute("width",NODE_W);rect.setAttribute("height",Math.max(n.y1-n.y0,2));
+    rect.setAttribute("fill",n.color);rect.setAttribute("rx","2");rect.style.cursor="grab";
+    n._rect=rect;
+
+    // t1 — node name with wrapping for long labels
+    const t1=document.createElementNS(NS,"text");
+    t1.setAttribute("text-anchor",anchor);
+    t1.setAttribute("font-size","12");t1.setAttribute("fill","#1a1a2e");
+    t1.setAttribute("font-family","Segoe UI,sans-serif");
+    t1.setAttribute("pointer-events","none");
+    n._t1=t1;
+    // wrap at ~22 chars
+    const words=n.name.split(" ");
+    const maxChars=22;
+    const lines=[];let cur2="";
+    words.forEach(w=>{
+      if((cur2+" "+w).trim().length>maxChars&&cur2){lines.push(cur2.trim());cur2=w;}
+      else cur2=(cur2+" "+w).trim();
+    });
+    if(cur2) lines.push(cur2);
+    const lineH=14;
+    const t1BaseY=lines.length===1 ? cy-4 : cy - (lines.length-1)*lineH/2 - 4;
+    lines.forEach((line,li)=>{
+      const ts=document.createElementNS(NS,"tspan");
+      ts.setAttribute("x",tx);
+      ts.setAttribute("y",t1BaseY+li*lineH);
+      ts.textContent=line;
+      t1.appendChild(ts);
+    });
+    t1.setAttribute("x",tx);t1.setAttribute("y",t1BaseY);
+
+    const t2BaseY = t1BaseY + lines.length*lineH + 2;
+    const t2=document.createElementNS(NS,"text");
+    t2.setAttribute("x",tx);t2.setAttribute("y",t2BaseY);t2.setAttribute("text-anchor",anchor);
+    t2.setAttribute("font-size","10");t2.setAttribute("fill","#888");t2.setAttribute("font-family","Segoe UI,sans-serif");
+    t2.setAttribute("pointer-events","none");t2.textContent=fmtVal(n.value);n._t2=t2;
+
+    // t3 — YoY delta line
+    let t3=null;
+    const pct=nodeYoY.get(n.id);
+    if(pct!=null){
+      t3=document.createElementNS(NS,"text");
+      t3.setAttribute("x",tx);t3.setAttribute("y",t2BaseY+13);t3.setAttribute("text-anchor",anchor);
+      t3.setAttribute("font-size","9.5");
+      t3.setAttribute("fill",pct>=0?"#16a34a":"#dc2626");
+      t3.setAttribute("font-family","Segoe UI,sans-serif");t3.setAttribute("font-weight","700");
+      t3.setAttribute("pointer-events","none");
+      t3.textContent=(pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"% YoY";
+      t3.style.display=badgesVisible?"":"none";
+      n._t3=t3;
+    }
+
+    rect.addEventListener("mouseenter",e=>{
+      if(dragging)return;
+      const conn=new Set([...n.sourceLinks,...n.targetLinks].map(l=>l.index));
+      currentLinkPaths.forEach((p,i)=>p.setAttribute("fill-opacity",conn.has(i)?"0.85":"0.15"));
+      let html=`<strong style="color:#1a1a2e">${n.name}</strong><br><span style="color:var(--accent);font-weight:600">${fmtVal(n.value)}</span>`;
+      if(nodeYoY.has(n.id)){
+        const p=nodeYoY.get(n.id);
+        const col=p>=0?"#22c55e":"#ef4444";
+        html+=` <span style="color:${col};font-weight:600">${p>=0?"▲":"▼"}${Math.abs(p).toFixed(1)}% YoY</span>`;
+      }
+      tip.innerHTML=html;tip.classList.add("on");tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";
+    });
+    rect.addEventListener("mousemove",e=>{if(!dragging){tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";}});
+    rect.addEventListener("mouseleave",()=>{if(dragging)return;currentLinkPaths.forEach(p=>p.setAttribute("fill-opacity","0.5"));tip.classList.remove("on");});
+    let dblclickPending=false;
+    rect.addEventListener("mousedown",e=>{
+      if(dblclickPending)return;
+      e.preventDefault();
+      tip.classList.remove("on");
+      dragging={node:n,startMouseY:e.clientY,startY0:n.y0,startY1:n.y1};
+      rect.style.cursor="grabbing";
+      document.body.style.userSelect="none";
+    });
+
+    // double-click rename
+    rect.addEventListener("dblclick",e=>{
+      e.preventDefault();e.stopPropagation();
+      if(dragging){dragging.node._rect.style.cursor="grab";dragging=null;svgEl.style.userSelect="";}
+      dblclickPending=true;
+      setTimeout(()=>{dblclickPending=false;},300);
+      tip.classList.remove("on");
+
+      const inp=document.createElement("input");
+      inp.className="label-edit";
+      inp.value=n.name;
+      // position the input right where the user clicked
+      inp.style.left=(e.clientX+4)+"px";
+      inp.style.top =(e.clientY-12)+"px";
+      document.body.appendChild(inp);
+      requestAnimationFrame(()=>{inp.focus();inp.select();});
+
+      const commit=()=>{
+        const v=inp.value.trim();
+        if(v&&v!==n.name){
+          n.name=v;
+          t1.textContent=v;
+          wm.textContent=[company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
+        }
+        inp.remove();
+      };
+      inp.addEventListener("blur",commit);
+      inp.addEventListener("keydown",ev=>{
+        if(ev.key==="Enter"){ev.preventDefault();commit();}
+        if(ev.key==="Escape"){inp.remove();}
+      });
+    });
+
+    nodeGroup.appendChild(rect);nodeGroup.appendChild(t1);nodeGroup.appendChild(t2);
+    if(t3) nodeGroup.appendChild(t3);
+  }); // end nodes.forEach
+
+  // cards
+  document.getElementById("cards").innerHTML=buildCards(nodes,links).map(c=>`
+    <div class="card"><div class="lbl">${c.lbl}</div><div class="val" style="color:${c.color}">${c.val}</div><div class="dsc">${c.dsc}</div></div>`).join("");
+
+  document.getElementById("exportDd").style.display="flex";
+  document.getElementById("paletteWrap").style.display="flex";
+  saveHistory(company,year,scope,raw);
+}
+
+// ─── EXPORT PNG ───────────────────────────────────────────────────────────────
+function exportChart(){
+  const svgEl=document.getElementById("svg");
+  const company=currentCompany,year=currentYear,scope=currentScope;
+  const cur=getCurrencySymbol(),unit=getUnit();
+  const filename=`${company}${year?" - "+year:""}`.replace(/[^a-z0-9 _-]/gi,"_")+".png";
+  const totalVal=document.getElementById("chartTotal").textContent;
+  const SCALE=2,svgW=parseInt(svgEl.getAttribute("width")),svgH=parseInt(svgEl.getAttribute("height"));
+  const cardEls=document.querySelectorAll("#cards .card");
+  const cards=[...cardEls].map(c=>({lbl:c.querySelector(".lbl")?.textContent||"",val:c.querySelector(".val")?.textContent||"",color:c.querySelector(".val")?.style.color||"#333",dsc:c.querySelector(".dsc")?.textContent||""}));
+  const PAD=28,HDR_H=80,CARD_H=78,CARD_GAP=10,FOOTER_H=36;
+  const CARD_W=(svgW-PAD*2-CARD_GAP*3)/4;
+  const CARDS_Y=HDR_H+svgH+10,TOTAL_H=HDR_H+svgH+10+CARD_H+FOOTER_H;
+  const canvas=document.createElement("canvas");
+  canvas.width=svgW*SCALE;canvas.height=TOTAL_H*SCALE;
+  const ctx=canvas.getContext("2d");ctx.scale(SCALE,SCALE);
+  ctx.fillStyle="#f0f2f5";ctx.fillRect(0,0,svgW,TOTAL_H);
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,svgW,HDR_H);
+  ctx.fillStyle="#e0e0e0";ctx.fillRect(0,HDR_H-1,svgW,1);
+  ctx.textBaseline="middle";
+  ctx.fillStyle="#1a1a2e";ctx.font="bold 22px 'Segoe UI',sans-serif";
+  const cl=company+(year?" — ":"");ctx.fillText(cl,PAD,26);
+  if(year){const cw=ctx.measureText(cl).width;ctx.fillStyle=activeTheme.accent;ctx.fillText(year,PAD+cw,26);}
+  ctx.fillStyle="#888";ctx.font="11px 'Segoe UI',sans-serif";
+  ctx.fillText([scope,`${cur} ${unit}`].filter(Boolean).join(" · ").toUpperCase(),PAD,50);
+  ctx.textAlign="right";
+  ctx.fillStyle=activeTheme.accent;ctx.font="bold 19px 'Segoe UI',sans-serif";ctx.fillText(totalVal,svgW-PAD,26);
+  ctx.fillStyle="#999";ctx.font="10px 'Segoe UI',sans-serif";ctx.fillText("TOTAL INFLOW",svgW-PAD,50);
+  if(scope){const bt=scope.toUpperCase(),bw=ctx.measureText(bt).width+14;ctx.fillStyle=activeTheme.accent;roundRect(ctx,svgW-PAD-bw-4,58,bw,16,4);ctx.fill();ctx.fillStyle="#fff";ctx.font="bold 9px 'Segoe UI',sans-serif";ctx.fillText(bt,svgW-PAD,69);}
+  ctx.textAlign="left";
+  const svgClone=svgEl.cloneNode(true);
+  const bg=document.createElementNS("http://www.w3.org/2000/svg","rect");
+  bg.setAttribute("width",svgW);bg.setAttribute("height",svgH);bg.setAttribute("fill","#ffffff");
+  svgClone.insertBefore(bg,svgClone.firstChild);
+  const svgStr=new XMLSerializer().serializeToString(svgClone);
+  const svgBlob=new Blob([svgStr],{type:"image/svg+xml;charset=utf-8"});
+  const svgUrl=URL.createObjectURL(svgBlob);
+  const img=new Image();
+  img.onload=()=>{
+    ctx.drawImage(img,0,HDR_H,svgW,svgH);URL.revokeObjectURL(svgUrl);
+    cards.forEach((c,i)=>{
+      const cx=PAD+i*(CARD_W+CARD_GAP),cy=CARDS_Y;
+      ctx.fillStyle="#fff";roundRect(ctx,cx,cy,CARD_W,CARD_H,6);ctx.fill();
+      ctx.strokeStyle="#e0e0e0";ctx.lineWidth=1;roundRect(ctx,cx,cy,CARD_W,CARD_H,6);ctx.stroke();
+      ctx.fillStyle="#999";ctx.font="9px 'Segoe UI',sans-serif";ctx.fillText(c.lbl.toUpperCase(),cx+12,cy+15);
+      ctx.fillStyle=c.color;ctx.font="bold 17px 'Segoe UI',sans-serif";ctx.fillText(c.val,cx+12,cy+35);
+      ctx.fillStyle="#999";ctx.font="10px 'Segoe UI',sans-serif";
+      const words=c.dsc.split(" ");let line="",ly=cy+52;
+      words.forEach(w=>{const test=line+w+" ";if(ctx.measureText(test).width>CARD_W-20&&line){ctx.fillText(line.trim(),cx+12,ly);ly+=13;line=w+" ";}else line=test;});
+      if(line.trim())ctx.fillText(line.trim(),cx+12,ly);
+    });
+    ctx.fillStyle="#bbb";ctx.font="10px 'Segoe UI',sans-serif";ctx.textAlign="center";
+    ctx.fillText([company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · "),svgW/2,CARDS_Y+CARD_H+18);
+    ctx.textAlign="left";
+    const a=document.createElement("a");a.download=filename;a.href=canvas.toDataURL("image/png");a.click();
+    const btn=document.querySelector("#exportDd .tbtn"),orig=btn.textContent;
+    btn.textContent="✓ Saved!";btn.style.borderColor="#2d9e6b";btn.style.color="#2d9e6b";
+    setTimeout(()=>{btn.textContent=orig;btn.style.borderColor="";btn.style.color="";},2000);
+  };
+  img.onerror=()=>{alert("PNG export failed — try Chrome or Edge.");URL.revokeObjectURL(svgUrl);};
+  img.src=svgUrl;
+}
+
+// ─── EXPORT PDF ───────────────────────────────────────────────────────────────
+async function exportPDF(){
+  if(typeof window.jspdf==="undefined"){alert("PDF library not loaded. Check your internet connection.");return;}
+  const{jsPDF}=window.jspdf;
+  const svgEl=document.getElementById("svg");
+  const company=currentCompany,year=currentYear,scope=currentScope;
+  const cur=getCurrencySymbol(),unit=getUnit();
+  const svgW=parseInt(svgEl.getAttribute("width")),svgH=parseInt(svgEl.getAttribute("height"));
+  const filename=`${company}${year?" - "+year:""}`.replace(/[^a-z0-9 _-]/gi,"_")+".pdf";
+
+  // render SVG to canvas first
+  const SCALE=1.5;
+  const svgClone=svgEl.cloneNode(true);
+  const bg=document.createElementNS("http://www.w3.org/2000/svg","rect");
+  bg.setAttribute("width",svgW);bg.setAttribute("height",svgH);bg.setAttribute("fill","#ffffff");
+  svgClone.insertBefore(bg,svgClone.firstChild);
+  const svgStr=new XMLSerializer().serializeToString(svgClone);
+  const svgBlob=new Blob([svgStr],{type:"image/svg+xml;charset=utf-8"});
+  const svgUrl=URL.createObjectURL(svgBlob);
+
+  const img=await new Promise((res,rej)=>{
+    const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=svgUrl;
+  });
+  URL.revokeObjectURL(svgUrl);
+
+  const canvas=document.createElement("canvas");
+  canvas.width=svgW*SCALE;canvas.height=svgH*SCALE;
+  const ctx=canvas.getContext("2d");ctx.scale(SCALE,SCALE);
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,svgW,svgH);ctx.drawImage(img,0,0,svgW,svgH);
+  const chartImg=canvas.toDataURL("image/png");
+
+  // PDF — landscape A4
+  const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+  const pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight();
+
+  // ── Page 1: Chart ────────────────────────────────────────────────────────────
+  // header bar
+  doc.setFillColor(255,255,255);doc.rect(0,0,pw,22,"F");
+  doc.setFillColor(240,242,245);doc.rect(0,22,pw,ph-22,"F");
+
+  // title
+  doc.setFont("helvetica","bold");doc.setFontSize(16);doc.setTextColor(26,26,46);
+  doc.text(company,14,10);
+  if(year){
+    const cw=doc.getTextWidth(company+" — ");
+    doc.setTextColor(184,134,11);doc.text("— "+year,14+doc.getTextWidth(company+" "),10);
+  }
+  doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,150,150);
+  doc.text([scope,`${cur} ${unit}`].filter(Boolean).join(" · ").toUpperCase(),14,16);
+
+  // total inflow right
+  const totalVal=document.getElementById("chartTotal").textContent;
+  doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(184,134,11);
+  doc.text(totalVal,pw-14,10,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(150,150,150);
+  doc.text("TOTAL INFLOW",pw-14,16,{align:"right"});
+
+  // divider
+  doc.setDrawColor(224,224,224);doc.line(0,22,pw,22);
+
+  // chart image — fit in page
+  const maxW=pw-10,maxH=ph-32;
+  const ratio=Math.min(maxW/svgW,maxH/svgH);
+  const iW=svgW*ratio,iH=svgH*ratio;
+  const ix=(pw-iW)/2,iy=24;
+  doc.addImage(chartImg,"PNG",ix,iy,iW,iH);
+
+  // watermark
+  doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(187,187,187);
+  doc.text([company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · "),pw/2,ph-3,{align:"center"});
+
+  // ── Page 2: Flow Data Table ───────────────────────────────────────────────────
+  doc.addPage();
+  doc.setFillColor(255,255,255);doc.rect(0,0,pw,ph,"F");
+
+  doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(26,26,46);
+  doc.text(`${company} — Flow Data`,14,12);
+  doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,150,150);
+  doc.text([year,scope,`${cur} ${unit}`].filter(Boolean).join(" · "),14,18);
+  doc.setDrawColor(224,224,224);doc.line(14,21,pw-14,21);
+
+  // table headers
+  const hasYoY=currentHasYoY;
+  const cols=hasYoY
+    ?[{h:"Source",w:55},{h:"Target",w:55},{h:`${year||"Current"}`,w:35},{h:"Prior Year",w:35},{h:"Change",w:25}]
+    :[{h:"Source",w:65},{h:"Target",w:65},{h:`${year||"Value"} (${cur} ${unit})`,w:50}];
+  let tx=14,ty=27;
+  doc.setFillColor(248,249,250);doc.rect(14,ty-4,pw-28,8,"F");
+  doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(100,100,100);
+  cols.forEach(c=>{doc.text(c.h,tx,ty);tx+=c.w;});
+
+  ty+=6;doc.setFont("helvetica","normal");doc.setFontSize(8);
+  currentLinks.forEach((l,i)=>{
+    if(ty>ph-14){doc.addPage();ty=20;doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(100,100,100);tx=14;cols.forEach(c=>{doc.text(c.h,tx,ty);tx+=c.w;});ty+=6;doc.setFont("helvetica","normal");}
+    if(i%2===0){doc.setFillColor(248,249,250);doc.rect(14,ty-4,pw-28,6,"F");}
+    doc.setTextColor(26,26,46);tx=14;
+    doc.text(l.source.name,tx,ty);tx+=cols[0].w;
+    doc.text(l.target.name,tx,ty);tx+=cols[1].w;
+    doc.text(fmtVal(l.v),tx,ty);tx+=cols[2].w;
+    if(hasYoY){
+      doc.text(l.prior!=null?fmtVal(l.prior):"—",tx,ty);tx+=cols[3].w;
+      if(l.prior!=null&&l.prior>0){
+        const pct=(l.v-l.prior)/l.prior*100;
+        doc.setTextColor(pct>=0?22:220,pct>=0?197:38,pct>=0?90:38);
+        doc.text((pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"%",tx,ty);
+        doc.setTextColor(26,26,46);
+      }else{doc.text("—",tx,ty);}
+    }
+    ty+=6;
+  });
+
+  doc.save(filename);
+  const btn=document.querySelector("#exportDd .tbtn"),orig=btn.textContent;
+  btn.textContent="✓ PDF Saved!";btn.style.borderColor="#2d9e6b";btn.style.color="#2d9e6b";
+  setTimeout(()=>{btn.textContent=orig;btn.style.borderColor="";btn.style.color="";},2500);
+}
+
+function roundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();ctx.moveTo(x+r,y);
+  ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);
+  ctx.closePath();
+}
+
+// ─── KEYBOARD ─────────────────────────────────────────────────────────────────
+document.addEventListener("keydown",e=>{
+  if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)) generate();
+  if(e.key==="Escape") hideHelp();
+});
+
+// ─── HOW TO USE DIALOG ────────────────────────────────────────────────────────
+function showHelp(){
+  document.getElementById("helpOverlay").style.display="flex";
+}
+function hideHelp(){
+  document.getElementById("helpOverlay").style.display="none";
+}
+document.getElementById("helpOverlay").addEventListener("click",e=>{
+  if(e.target===document.getElementById("helpOverlay")) hideHelp();
+});
+</script>
+</body>
+</html>
