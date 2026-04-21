@@ -46,15 +46,29 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .workspace{display:flex;flex:1;overflow:hidden;position:relative;}
 
 /* panel — side panel on desktop, slide-up overlay on mobile */
-.panel{width:310px;flex-shrink:0;background:#fff;border-right:1px solid #e0e0e0;display:flex;flex-direction:column;overflow:hidden;transition:width .25s,opacity .25s;}
-.panel.collapsed{width:0;opacity:0;pointer-events:none;}
-.panel-inner{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;min-width:310px;}
+.panel{width:360px;min-width:220px;max-width:600px;flex-shrink:0;background:#fff;border-right:none;display:flex;flex-direction:column;overflow:hidden;transition:opacity .25s;}
+.panel.collapsed{width:0!important;min-width:0!important;opacity:0;pointer-events:none;}
+.panel-inner{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;min-width:200px;}
 
-/* mode tabs */
-.mode-tabs{display:flex;gap:4px;padding:2px;}
-.mode-tab{flex:1;padding:7px;font-size:11px;font-weight:600;cursor:pointer;text-align:center;background:#f0f2f5;color:#666;border:1px solid #ddd;border-radius:5px;transition:all .15s;}
-.mode-tab:hover{background:#fffbf0;border-color:var(--accent);color:var(--accent);}
-.mode-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+/* drag resizer between panel and chart */
+.panel-resizer{
+  width:5px;flex-shrink:0;background:#e8e8e8;
+  cursor:col-resize;position:relative;
+  transition:background .15s;
+  z-index:10;
+}
+.panel-resizer:hover,.panel-resizer.dragging{background:var(--accent);}
+.panel.collapsed+.panel-resizer{display:none;}
+.panel-resizer::after{
+  content:"";position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:3px;height:32px;border-radius:2px;
+  background:rgba(0,0,0,0.12);
+  pointer-events:none;
+}
+
+/* currency field highlight when missing */
+.field-warn select,.field-warn input{border-color:#f59e0b!important;background:#fffbf0!important;}
 
 .field label{display:block;font-size:10px;font-weight:600;color:#666;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;}
 .field input,.field textarea,.field select{width:100%;border:1px solid #ddd;border-radius:6px;padding:6px 9px;font-size:12px;font-family:'Segoe UI',monospace;color:#1a1a2e;background:#fafafa;outline:none;transition:border-color .15s;resize:vertical;}
@@ -62,8 +76,6 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .field textarea{min-height:220px;line-height:1.6;}
 .field-row{display:flex;gap:8px;}
 .field-row .field{flex:1;}
-.general-settings{display:none;flex-direction:column;gap:10px;}
-.general-settings.on{display:flex;}
 
 .hint{background:#fffbf0;border:1px solid #f0e0b0;border-radius:6px;padding:8px 10px;font-size:11px;color:#7a5c00;line-height:1.7;}
 .hint code{background:#f5e6c0;padding:1px 4px;border-radius:3px;font-family:monospace;}
@@ -88,6 +100,9 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .history-item span{color:#aaa;font-size:10px;}
 .history-del{background:none;border:none;cursor:pointer;color:#ddd;font-size:14px;line-height:1;padding:2px 4px;border-radius:3px;flex-shrink:0;transition:color .15s;}
 .history-del:hover{color:#ef4444;}
+.history-item.active-chart{background:#f0fdf4;border-color:var(--accent);}
+.history-item.active-chart .history-item-info strong{color:var(--accent);}
+.history-active-badge{font-size:9px;font-weight:700;color:var(--accent);background:#dcfce7;border-radius:3px;padding:1px 5px;margin-left:4px;text-transform:uppercase;letter-spacing:.05em;}
 .history-empty{font-size:11px;color:#bbb;text-align:center;padding:8px 0;}
 
 /* chart area */
@@ -110,11 +125,33 @@ svg{display:block;}
 .yoy-legend span{display:flex;align-items:center;gap:4px;white-space:nowrap;}
 .yoy-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;padding:8px 0 16px;flex-shrink:0;width:100%;max-width:1400px;}
-.card{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:11px 13px;}
-.card .lbl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#999;margin-bottom:3px;}
-.card .val{font-size:18px;font-weight:700;margin-bottom:2px;}
-.card .dsc{font-size:10px;color:#999;line-height:1.5;}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:7px;padding:8px 0 16px;flex-shrink:0;width:100%;max-width:1400px;}
+.card{
+  background:#fff;border:1px solid #ebebeb;border-radius:7px;
+  padding:9px 12px 8px;
+  border-left:3px solid var(--card-accent,#e0e0e0);
+  display:flex;flex-direction:column;gap:2px;
+  transition:box-shadow .15s;
+}
+.card:hover{box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+.card-lbl{
+  font-size:11px;font-weight:800;letter-spacing:.08em;
+  text-transform:uppercase;color:#1a1a2e;
+  margin-bottom:1px;
+}
+.card-main{display:flex;align-items:baseline;justify-content:space-between;gap:4px;}
+.card-val{font-size:17px;font-weight:700;line-height:1.1;color:var(--card-accent,#1a1a2e);}
+.card-change{
+  font-size:10px;font-weight:700;
+  padding:1px 5px;border-radius:3px;
+  white-space:nowrap;flex-shrink:0;
+}
+.card-change.up{background:#f0fdf4;color:#16a34a;}
+.card-change.down{background:#fef2f2;color:#dc2626;}
+.card-change.neutral{background:#f8fafc;color:#64748b;}
+.card-prev{font-size:10px;color:#bbb;line-height:1.2;}
+.card-prev span{color:#999;font-weight:500;}
+.card-dsc{font-size:9.5px;color:#ccc;line-height:1.3;margin-top:3px;border-top:1px solid #f5f5f5;padding-top:4px;}
 
 .placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#bbb;gap:10px;padding:40px;text-align:center;}
 .placeholder p{font-size:13px;line-height:1.6;max-width:280px;}
@@ -124,8 +161,13 @@ svg{display:block;}
 
 .label-edit{position:fixed;background:#fff;border:1px solid var(--accent);border-radius:6px;padding:4px 8px;font-size:12px;outline:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:120px;}
 
-/* YoY badge on SVG */
-.yoy-badge{font-size:9.5px;font-family:'Segoe UI',sans-serif;font-weight:700;}
+/* inline-editable chart header chips */
+.meta-field{display:inline-flex;align-items:center;gap:4px;cursor:pointer;border-radius:4px;padding:2px 5px;transition:background .15s;}
+.meta-field:hover{background:#f0f2f5;}
+.meta-field .meta-val{font-weight:inherit;color:inherit;}
+.meta-field .meta-pencil{font-size:11px;color:#bbb;opacity:0;transition:opacity .15s;}
+.meta-field:hover .meta-pencil{opacity:1;}
+.meta-chip-input{background:#fff;border:1px solid var(--accent);border-radius:5px;padding:2px 7px;font-size:inherit;font-weight:inherit;color:inherit;outline:none;min-width:60px;max-width:280px;}
 
 /* mobile panel overlay */
 .panel-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:199;}
@@ -142,6 +184,7 @@ svg{display:block;}
   /* chart area stretches full width — no centering that clips overflow */
   .chart-area{align-items:stretch;}
   #chartInner{align-items:stretch!important;}
+  .panel-resizer{display:none;}
 
   /* all chart children go full width */
   .chart-header,.warn-box,.yoy-legend,.cards{max-width:none;}
@@ -174,7 +217,7 @@ svg{display:block;}
   .tot .l{font-size:9px;}
 
   /* cards 2 col */
-  .cards{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));padding:8px 10px 80px;}
+  .cards{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));padding:6px 10px 80px;gap:6px;}
 
   /* FAB */
   #fabPanel{
@@ -202,6 +245,7 @@ svg{display:block;}
   <div class="topbar-right">
     <!-- export dropdown -->
     <button class="tbtn active" id="btnYoY" style="display:none;">▲▼ YoY</button>
+    <button class="tbtn" id="btnShare" style="display:none;" onclick="copyShareURL(this)">🔗 Share</button>
     <div class="dd-wrap export-dd" id="exportDd">
       <button class="tbtn" onclick="toggleDd('exportDd')">⬇ Export ▾</button>
       <div class="dd-menu" id="exportDdMenu">
@@ -255,56 +299,50 @@ svg{display:block;}
   <div class="panel" id="panel">
     <div class="panel-inner">
 
-      <div class="section-title">Mode</div>
-      <div class="mode-tabs">
-        <button class="mode-tab active" id="tabPSX" onclick="setMode('psx')">PSX</button>
-        <button class="mode-tab" id="tabGeneral" onclick="setMode('general')">General</button>
-      </div>
-
-      <!-- general-only settings -->
-      <div class="general-settings" id="generalSettings">
-        <div class="field-row">
-          <div class="field">
-            <label>Currency</label>
-            <select id="inCurrency">
-              <option value="PKR">PKR</option>
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
-              <option value="SAR">SAR</option>
-              <option value="AED">AED</option>
-              <option value="INR">INR</option>
-              <option value="custom">Custom…</option>
-            </select>
-          </div>
-          <div class="field">
-            <label>Unit</label>
-            <select id="inUnit">
-              <option value="Millions">Millions</option>
-              <option value="Billions">Billions</option>
-              <option value="Thousands">Thousands</option>
-            </select>
-          </div>
-        </div>
-        <div class="field" id="customCurrencyField" style="display:none;">
-          <label>Custom Currency Symbol</label>
-          <input type="text" id="inCustomCurrency" placeholder="e.g. BDT" maxlength="6"/>
-        </div>
-      </div>
-
       <div class="section-title">Chart Details</div>
+      <!-- currency + unit always visible -->
+      <div class="field-row">
+        <div class="field">
+          <label>Currency</label>
+          <select id="inCurrency">
+            <option value="PKR">PKR</option>
+            <option value="USD">USD</option>
+            <option value="EUR">EUR</option>
+            <option value="GBP">GBP</option>
+            <option value="SAR">SAR</option>
+            <option value="AED">AED</option>
+            <option value="INR">INR</option>
+            <option value="JPY">JPY</option>
+            <option value="CNY">CNY</option>
+            <option value="custom">Custom…</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Unit</label>
+          <select id="inUnit">
+            <option value="Millions">Millions</option>
+            <option value="Billions">Billions</option>
+            <option value="Thousands">Thousands</option>
+          </select>
+        </div>
+      </div>
+      <div class="field" id="customCurrencyField" style="display:none;">
+        <label>Custom Currency Symbol</label>
+        <input type="text" id="inCustomCurrency" placeholder="e.g. BDT" maxlength="6"/>
+      </div>
+
       <div class="field">
         <label>Company Name</label>
-        <input type="text" id="inCompany" placeholder="e.g. Lucky Cement"/>
+        <input type="text" id="inCompany" placeholder="Auto-filled from data"/>
       </div>
       <div class="field-row">
         <div class="field">
-          <label>Fiscal Year</label>
-          <input type="text" id="inYear" placeholder="FY 2025"/>
+          <label>Fiscal Period</label>
+          <input type="text" id="inYear" placeholder="Auto-filled from data"/>
         </div>
         <div class="field">
           <label>Statements</label>
-          <input type="text" id="inScope" placeholder="Consolidated"/>
+          <input type="text" id="inScope" placeholder="Auto-filled from data"/>
         </div>
       </div>
 
@@ -330,22 +368,29 @@ svg{display:block;}
 
       <div class="section-title">Flow Data</div>
       <div class="hint">
-        One flow per line:<br>
-        <code>Source, Target, CurrentValue, PriorValue</code><br>
-        PriorValue optional · Lines with <code>#</code> ignored<br>
-        Add at bottom: <code>EPS, 15.42</code> &nbsp;·&nbsp; <code>DPS, 8.50</code>
+        One flow per line: <code>Source, Target, Value, PriorValue</code><br>
+        Add at bottom: <code>EPS, 15.42</code> · <code>DPS, 8.50</code><br>
+        Prompts auto-extract <code>COMPANY</code>, <code>PERIOD</code>, <code>SCOPE</code>, <code>CURRENCY</code>, <code>UNIT</code>
       </div>
 
       <div class="field">
         <label>Flow Data (CSV)</label>
-        <textarea id="inData" spellcheck="false" placeholder="# With prior year (YoY badges):
-Total Revenue, Net Sales, 25789, 22340
-Net Sales, Cost of Sales, 11662, 10100
-Net Sales, Gross Profit, 14127, 12240
+        <textarea id="inData" spellcheck="false" placeholder="Paste extracted data here.
 
-# Or without prior year:
-Total Revenue, Net Sales, 25789
-Net Sales, Cost of Sales, 11662"></textarea>
+Use 📋 Prompt to copy a prompt, paste it into NotebookLM with your annual report, then paste the result here.
+
+Format:
+COMPANY, Apple Inc.
+PERIOD, FY 2024
+SCOPE, Consolidated
+CURRENCY, USD
+UNIT, Millions
+Total Net Sales, Cost of Sales, 116517
+Total Net Sales, Gross Margin, 103142
+...
+EPS, 4.05, 3.89
+DPS, 1.00, 0.94
+END_OF_DATA"></textarea>
       </div>
 
       <div class="error-box" id="errBox"></div>
@@ -359,13 +404,13 @@ Net Sales, Cost of Sales, 11662"></textarea>
       <div class="section-title">Saved Charts</div>
       <div style="display:flex;gap:5px;margin-bottom:4px;">
         <button class="btn-sec" style="flex:1;font-size:10px;" onclick="importJSON()">⬆ Import JSON</button>
-        <button class="btn-sec" style="flex:1;font-size:10px;" onclick="copyShareURL()">🔗 Share URL</button>
       </div>
       <div class="history-list" id="historyList"></div>
     </div>
   </div>
 
   <!-- CHART AREA -->
+  <div class="panel-resizer" id="panelResizer"></div>
   <div class="chart-area" id="chartArea">
 
     <div class="placeholder" id="placeholder">
@@ -378,15 +423,15 @@ Net Sales, Cost of Sales, 11662"></textarea>
         <path d="M37 24 Q44 20 50 30" stroke="#ddd" stroke-width="4" fill="none"/>
         <path d="M37 44 Q44 44 50 38" stroke="#ddd" stroke-width="4" fill="none"/>
       </svg>
-      <p>Fill in details, paste flow data, tap <strong>Generate</strong></p>
+      <p>Click <strong>📋 Prompt</strong>, extract from NotebookLM, paste here and <strong>Generate</strong></p>
       <p style="font-size:11px;color:#ccc;">Ctrl+Enter to generate</p>
     </div>
 
     <div id="chartInner" style="display:none;flex-direction:column;flex:1;width:100%;align-items:center;">
       <div class="chart-header">
         <div>
-          <h2 id="chartTitle">—</h2>
-          <p id="chartSubtitle">—</p>
+          <h2 id="chartTitle" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;">—</h2>
+          <p id="chartSubtitle" style="display:flex;align-items:center;gap:4px;margin-top:3px;"></p>
         </div>
         <div class="tot">
           <div class="v" id="chartTotal">—</div>
@@ -411,74 +456,50 @@ Net Sales, Cost of Sales, 11662"></textarea>
 
 <!-- ── How To Use Dialog ───────────────────────────────────────────────────── -->
 <div id="helpOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;">
-  <div style="background:#fff;border-radius:12px;width:min(680px,92vw);max-height:88vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,0.2);display:flex;flex-direction:column;">
-    <!-- header -->
-    <div style="padding:24px 28px 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
-      <div>
-        <h2 style="font-size:20px;font-weight:700;color:#1a1a2e;">How to Use</h2>
-        <p style="font-size:11px;color:#aaa;margin-top:3px;text-transform:uppercase;letter-spacing:.06em;">Sankey Builder — Step by Step</p>
-      </div>
-      <button onclick="hideHelp()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;line-height:1;padding:4px 8px;border-radius:4px;" title="Close">✕</button>
+  <div style="background:#fff;border-radius:10px;width:min(520px,94vw);max-height:85vh;overflow-y:auto;box-shadow:0 16px 48px rgba(0,0,0,0.2);display:flex;flex-direction:column;">
+    <div style="padding:18px 20px 0;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+      <div style="font-size:15px;font-weight:700;color:#1a1a2e;">? How to Use</div>
+      <button onclick="hideHelp()" style="background:none;border:none;font-size:18px;cursor:pointer;color:#aaa;padding:2px 6px;border-radius:4px;" title="Close">✕</button>
     </div>
-    <!-- steps -->
-    <div style="padding:20px 28px 28px;display:flex;flex-direction:column;gap:18px;">
+    <div style="padding:14px 20px 20px;display:flex;flex-direction:column;gap:12px;">
 
       <div class="help-step">
         <div class="help-num">1</div>
         <div class="help-body">
-          <strong>Copy the extraction prompt</strong>
-          <p>Click <strong>📋 Prompt ▾</strong> in the top bar. Choose <em>CSV — With Prior Year</em> if the annual report shows two years side by side (recommended), or <em>CSV — Quick Extract</em> for current year only.</p>
+          <strong>Copy a prompt</strong>
+          <p>Click <strong>📋 Prompt ▾</strong> → <em>CSV — With Prior Year</em> for comparative data (recommended) or <em>Quick Extract</em> for current year only.</p>
         </div>
       </div>
 
       <div class="help-step">
         <div class="help-num">2</div>
         <div class="help-body">
-          <strong>Extract data from NotebookLM</strong>
-          <p>Upload your annual report PDF to <a href="https://notebooklm.google.com" target="_blank">NotebookLM</a>, paste the prompt, and it will return your flow data as CSV lines like:</p>
-          <code style="display:block;background:#f5f5f5;padding:8px 10px;border-radius:6px;font-size:11px;margin-top:6px;line-height:1.8;">
-            Total Revenue, Net Sales, 25789, 22340<br>
-            Net Sales, Cost of Sales, 11662, 10100<br>
-            Net Sales, Gross Profit, 14127, 12240
-          </code>
+          <strong>Extract from NotebookLM</strong>
+          <p>Upload your annual report to <a href="https://notebooklm.google.com" target="_blank">NotebookLM</a>, paste the prompt, copy the output. Company name, period, currency and unit are extracted automatically.</p>
         </div>
       </div>
 
       <div class="help-step">
         <div class="help-num">3</div>
         <div class="help-body">
-          <strong>Fill in details and paste data</strong>
-          <p>Enter the <em>Company Name</em>, <em>Fiscal Year</em>, and <em>Statements</em> type in the left panel. Paste the CSV into the <em>Flow Data</em> box. Lines starting with <code>#</code> are ignored.</p>
+          <strong>Paste &amp; Generate</strong>
+          <p>Paste the output into the <em>Flow Data</em> box and click <strong>Generate →</strong> or <kbd>Ctrl+Enter</kbd>. Click any field in the chart header to edit it inline.</p>
         </div>
       </div>
 
       <div class="help-step">
         <div class="help-num">4</div>
         <div class="help-body">
-          <strong>Generate</strong>
-          <p>Click <strong>Generate →</strong> or press <kbd>Ctrl+Enter</kbd>. The chart renders immediately. A yellow warning bar appears if any flow balances look off — usually harmless when income streams converge.</p>
+          <strong>Interact</strong>
+          <p><strong>Drag</strong> any node or its label to reposition · <strong>Hover</strong> bands and nodes for detail tooltips · <strong>Double-click</strong> a node to rename it · <strong>▲▼ YoY</strong> toggles change labels</p>
         </div>
       </div>
 
       <div class="help-step">
         <div class="help-num">5</div>
         <div class="help-body">
-          <strong>Interact with the chart</strong>
-          <ul style="margin-top:6px;padding-left:18px;line-height:2.1;">
-            <li><strong>Hover</strong> any band or node to see values and YoY % in a tooltip</li>
-            <li><strong>Drag</strong> any node bar up or down to reposition it</li>
-            <li><strong>Double-click</strong> a node bar to rename its label inline</li>
-            <li><strong>▲▼ YoY</strong> button toggles YoY delta labels (when prior year data is present)</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="help-step">
-        <div class="help-num">6</div>
-        <div class="help-body">
-          <strong>Export</strong>
-          <p>Click <strong>⬇ Export ▾</strong> to save as a <em>PNG</em> (high-res image with header and insight cards) or <em>PDF</em> (chart + full flow data table on page 2).</p>
-          <div class="help-tip">💡 Recent charts are saved automatically — find them in the <em>Recent Charts</em> section of the panel to reload without re-pasting data.</div>
+          <strong>Save &amp; Share</strong>
+          <p><strong>🔗 Share</strong> copies a URL with the full chart including node positions · <strong>⬇ Export</strong> saves as PNG, PDF, or JSON · Saved charts appear in the panel automatically.</p>
         </div>
       </div>
 
@@ -487,68 +508,66 @@ Net Sales, Cost of Sales, 11662"></textarea>
 </div>
 
 <style>
-.help-step{display:flex;gap:14px;align-items:flex-start;}
+.help-step{display:flex;gap:12px;align-items:flex-start;}
 .help-num{
-  width:26px;height:26px;border-radius:50%;
+  width:22px;height:22px;border-radius:50%;
   background:var(--accent);color:#fff;
-  font-size:12px;font-weight:700;
+  font-size:11px;font-weight:700;
   display:flex;align-items:center;justify-content:center;
   flex-shrink:0;margin-top:1px;
 }
-.help-body{flex:1;font-size:13px;color:#333;line-height:1.6;}
-.help-body strong{display:block;font-size:14px;color:#1a1a2e;margin-bottom:4px;}
-.help-body p{color:#555;font-size:12px;}
-.help-body ul{color:#555;font-size:12px;}
-.help-body code{font-family:monospace;font-size:11px;background:#f0f0f0;padding:1px 5px;border-radius:3px;}
-.help-body kbd{background:#f0f0f0;border:1px solid #ddd;border-radius:3px;padding:1px 6px;font-size:11px;font-family:monospace;}
+.help-body{flex:1;}
+.help-body strong{display:block;font-size:12px;font-weight:700;color:#1a1a2e;margin-bottom:2px;}
+.help-body p{color:#555;font-size:11.5px;line-height:1.55;}
+.help-body code{font-family:monospace;font-size:10.5px;background:#f0f0f0;padding:1px 4px;border-radius:3px;}
+.help-body kbd{background:#f0f0f0;border:1px solid #ddd;border-radius:3px;padding:1px 5px;font-size:10.5px;font-family:monospace;}
 .help-body a{color:var(--accent);text-decoration:none;}
 .help-body a:hover{text-decoration:underline;}
-.help-tip{margin-top:8px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:7px 10px;font-size:11px;color:#166534;line-height:1.5;}
 </style>
 
 <script>
 // ─── PALETTES ─────────────────────────────────────────────────────────────────
 const PALETTES={
-  "Vivid":      ["#d4a853","#14b8a6","#3b82f6","#a78bfa","#22c55e","#f43f5e","#fb923c","#6366f1","#8b949e","#fbbf24","#e11d48","#0ea5e9","#84cc16","#f97316","#ec4899","#10b981","#ef4444","#60a5fa","#a3e635","#c084fc"],
-  "Corporate":  ["#1e3a5f","#2e6da4","#4a9fd4","#6cb4e4","#0077b6","#0096c7","#00b4d8","#48cae4","#264653","#2a9d8f","#57cc99","#023e8a","#03045e","#90e0ef","#38b000","#008000","#005f73","#0a9396","#94d2bd","#e9d8a6"],
-  "Warm":       ["#c1121f","#e85d04","#f48c06","#faa307","#ffba08","#d62828","#f77f00","#fcbf49","#9b2226","#ae2012","#bb3e03","#ca6702","#ee9b00","#780000","#a44200","#e9c46a","#f4a261","#e76f51","#ef233c","#d90429"],
-  "Pastel":      ["#a8dadc","#457b9d","#1d3557","#e63946","#06d6a0","#118ab2","#073b4c","#ffd166","#ef476f","#84a98c","#52796f","#354f52","#b7d5ea","#8fb8d1","#6a9ab0","#c9cba3","#ffe1a8","#e26d5c","#723d46","#472d30"],
-  "Green–Gold":  ["#606c38","#283618","#dda15e","#bc6c25","#588157","#3a5a40","#a3b18a","#dad7cd","#b5838d","#6d6875","#e9c46a","#f4a261","#264653","#2a9d8f","#57cc99","#80ed99","#386641","#6a994e","#a7c957","#bc4749"],
-  "Monochrome":  ["#111","#222","#333","#444","#555","#666","#777","#888","#999","#aaa","#bbb","#ccc","#0d0d0d","#1a1a1a","#2d2d2d","#404040","#595959","#737373","#8c8c8c","#a6a6a6"],
-  "Ocean":       ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#90e0ef","#ade8f4","#caf0f8","#005f73","#0a9396","#94d2bd","#e9d8a6","#ee9b00","#ca6702","#bb3e03","#ae2012","#9b2226","#001219","#006400"],
-  "Sunset":      ["#ff6b6b","#ff8e53","#ff9f43","#ffd32a","#0be881","#0fbcf9","#f53b57","#3c40c4","#ffd42a","#ffdd59","#ff5e57","#ff3f34","#ff9f43","#ffa502","#ff6348","#ff4757","#2ed573","#1e90ff","#eccc68","#a29bfe"],
-  "Berry":       ["#6c3483","#884ea0","#a569bd","#c39bd3","#d2b4de","#4a235a","#7d3c98","#9b59b6","#af7ac5","#c8a2c8","#512e5f","#76448a","#8e44ad","#a569bd","#b784c7","#1a5276","#1f618d","#2874a6","#3498db","#5dade2"],
-  "Earth":       ["#7b3f00","#a0522d","#b8860b","#cd853f","#d2691e","#8b4513","#a52a2a","#800000","#556b2f","#6b8e23","#808000","#8fbc8f","#2e8b57","#3cb371","#20b2aa","#008080","#4682b4","#708090","#696969","#808080"],
-  "Neon":        ["#ff00ff","#00ffff","#ff6600","#ffff00","#00ff00","#ff0066","#6600ff","#ff3300","#00ff99","#ff0099","#33ccff","#ff6633","#99ff00","#cc00ff","#ff9900","#00ccff","#ff0033","#66ff00","#ff00cc","#0033ff"],
-  "PSX Classic": ["#006633","#009933","#00cc44","#ffcc00","#ff9900","#cc0000","#990000","#003366","#0066cc","#3399ff","#66ccff","#99ffcc","#ccff99","#ffff66","#ffcc66","#ff9966","#ff6666","#cc3333","#336699","#6699cc"],
-  "Corporate":   ["#1a3a5c","#2166ac","#4393c3","#74add1","#abd9e9","#006d2c","#31a354","#74c476","#bae4b3","#8c2d04","#d94801","#f16913","#fd8d3c","#fdbe85","#54278f","#756bb1","#9e9ac8","#cbc9e2","#dadaeb","#636363"],
-  "Warm Neutrals":["#c9b99a","#b5967a","#9c7b5e","#7c5c42","#5e3d28","#d6c4a8","#e8dcc8","#f5f0e8","#a0856a","#876650","#6b4e38","#4d3624","#c4a882","#b89468","#a07850","#8a6238","#e0c8a0","#d4b880","#c8a860","#bc9840"],
-  "Finance Blue": ["#003366","#004d99","#0066cc","#0080ff","#3399ff","#66b2ff","#99ccff","#cce5ff","#002244","#1a3d6b","#005fa3","#0073c6","#1a8fe6","#4da6ff","#80c0ff","#b3d9ff","#001122","#002255","#004488","#0055aa"],
-  "Tropical":    ["#ff595e","#ffca3a","#6a4c93","#1982c4","#8ac926","#ff595e","#ff924c","#ff2d55","#4cc9f0","#4361ee","#3a0ca3","#7209b7","#f72585","#06d6a0","#118ab2","#073b4c","#ffd166","#ef476f","#06d6a0","#118ab2"],
-  "Muted Pro":   ["#4a4e69","#9a8c98","#c9ada7","#f2e9e4","#22223b","#6d6875","#b5838d","#e5989b","#ffb4a2","#ffcdb2","#355070","#6d597a","#b56576","#e56b6f","#eaac8b","#2d6a4f","#40916c","#52b788","#74c69d","#95d5b2"],
+  "Vivid":         ["#d4a853","#14b8a6","#3b82f6","#a78bfa","#22c55e","#f43f5e","#fb923c","#6366f1","#8b949e","#fbbf24","#e11d48","#0ea5e9","#84cc16","#f97316","#ec4899","#10b981","#ef4444","#60a5fa","#a3e635","#c084fc"],
+  "Corporate":     ["#0a2342","#1b4f8a","#2874c4","#4a9fd4","#7ec8e3","#0d5c63","#1a8a76","#2eba9a","#5dd6bc","#98e8d8","#6b2d6b","#9a4ea0","#c47dc9","#1a5276","#2471a3","#5dade2","#a9cce3","#1e3a2f","#2e7d52","#52c27a"],
+  "Mono: Slate":   ["#0f172a","#1e293b","#334155","#475569","#64748b","#94a3b8","#cbd5e1","#e2e8f0","#f1f5f9","#f8fafc","#0f1f2e","#1a3344","#274d66","#366b8a","#4a8aad","#6ba3c0","#93bdd2","#b8d4e3","#d6e8f0","#eef5fa"],
+  "Mono: Forest":  ["#052e16","#14532d","#166534","#15803d","#16a34a","#22c55e","#4ade80","#86efac","#bbf7d0","#dcfce7","#064e3b","#065f46","#047857","#059669","#10b981","#34d399","#6ee7b7","#a7f3d0","#d1fae5","#ecfdf5"],
+  "Mono: Ocean":   ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#90e0ef","#ade8f4","#caf0f8","#e0f7ff","#012a4a","#013a63","#01497c","#014f86","#2c7da0","#468faf","#61a5c2","#89c2d9","#a9d6e5","#d0efff"],
+  "Mono: Crimson": ["#3b0000","#7b0000","#a50000","#c62828","#e53935","#ef5350","#f44336","#ef9a9a","#ffcdd2","#ffebee","#4a0010","#7b0020","#ad1457","#c2185b","#d81b60","#e91e63","#f48fb1","#f8bbd0","#fce4ec","#fff0f5"],
+  "Mono: Amber":   ["#451a03","#78350f","#92400e","#b45309","#d97706","#f59e0b","#fbbf24","#fcd34d","#fde68a","#fef3c7","#3d1a00","#6b2d00","#9a4200","#c25600","#e06b00","#f08000","#f5a623","#f9c74f","#fde083","#fef4c8"],
+  "Mono: Violet":  ["#1a0533","#2d0a5f","#4a0e8f","#6b21a8","#7c3aed","#8b5cf6","#a78bfa","#c4b5fd","#ddd6fe","#ede9fe","#12004f","#200080","#3600c0","#4c00ff","#6419f5","#7c3aed","#9d74f0","#b8a0f5","#d5c8fa","#ece8fd"],
+  "Warm":          ["#c1121f","#e85d04","#f48c06","#faa307","#ffba08","#d62828","#f77f00","#fcbf49","#9b2226","#ae2012","#bb3e03","#ca6702","#ee9b00","#780000","#a44200","#e9c46a","#f4a261","#e76f51","#ef233c","#d90429"],
+  "Pastel":        ["#a8dadc","#457b9d","#1d3557","#e63946","#06d6a0","#118ab2","#073b4c","#ffd166","#ef476f","#84a98c","#52796f","#354f52","#b7d5ea","#8fb8d1","#6a9ab0","#c9cba3","#ffe1a8","#e26d5c","#723d46","#472d30"],
+  "Green–Gold":    ["#606c38","#283618","#dda15e","#bc6c25","#588157","#3a5a40","#a3b18a","#dad7cd","#b5838d","#6d6875","#e9c46a","#f4a261","#264653","#2a9d8f","#57cc99","#80ed99","#386641","#6a994e","#a7c957","#bc4749"],
+  "Ocean":         ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#90e0ef","#ade8f4","#caf0f8","#005f73","#0a9396","#94d2bd","#e9d8a6","#ee9b00","#ca6702","#bb3e03","#ae2012","#9b2226","#001219","#006400"],
+  "Sunset":        ["#ff6b6b","#ff8e53","#ff9f43","#ffd32a","#0be881","#0fbcf9","#f53b57","#3c40c4","#ffd42a","#ffdd59","#ff5e57","#ff3f34","#ff9f43","#ffa502","#ff6348","#ff4757","#2ed573","#1e90ff","#eccc68","#a29bfe"],
+  "Berry":         ["#6c3483","#884ea0","#a569bd","#c39bd3","#d2b4de","#4a235a","#7d3c98","#9b59b6","#af7ac5","#c8a2c8","#512e5f","#76448a","#8e44ad","#a569bd","#b784c7","#1a5276","#1f618d","#2874a6","#3498db","#5dade2"],
+  "Earth":         ["#7b3f00","#a0522d","#b8860b","#cd853f","#d2691e","#8b4513","#a52a2a","#800000","#556b2f","#6b8e23","#808000","#8fbc8f","#2e8b57","#3cb371","#20b2aa","#008080","#4682b4","#708090","#696969","#808080"],
+  "Neon":          ["#ff00ff","#00ffff","#ff6600","#ffff00","#00ff00","#ff0066","#6600ff","#ff3300","#00ff99","#ff0099","#33ccff","#ff6633","#99ff00","#cc00ff","#ff9900","#00ccff","#ff0033","#66ff00","#ff00cc","#0033ff"],
+  "PSX Classic":   ["#006633","#009933","#00cc44","#ffcc00","#ff9900","#cc0000","#990000","#003366","#0066cc","#3399ff","#66ccff","#99ffcc","#ccff99","#ffff66","#ffcc66","#ff9966","#ff6666","#cc3333","#336699","#6699cc"],
+  "Warm Neutrals": ["#c9b99a","#b5967a","#9c7b5e","#7c5c42","#5e3d28","#d6c4a8","#e8dcc8","#f5f0e8","#a0856a","#876650","#6b4e38","#4d3624","#c4a882","#b89468","#a07850","#8a6238","#e0c8a0","#d4b880","#c8a860","#bc9840"],
+  "Finance Blue":  ["#003366","#004d99","#0066cc","#0080ff","#3399ff","#66b2ff","#99ccff","#cce5ff","#002244","#1a3d6b","#005fa3","#0073c6","#1a8fe6","#4da6ff","#80c0ff","#b3d9ff","#001122","#002255","#004488","#0055aa"],
+  "Tropical":      ["#ff595e","#ffca3a","#6a4c93","#1982c4","#8ac926","#ff595e","#ff924c","#ff2d55","#4cc9f0","#4361ee","#3a0ca3","#7209b7","#f72585","#06d6a0","#118ab2","#073b4c","#ffd166","#ef476f","#06d6a0","#118ab2"],
+  "Muted Pro":     ["#4a4e69","#9a8c98","#c9ada7","#f2e9e4","#22223b","#6d6875","#b5838d","#e5989b","#ffb4a2","#ffcdb2","#355070","#6d597a","#b56576","#e56b6f","#eaac8b","#2d6a4f","#40916c","#52b788","#74c69d","#95d5b2"],
+  "Sakura":        ["#ffb7c5","#ff85a1","#ff5c8d","#e8457e","#c72b6e","#f7c5d0","#f2a7b8","#e87d97","#d4567a","#b8365e","#ffdde1","#ffb3c1","#ff8fab","#fb6f92","#e05780","#c9184a","#a4133c","#800f2f","#590d22","#ff4d6d"],
+  "Autumn":        ["#d62828","#f77f00","#fcbf49","#eae2b7","#003049","#e85d04","#dc2f02","#9d0208","#6a040f","#370617","#f48c06","#faa307","#ffba08","#e85d04","#dc2f02","#606c38","#283618","#dda15e","#bc6c25","#a7c957"],
+  "Nordic":        ["#2e3440","#3b4252","#434c5e","#4c566a","#d8dee9","#e5e9f0","#eceff4","#8fbcbb","#88c0d0","#81a1c1","#5e81ac","#bf616a","#d08770","#ebcb8b","#a3be8c","#b48ead","#bf616a","#2e3440","#4c566a","#88c0d0"],
+  "Jewel":         ["#9b2335","#c0392b","#e74c3c","#d35400","#e67e22","#f39c12","#f1c40f","#27ae60","#1abc9c","#2980b9","#8e44ad","#2c3e50","#16a085","#1a5276","#6c3483","#7b241c","#78281f","#1b2631","#145a32","#154360"],
+  "Retro":         ["#264653","#2a9d8f","#e9c46a","#f4a261","#e76f51","#606c38","#dda15e","#bc6c25","#a8dadc","#457b9d","#1d3557","#e63946","#f1faee","#a8dadc","#457b9d","#6d6875","#b5838d","#e5989b","#ffb4a2","#ffcdb2"],
 };
 let activePalette="Vivid";
 const getPalette=()=>PALETTES[activePalette];
 
-// ─── MODE ─────────────────────────────────────────────────────────────────────
-let appMode="psx"; // "psx" | "general"
-function setMode(m){
-  appMode=m;
-  document.getElementById("tabPSX").classList.toggle("active",m==="psx");
-  document.getElementById("tabGeneral").classList.toggle("active",m==="general");
-  document.getElementById("generalSettings").classList.toggle("on",m==="general");
-}
+// ─── CURRENCY / UNIT ──────────────────────────────────────────────────────────
 document.getElementById("inCurrency").addEventListener("change",function(){
   document.getElementById("customCurrencyField").style.display=this.value==="custom"?"block":"none";
 });
 function getCurrencySymbol(){
-  if(appMode==="psx") return "PKR";
   const sel=document.getElementById("inCurrency").value;
   if(sel==="custom") return document.getElementById("inCustomCurrency").value.trim()||"$";
   return sel;
 }
 function getUnit(){
-  if(appMode==="psx") return "Millions";
   return document.getElementById("inUnit").value;
 }
 function fmtVal(v){
@@ -556,6 +575,29 @@ function fmtVal(v){
   if(unit==="Billions") return `${cur} ${(v/1000).toFixed(2)}B`;
   if(unit==="Thousands") return `${cur} ${(v*1000).toLocaleString()}K`;
   return v>=1000?`${cur} ${(v/1000).toFixed(2)}B`:`${cur} ${v.toLocaleString()}M`;
+}
+
+// apply currency from parsed meta — known currencies map to select; others go to custom
+const KNOWN_CURRENCIES=["PKR","USD","EUR","GBP","SAR","AED","INR","JPY","CNY"];
+function applyCurrencyMeta(cur, unit){
+  const curSel=document.getElementById("inCurrency");
+  const unitSel=document.getElementById("inUnit");
+  if(cur){
+    const upper=cur.trim().toUpperCase();
+    if(KNOWN_CURRENCIES.includes(upper)){
+      curSel.value=upper;
+      document.getElementById("customCurrencyField").style.display="none";
+    } else {
+      curSel.value="custom";
+      document.getElementById("inCustomCurrency").value=upper;
+      document.getElementById("customCurrencyField").style.display="block";
+    }
+  }
+  if(unit){
+    const u=unit.trim();
+    const map={"millions":"Millions","billion":"Billions","billions":"Billions","thousands":"Thousands","thousand":"Thousands","million":"Millions"};
+    unitSel.value=map[u.toLowerCase()]||"Millions";
+  }
 }
 
 // ─── APP THEME ────────────────────────────────────────────────────────────────
@@ -587,39 +629,40 @@ window.addEventListener("DOMContentLoaded",()=>{
   // collapse panel by default on mobile
   if(window.innerWidth<=700){
     const p=document.getElementById("panel");
-    p.classList.add("collapsed");
+    if(p) p.classList.add("collapsed");
   }
-  // build theme swatches
-  const wrap = document.getElementById("themeSwatches");
-  APP_THEMES.forEach(theme=>{
-    const dot = document.createElement("div");
-    dot.className = "theme-swatch";
-    dot.dataset.name = theme.name;
-    dot.title = theme.name;
-    dot.style.width = "22px";
-    dot.style.height = "22px";
-    dot.style.borderRadius = "50%";
-    dot.style.background = theme.accent;
-    dot.style.cursor = "pointer";
-    dot.style.transition = "transform .15s";
-    dot.style.outline = `2px solid ${theme===activeTheme ? theme.accent : "transparent"}`;
-    dot.style.outlineOffset = "2px";
-    dot.style.flexShrink = "0";
-    dot.addEventListener("click",()=>setTheme(theme));
-    dot.addEventListener("mouseenter",()=>{ dot.style.transform="scale(1.2)"; });
-    dot.addEventListener("mouseleave",()=>{ dot.style.transform="scale(1)"; });
-    wrap.appendChild(dot);
-  });
 
-  // existing palette + history init
+  // build theme swatches
+  const wrap=document.getElementById("themeSwatches");
+  if(wrap){
+    APP_THEMES.forEach(theme=>{
+      const dot=document.createElement("div");
+      dot.className="theme-swatch";
+      dot.dataset.name=theme.name;
+      dot.title=theme.name;
+      dot.style.width="22px";dot.style.height="22px";dot.style.borderRadius="50%";
+      dot.style.background=theme.accent;dot.style.cursor="pointer";
+      dot.style.transition="transform .15s";
+      dot.style.outline=`2px solid ${theme===activeTheme?theme.accent:"transparent"}`;
+      dot.style.outlineOffset="2px";dot.style.flexShrink="0";
+      dot.addEventListener("click",()=>setTheme(theme));
+      dot.addEventListener("mouseenter",()=>{dot.style.transform="scale(1.2)";});
+      dot.addEventListener("mouseleave",()=>{dot.style.transform="scale(1)";});
+      wrap.appendChild(dot);
+    });
+  }
+
+  // palette select
   const sel=document.getElementById("paletteSelect");
-  Object.keys(PALETTES).forEach(n=>{
-    const o=document.createElement("option");
-    o.value=n;o.textContent=n;
-    if(n===(window._pendingPalette||activePalette))o.selected=true;
-    sel.appendChild(o);
-  });
-  if(window._pendingPalette){activePalette=window._pendingPalette;}
+  if(sel){
+    Object.keys(PALETTES).forEach(n=>{
+      const o=document.createElement("option");
+      o.value=n;o.textContent=n;
+      if(n===(window._pendingPalette||activePalette))o.selected=true;
+      sel.appendChild(o);
+    });
+  }
+  if(window._pendingPalette) activePalette=window._pendingPalette;
   renderSwatch(activePalette);
   renderHistory();
 });
@@ -663,9 +706,21 @@ function applyPalette(){
 
 // ─── CHART LIBRARY (unlimited localStorage) ───────────────────────────────────
 const HIST_KEY="sankeyLib1";
+const HIST_KEY_OLD="sankeyHistory2";
 
 function getHistory(){
-  try{return JSON.parse(localStorage.getItem(HIST_KEY)||"[]");}catch(e){return[];}
+  try{
+    // migrate from old key if new key is empty
+    const existing=localStorage.getItem(HIST_KEY);
+    if(!existing){
+      const old=localStorage.getItem(HIST_KEY_OLD);
+      if(old){
+        localStorage.setItem(HIST_KEY,old);
+        localStorage.removeItem(HIST_KEY_OLD);
+      }
+    }
+    return JSON.parse(localStorage.getItem(HIST_KEY)||"[]");
+  }catch(e){return[];}
 }
 function saveHistory(company,year,scope,data){
   let h=getHistory();
@@ -690,14 +745,22 @@ function renderHistory(){
   const list=document.getElementById("historyList");
   const h=getHistory();
   if(!h.length){list.innerHTML='<div class="history-empty">No saved charts</div>';return;}
-  list.innerHTML=h.map((it,i)=>`
-    <div class="history-item">
+  list.innerHTML=h.map((it,i)=>{
+    const isActive=currentCompany&&currentYear
+      ? it.company===currentCompany&&it.year===currentYear
+      : false;
+    const badge=isActive?`<span class="history-active-badge">current</span>`:"";
+    return`<div class="history-item${isActive?" active-chart":""}" data-idx="${i}">
       <div class="history-item-info" onclick="loadHistory(${i})">
-        <strong>${it.company||"Unnamed"}</strong>
+        <strong>${it.company||"Unnamed"}${badge}</strong>
         <span>${[it.year,it.scope].filter(Boolean).join(" · ")} · ${new Date(it.ts).toLocaleDateString()}</span>
       </div>
       <button class="history-del" onclick="deleteHistory(${i},event)" title="Delete">✕</button>
-    </div>`).join("");
+    </div>`;
+  }).join("");
+  // scroll active item into view
+  const active=list.querySelector(".active-chart");
+  if(active) active.scrollIntoView({block:"nearest",behavior:"smooth"});
 }
 function loadHistory(i){
   const it=getHistory()[i];if(!it)return;
@@ -781,9 +844,10 @@ function encodePayload(obj){
 function decodePayload(str){
   try{return JSON.parse(decodeURIComponent(escape(atob(str))));}catch(e){return null;}
 }
-function copyShareURL(){
+function copyShareURL(btnEl){
   const data=document.getElementById("inData").value.trim();
-  if(!data){alert("Paste flow data and generate a chart first.");return;}
+  if(!data){alert("Generate a chart first.");return;}
+  const nodePos=currentNodes?currentNodes.map(n=>Math.round(n.y0)):[];
   const payload={
     c:document.getElementById("inCompany").value.trim(),
     y:document.getElementById("inYear").value.trim(),
@@ -791,20 +855,20 @@ function copyShareURL(){
     d:data,
     p:activePalette,
     cs:document.getElementById("inColSpacing").value||"0",
-    h:document.getElementById("inHeight").value||"520"
+    h:document.getElementById("inHeight").value||"520",
+    cur:getCurrencySymbol(),
+    unit:getUnit(),
+    np:nodePos
   };
   const encoded=encodePayload(payload);
   if(!encoded){alert("Data too large to encode as URL.");return;}
   const url=`${location.origin}${location.pathname}#chart=${encoded}`;
+  const btn=btnEl||document.getElementById("btnShare");
   navigator.clipboard.writeText(url).then(()=>{
-    // brief toast
-    const btn=event.currentTarget||document.querySelector("[onclick='copyShareURL()']");
     const orig=btn.textContent;
     btn.textContent="✓ Copied!";btn.style.color="var(--accent)";btn.style.borderColor="var(--accent)";
     setTimeout(()=>{btn.textContent=orig;btn.style.color="";btn.style.borderColor="";},2500);
-  }).catch(()=>{
-    prompt("Copy this URL:",url);
-  });
+  }).catch(()=>{prompt("Copy this URL:",url);});
 }
 
 // on load, check for shared chart in URL hash
@@ -820,9 +884,9 @@ function copyShareURL(){
   document.getElementById("inData").value=p.d||"";
   if(p.p&&PALETTES[p.p]){
     activePalette=p.p;
-    // palette select may not be built yet — will be set in DOMContentLoaded
     window._pendingPalette=p.p;
   }
+  if(p.cur||p.unit) applyCurrencyMeta(p.cur||null, p.unit||null);
   if(p.cs){
     document.getElementById("inColSpacing").value=p.cs;
     document.getElementById("inColSpacingVal").textContent="+"+p.cs+"px";
@@ -831,24 +895,21 @@ function copyShareURL(){
     document.getElementById("inHeight").value=p.h;
     document.getElementById("inHeightVal").textContent=p.h+"px";
   }
+  if(p.np&&Array.isArray(p.np)&&p.np.length) window._pendingNodePos=p.np;
   // generate after DOM is ready
   window.addEventListener("DOMContentLoaded",()=>setTimeout(generate,100));
 })();
 
 // ─── PROMPTS ──────────────────────────────────────────────────────────────────
 function copyPrompt(type){
-  const EPS_DPS_NOTE=`
-# After all flow lines, add EPS and DPS on separate lines (in PKR, not Millions):
-EPS, [earnings per share as reported in PKR]
-DPS, [dividends per share as reported in PKR]
-# If not disclosed, omit these lines entirely.`;
-
   const texts={
-    csv:`Extract financial flow data from this annual report. Return ONLY comma-separated data, one flow per line, no headers, no explanation:
+    csv:`Extract financial flow data from this annual report. Return ONLY comma-separated lines — metadata first, then flows, no explanation:
 
-Source, Target, Value
-
-Values in PKR Millions, rounded to 2 decimal places. Example:
+COMPANY, [full company name as in report]
+PERIOD, [e.g. FY 2025, H1 2025, Q3 FY2025, 9M 2025]
+SCOPE, [Consolidated or Unconsolidated or Standalone]
+CURRENCY, [currency symbol e.g. PKR, USD, EUR, GBP]
+UNIT, [Millions or Billions or Thousands]
 Total Revenue, Net Sales, 25789.24
 Total Revenue, Other Income, 446.67
 Net Sales, Cost of Sales, 11662.35
@@ -867,17 +928,21 @@ Net Profit, Retained Earnings, 1999.98
 EPS, 15.42
 DPS, 8.50
 
-Return only the CSV lines and EPS/DPS. Nothing else.`,
+All values in the currency and unit you specified above. EPS/DPS always in actual currency per share (not millions).
 
-    comparative:`Extract financial flow data from this annual report. This report contains a COMPARATIVE P&L with current year and prior year columns. Return ONLY comma-separated data, one flow per line, no headers, no explanation:
+CRITICAL:
+- Every flow on its own separate line — do NOT merge multiple flows onto one line
+- Do NOT mix segment breakdowns (e.g. Products/Services revenue) with P&L flows — use P&L structure only (Total Net Sales → Cost of Sales → Gross Margin)
+- Return ONLY the data lines above — no commentary, no questions, no extra text of any kind after the last data line
+- The very last line of your response must be exactly: END_OF_DATA`,
 
-Source, Target, CurrentYearValue, PriorYearValue
+    comparative:`Extract financial flow data from this annual report (comparative P&L). Return ONLY comma-separated lines — metadata first, then flows:
 
-Both values in PKR Millions, rounded to 2 decimal places.
-- If a prior year value is missing for a specific line, leave the 4th column empty: "Source, Target, CurrentValue,"
-- If prior year data is entirely absent, return only 3 columns and note with a # comment line at the end
-
-Example output:
+COMPANY, [full company name]
+PERIOD, [e.g. FY 2025]
+SCOPE, [Consolidated or Unconsolidated]
+CURRENCY, [currency symbol e.g. PKR, USD, EUR]
+UNIT, [Millions or Billions or Thousands]
 Total Revenue, Net Sales, 25789.24, 22340.11
 Total Revenue, Other Income, 446.67, 380.20
 Net Sales, Cost of Sales, 11662.35, 10234.56
@@ -893,23 +958,30 @@ Profit Before Tax, Taxation, 2464.73, 1920.50
 Profit Before Tax, Net Profit, 4119.31, 3212.65
 Net Profit, Dividends, 2119.34, 1680.00
 Net Profit, Retained Earnings, 1999.98, 1532.65
-EPS, 15.42
-DPS, 8.50
+EPS, 15.42, 13.37
+DPS, 8.50, 7.00
 
 Rules:
-- All flow values in PKR Millions, rounded to 2 decimal places
-- EPS and DPS in PKR (not millions) as reported — extract from the EPS note or financial highlights section
-- Do NOT compute % changes — the app does this automatically
-- If additional discrete expense lines exist (Exploration, R&D etc.), add as "Gross Profit, [Name], cur, prior"
-- If additional income streams exist, add "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
-- Verify: CoS + Gross Profit = Net Sales for both years; Dividends + Retained Earnings = Net Profit
-- Flag any derived figures`,
+- Flow values in the currency/unit specified. EPS/DPS in actual currency per share (not millions)
+- If prior year value missing for a line, leave 4th column empty: "A, B, 123,"
+- Do NOT compute % changes — the app does this
+- Extra expenses → "Gross Profit, [Name], cur, prior"
+- Extra income → "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
+- Verify: CoS + Gross Profit = Net Sales; Dividends + Retained Earnings = Net Profit
 
-    detailed:`I need to extract financial flow data from this annual report to build a Sankey chart. Extract from the P&L, Statement of Value Addition, and EPS note. Return data in this exact format — one flow per line, comma-separated, no headers:
+CRITICAL:
+- Every flow on its own separate line — do NOT merge multiple flows onto one line
+- Do NOT mix segment breakdowns (e.g. Products/Services revenue) with P&L flows — use P&L only
+- Return ONLY the data lines — no commentary, no questions, no extra text after the last data line
+- The very last line of your response must be exactly: END_OF_DATA`,
 
-Source Node, Target Node, CurrentYearValue, PriorYearValue
+    detailed:`Extract financial flow data from this annual report for a Sankey chart. Return comma-separated lines — metadata first, then flows, no explanation:
 
-Standard flows:
+COMPANY, [full company name]
+PERIOD, [fiscal period — e.g. FY 2025, H1 FY2025, Q3 2025, 9M FY2025]
+SCOPE, [Consolidated / Unconsolidated / Standalone]
+CURRENCY, [currency symbol e.g. PKR, USD, EUR, GBP]
+UNIT, [Millions / Billions / Thousands]
 Total Revenue, Net Sales, [cur], [prior]
 Total Revenue, Other Income, [cur], [prior]
 Net Sales, Cost of Sales, [cur], [prior]
@@ -925,21 +997,22 @@ Profit Before Tax, Taxation, [cur], [prior]
 Profit Before Tax, Net Profit, [cur], [prior]
 Net Profit, Dividends, [cur], [prior]
 Net Profit, Retained Earnings, [cur], [prior]
-
-Then add on separate lines (EPS and DPS in PKR, not millions):
-EPS, [current year EPS]
-DPS, [current year DPS]
+EPS, [current value in currency/share], [prior value in currency/share]
+DPS, [current value in currency/share], [prior value in currency/share]
 
 Rules:
-- Flow values in PKR Millions, rounded to 2 decimal places
-- EPS/DPS in PKR as reported (from EPS note or financial highlights) — not in millions
-- If prior year column is absent, return 3 columns only
-- If a specific prior value is missing, leave 4th column blank: "A, B, 1234,"
-- Do NOT compute % changes — the app handles this automatically
-- Discrete expense lines (Exploration, R&D, Levies etc.) → "Gross Profit, [Name], cur, prior"
-- Additional income streams → "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
+- Flow values in the currency and unit specified in CURRENCY/UNIT lines above. EPS/DPS in actual currency per share from EPS note (not millions)
+- If prior year absent, use 3 columns only; if a specific prior is missing leave blank: "A,B,123,"
+- Do NOT compute % changes
+- Extra expenses → "Gross Profit, [Name], cur, prior"
+- Extra income → "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
 - Verify both years: CoS + Gross Profit = Net Sales; Dividends + Retained Earnings = Net Profit
-- Flag all derived figures and rounding adjustments`
+
+CRITICAL:
+- Every flow on its own separate line — do NOT merge multiple flows onto one line
+- Do NOT mix segment breakdowns (e.g. Products/Services) with P&L flows — use P&L structure only
+- Return ONLY the data lines — no commentary, no questions, no extra text after the last data line
+- The very last line of your response must be exactly: END_OF_DATA`
   };
   navigator.clipboard.writeText(texts[type]).then(()=>{
     const btn=document.querySelector("#promptDd .tbtn");
@@ -949,7 +1022,41 @@ Rules:
   });
 }
 
-// ─── PANEL TOGGLE ─────────────────────────────────────────────────────────────
+// ─── PANEL RESIZE ─────────────────────────────────────────────────────────────
+(function initPanelResize(){
+  const resizer=document.getElementById("panelResizer");
+  const panel=document.getElementById("panel");
+  if(!resizer||!panel) return;
+  let dragging=false,startX=0,startW=0;
+
+  resizer.addEventListener("mousedown",e=>{
+    if(window.innerWidth<=700) return;
+    dragging=true;
+    startX=e.clientX;
+    startW=panel.offsetWidth;
+    resizer.classList.add("dragging");
+    document.body.style.cursor="col-resize";
+    document.body.style.userSelect="none";
+    e.preventDefault();
+  });
+
+  document.addEventListener("mousemove",e=>{
+    if(!dragging) return;
+    const dx=e.clientX-startX;
+    const newW=Math.min(Math.max(startW+dx, 220), 620);
+    panel.style.width=newW+"px";
+  });
+
+  document.addEventListener("mouseup",()=>{
+    if(!dragging) return;
+    dragging=false;
+    resizer.classList.remove("dragging");
+    document.body.style.cursor="";
+    document.body.style.userSelect="";
+    // re-render chart to fit new width
+    if(currentNodes) setTimeout(generate, 50);
+  });
+})();
 function togglePanel(){
   const p=document.getElementById("panel");
   const b=document.getElementById("btnPanel");
@@ -961,19 +1068,24 @@ function togglePanel(){
     p.classList.toggle("collapsed",isOpen);
     if(overlay) overlay.classList.toggle("on",!isOpen);
   } else {
-    p.classList.toggle("collapsed");
-    if(b){b.classList.toggle("active");b.textContent=p.classList.contains("collapsed")?"⟩ Panel":"⟨ Panel";}
+    const isCollapsed=p.classList.toggle("collapsed");
+    if(b){b.classList.toggle("active",!isCollapsed);b.textContent=isCollapsed?"⟩ Panel":"⟨ Panel";}
+    if(!isCollapsed&&parseInt(p.style.width||0)<220) p.style.width="360px";
     setTimeout(()=>{if(currentNodes)generate();},280);
   }
 }
 
 // ─── SAMPLE DATA ──────────────────────────────────────────────────────────────
 function loadSample(){
-  document.getElementById("inCompany").value="Fauji Fertilizer";
-  document.getElementById("inYear").value="FY 2025";
-  document.getElementById("inScope").value="Unconsolidated";
+  document.getElementById("inCompany").value="";
+  document.getElementById("inYear").value="";
+  document.getElementById("inScope").value="";
   document.getElementById("inData").value=
-`# Fauji Fertilizer — FY 2025 vs FY 2024 (comparative)
+`COMPANY, Fauji Fertilizer Company
+PERIOD, FY 2025
+SCOPE, Unconsolidated
+CURRENCY, PKR
+UNIT, Millions
 Total Revenue, Net Sales, 25789, 22340
 Total Revenue, Other Income, 447, 380
 Net Sales, Cost of Sales, 11662, 10234
@@ -989,13 +1101,22 @@ Profit Before Tax, Taxation, 2465, 1921
 Profit Before Tax, Net Profit, 4119, 3213
 Net Profit, Dividends, 2119, 1680
 Net Profit, Retained Earnings, 2000, 1533
-EPS, 15.42
-DPS, 8.50`;
+EPS, 15.42, 13.37
+DPS, 8.50, 7.00`;
 }
 
 // ─── PARSE ────────────────────────────────────────────────────────────────────
 function parseData(raw){
-  const lines=raw.split("\n").map(l=>l.trim()).filter(l=>l&&!l.startsWith("#"));
+  // truncate at END_OF_DATA sentinel — ignore everything after it
+  const sentinelIdx=raw.toUpperCase().indexOf("END_OF_DATA");
+  const cleaned=sentinelIdx>=0 ? raw.slice(0,sentinelIdx) : raw;
+
+  // handle collapsed output: if lines got merged with spaces, split at
+  // boundaries where a number is immediately followed by a word that starts
+  // a new "X, Y, number" pattern (e.g. "...4119.31 Net Profit, Dividends...")
+  const normalized=cleaned.replace(/(\d)\s+(COMPANY|PERIOD|SCOPE|CURRENCY|UNIT|EPS|DPS|[A-Z][a-zA-Z])/g,(_,num,word)=>`${num}\n${word}`);
+
+  const lines=normalized.split("\n").map(l=>l.trim()).filter(l=>l&&!l.startsWith("#"));
   const nodeIndex=new Map();
   const links=[];
   let hasYoY=false;
@@ -1005,29 +1126,40 @@ function parseData(raw){
     if(!nodeIndex.has(name))nodeIndex.set(name,nodeIndex.size);
     return nodeIndex.get(name);
   };
-  // known single-value meta keys (2-column lines with no target node)
-  const META_KEYS=["EPS","DPS","eps","dps"];
+  const META_KEYS=["EPS","DPS"];
+  const META_TEXT=["COMPANY","PERIOD","SCOPE","CURRENCY","UNIT"];
   for(const line of lines){
     const parts=line.split(",");
-    if(parts.length<2) throw new Error(`Bad line: "${line}" — need at least Source, Target, Value`);
-    // detect meta lines: "EPS, 15.42" or "DPS, 8.50"
     const key=parts[0].trim().toUpperCase();
-    if(META_KEYS.includes(parts[0].trim().toUpperCase()) && parts.length===2){
-      const v=parseFloat(parts[1].replace(/[^0-9.-]/g,""));
+    // text metadata: COMPANY, PERIOD, SCOPE
+    if(META_TEXT.includes(key)){
+      meta[key]=parts.slice(1).join(",").trim();
+      continue;
+    }
+    // numeric metadata: EPS, DPS — always intercept, take first value only
+    if(META_KEYS.includes(key)){
+      const v=parseFloat((parts[1]||"").replace(/[^0-9.-]/g,""));
       if(!isNaN(v)) meta[key]=v;
+      // capture prior period value if provided (e.g. "EPS, 15.42, 13.37")
+      if(parts.length>=3){
+        const vp=parseFloat((parts[2]||"").replace(/[^0-9.-]/g,""));
+        if(!isNaN(vp)) meta[key+"_PRIOR"]=vp;
+      }
       continue;
     }
     if(parts.length<3) throw new Error(`Bad line: "${line}" — need at least Source, Target, Value`);
     const s=getNode(parts[0]),t=getNode(parts[1]);
-    const v=parseFloat(parts[2].replace(/[^0-9.-]/g,""));
-    if(isNaN(v)||v<=0) throw new Error(`Invalid value on line: "${line}"`);
     if(s===t) throw new Error(`Source equals target: "${line}"`);
+    const vRaw=parseFloat(parts[2].replace(/[^0-9.-]/g,""));
+    if(isNaN(vRaw)||vRaw===0) throw new Error(`Invalid value on line: "${line}"`);
+    const v=Math.abs(vRaw);
+    const isNegative=vRaw<0;
     let prior=null;
     if(parts.length>=4&&parts[3].trim()!==""){
       const pv=parseFloat(parts[3].replace(/[^0-9.-]/g,""));
-      if(!isNaN(pv)&&pv>0){prior=pv;hasYoY=true;}
+      if(!isNaN(pv)&&pv!==0){prior=Math.abs(pv);hasYoY=true;}
     }
-    links.push({s,t,v,prior});
+    links.push({s,t,v,prior,isNegative});
   }
   return{nodeNames:[...nodeIndex.keys()],links,hasYoY,meta};
 }
@@ -1039,10 +1171,10 @@ function validateFlows(nodes,links){
     const inLinks =links.filter(l=>l.target===n);
     const outLinks=links.filter(l=>l.source===n);
     if(!inLinks.length||!outLinks.length) return;
+    // Skip if any connected link is negative (legitimate financial offset)
+    if([...inLinks,...outLinks].some(l=>l.isNegative)) return;
     // Skip if any downstream target also receives from other sources (merger node downstream)
-    const hasDownstreamMerge=outLinks.some(l=>
-      links.filter(x=>x.target===l.target).length>1
-    );
+    const hasDownstreamMerge=outLinks.some(l=>links.filter(x=>x.target===l.target).length>1);
     if(hasDownstreamMerge) return;
     // Skip multi-source nodes (they are mergers themselves)
     if(inLinks.length>1) return;
@@ -1139,73 +1271,197 @@ function buildCards(nodes, links, meta={}){
   const find=(...ps)=>nodes.find(n=>ps.some(p=>n.name.toLowerCase().includes(p.toLowerCase())));
   const cur=getCurrencySymbol();
 
-  const netSales    = find("Net Sales","Net Revenue");
-  const grossProfit = find("Gross Profit");
-  const netProfit   = find("Net Profit","NPAT","Profit After Tax");
+  const netSales    = find("Net Sales","Net Revenue","Total Net Sales");
+  const grossProfit = find("Gross Profit","Gross margin");
+  const netProfit   = find("Net Profit","Net income","NPAT","Profit After Tax");
   const dividends   = find("Dividend");
-  const opProfit    = find("Operating Profit");
+  const opProfit    = find("Operating Profit","Operating income");
   const finCost     = find("Finance Cost","Finance Charges","Interest");
-  const pbt         = find("Profit Before Tax","PBT");
 
-  const fmt2=v=>v!=null?`${cur} ${v.toFixed(2)}`:null;
-  const pct=( a, b)=>a&&b&&b>0?Math.round(a/b*100):null;
-  const pctF=(a, b)=>a&&b&&b>0?((a/b)*100).toFixed(1)+'%':null;
+  // helper: get prior value of a node from its incoming links
+  const nodePrior=n=>{
+    if(!n) return null;
+    const inPrior=links.filter(l=>l.target===n&&l.prior!=null).reduce((a,l)=>a+l.prior,0);
+    return inPrior>0?inPrior:null;
+  };
+  const pct=(a,b)=>a&&b&&b>0?Math.round(a/b*100):null;
+  const chg=(cur,prv)=>prv&&prv>0?((cur-prv)/prv*100):null;
+  const fmtChg=v=>{
+    if(v==null) return null;
+    return{label:(v>=0?`▲ ${Math.abs(v).toFixed(1)}%`:`▼ ${Math.abs(v).toFixed(1)}%`), cls:v>=0?"up":"down"};
+  };
+
+  const card=(lbl,color,val,prev,dsc,change)=>({lbl,color,val,prev:prev??null,dsc:dsc||"",change:change??null});
 
   const cards=[];
 
-  // 1. EPS — first
-  if(meta.EPS!=null)
-    cards.push({lbl:"EPS",val:`${cur} ${meta.EPS.toFixed(2)}`,color:"#6366f1",
-      dsc:"Earnings per share as reported"});
+  // 1. EPS
+  if(meta.EPS!=null){
+    const prevEPS=meta.EPS_PRIOR||null;
+    cards.push(card("EPS","#6366f1",
+      `${cur} ${meta.EPS.toFixed(2)}`,
+      prevEPS!=null?`${cur} ${prevEPS.toFixed(2)}`:null,
+      "Earnings per share as reported",
+      fmtChg(chg(meta.EPS,prevEPS))
+    ));
+  }
 
-  // 2. DPS — second
-  if(meta.DPS!=null)
-    cards.push({lbl:"DPS",val:`${cur} ${meta.DPS.toFixed(2)}`,color:"#8b5cf6",
-      dsc:"Dividends per share as reported"});
+  // 2. DPS
+  if(meta.DPS!=null){
+    const prevDPS=meta.DPS_PRIOR||null;
+    cards.push(card("DPS","#8b5cf6",
+      `${cur} ${meta.DPS.toFixed(2)}`,
+      prevDPS!=null?`${cur} ${prevDPS.toFixed(2)}`:null,
+      "Dividends per share as reported",
+      fmtChg(chg(meta.DPS,prevDPS))
+    ));
+  }
 
   // 3. Gross Margin
-  if(grossProfit&&netSales&&netSales.value>0)
-    cards.push({lbl:"Gross Margin",val:`${pct(grossProfit.value,netSales.value)}%`,color:"#2d9e6b",
-      dsc:`Gross profit of ${fmtVal(grossProfit.value)} on net sales of ${fmtVal(netSales.value)}`});
+  if(grossProfit&&netSales&&netSales.value>0){
+    const gm=pct(grossProfit.value,netSales.value);
+    const prevNS=nodePrior(netSales), prevGP=nodePrior(grossProfit);
+    const prevGM=prevNS&&prevGP?pct(prevGP,prevNS):null;
+    cards.push(card("Gross Margin","#2d9e6b",
+      `${gm}%`, prevGM!=null?`${prevGM}%`:null,
+      `${fmtVal(grossProfit.value)} gross profit`,
+      fmtChg(prevGM!=null?gm-prevGM:null)
+    ));
+  }
 
   // 4. Net Margin
-  if(netProfit&&netSales&&netSales.value>0)
-    cards.push({lbl:"Net Margin",val:`${pct(netProfit.value,netSales.value)}%`,color:"#059669",
-      dsc:`Net profit of ${fmtVal(netProfit.value)} on net sales of ${fmtVal(netSales.value)}`});
+  if(netProfit&&netSales&&netSales.value>0){
+    const nm=pct(netProfit.value,netSales.value);
+    const prevNS=nodePrior(netSales), prevNP=nodePrior(netProfit);
+    const prevNM=prevNS&&prevNP?pct(prevNP,prevNS):null;
+    cards.push(card("Net Margin","#059669",
+      `${nm}%`, prevNM!=null?`${prevNM}%`:null,
+      `${fmtVal(netProfit.value)} net profit`,
+      fmtChg(prevNM!=null?nm-prevNM:null)
+    ));
+  }
 
   // 5. Operating Margin
-  if(opProfit&&netSales&&netSales.value>0)
-    cards.push({lbl:"Operating Margin",val:`${pct(opProfit.value,netSales.value)}%`,color:"#0d9488",
-      dsc:`Operating profit of ${fmtVal(opProfit.value)} on net sales of ${fmtVal(netSales.value)}`});
+  if(opProfit&&netSales&&netSales.value>0){
+    const om=pct(opProfit.value,netSales.value);
+    const prevNS=nodePrior(netSales), prevOP=nodePrior(opProfit);
+    const prevOM=prevNS&&prevOP?pct(prevOP,prevNS):null;
+    cards.push(card("Operating Margin","#0d9488",
+      `${om}%`, prevOM!=null?`${prevOM}%`:null,
+      `${fmtVal(opProfit.value)} operating profit`,
+      fmtChg(prevOM!=null?om-prevOM:null)
+    ));
+  }
 
-  // 6. Revenue Growth (YoY)
+  // 6. Revenue Growth
   if(netSales){
-    const inPrior=links.filter(l=>l.target===netSales&&l.prior).reduce((a,l)=>a+l.prior,0);
-    if(inPrior>0){
-      const growth=((netSales.value-inPrior)/inPrior*100);
+    const prevNS=links.filter(l=>l.target===netSales&&l.prior).reduce((a,l)=>a+l.prior,0);
+    if(prevNS>0){
+      const growth=(netSales.value-prevNS)/prevNS*100;
       const col=growth>=0?"#22c55e":"#ef4444";
-      cards.push({lbl:"Revenue Growth",val:`${growth>=0?"▲":"▼"}${Math.abs(growth).toFixed(1)}%`,color:col,
-        dsc:`vs prior year revenue of ${fmtVal(inPrior)}`});
+      cards.push(card("Revenue Growth",col,
+        `${growth>=0?"▲":"▼"} ${Math.abs(growth).toFixed(1)}%`,
+        `${fmtVal(prevNS)}`,
+        `Current: ${fmtVal(netSales.value)}`,
+        null
+      ));
     }
   }
 
   // 7. Interest Coverage
   if(opProfit&&finCost&&finCost.value>0){
-    const cov=(opProfit.value/finCost.value).toFixed(1);
-    const col=parseFloat(cov)>=3?"#2d9e6b":parseFloat(cov)>=1.5?"#f59e0b":"#ef4444";
-    cards.push({lbl:"Interest Coverage",val:`${cov}×`,color:col,
-      dsc:`Operating profit covers finance cost ${cov}× (>3× is healthy)`});
+    const cov=opProfit.value/finCost.value;
+    const col=cov>=3?"#2d9e6b":cov>=1.5?"#f59e0b":"#ef4444";
+    const prevOP=nodePrior(opProfit), prevFC=nodePrior(finCost);
+    const prevCov=prevOP&&prevFC&&prevFC>0?(prevOP/prevFC):null;
+    cards.push(card("Interest Coverage",col,
+      `${cov.toFixed(1)}×`,
+      prevCov!=null?`${prevCov.toFixed(1)}×`:null,
+      `>3× is healthy`,
+      fmtChg(prevCov!=null?chg(cov,prevCov):null)
+    ));
   }
 
   // 8. Dividend Cover
   if(netProfit&&dividends&&dividends.value>0){
-    const cov=(netProfit.value/dividends.value).toFixed(2);
-    const col=parseFloat(cov)>=2?"#2d9e6b":parseFloat(cov)>=1?"#f59e0b":"#ef4444";
-    cards.push({lbl:"Dividend Cover",val:`${cov}×`,color:col,
-      dsc:`Earnings cover dividends ${cov}× (>2× is comfortable)`});
+    const cov=netProfit.value/dividends.value;
+    const col=cov>=2?"#2d9e6b":cov>=1?"#f59e0b":"#ef4444";
+    const prevNP=nodePrior(netProfit), prevDiv=nodePrior(dividends);
+    const prevCov=prevNP&&prevDiv&&prevDiv>0?(prevNP/prevDiv):null;
+    cards.push(card("Dividend Cover",col,
+      `${cov.toFixed(2)}×`,
+      prevCov!=null?`${prevCov.toFixed(2)}×`:null,
+      `>2× is comfortable`,
+      fmtChg(prevCov!=null?chg(cov,prevCov):null)
+    ));
   }
 
   return cards;
+}
+
+// ─── INLINE-EDITABLE CHART HEADER ────────────────────────────────────────────
+function renderMetaChip(field, value, extraStyle=""){
+  if(!value) return "";
+  return `<span class="meta-field" style="${extraStyle}" onclick="startMetaEdit(this,'${field}')" title="Click to edit">
+    <span class="meta-val">${value}</span>
+    <span class="meta-pencil">✏</span>
+  </span>`;
+}
+
+function renderChartHeader(company, year, scope){
+  const titleEl=document.getElementById("chartTitle");
+  titleEl.innerHTML=
+    renderMetaChip("company", company, "font-size:inherit;font-weight:700;color:#1a1a2e;")+
+    (year?`<span style="color:#999;margin:0 4px;font-weight:400;">—</span>`+
+      renderMetaChip("year", year, `font-size:inherit;font-weight:700;color:var(--accent);`): "");
+}
+
+function startMetaEdit(chipEl, field){
+  const valEl=chipEl.querySelector(".meta-val");
+  const current=valEl.textContent;
+  const inp=document.createElement("input");
+  inp.className="meta-chip-input";
+  inp.value=current;
+  inp.style.fontSize=getComputedStyle(chipEl).fontSize;
+  inp.style.fontWeight=getComputedStyle(chipEl).fontWeight;
+  chipEl.replaceWith(inp);
+  inp.focus();inp.select();
+
+  const commit=()=>{
+    const v=inp.value.trim()||current;
+    // update the input field and re-render header
+    if(field==="company"){
+      document.getElementById("inCompany").value=v;
+      currentCompany=v;
+    } else if(field==="year"){
+      document.getElementById("inYear").value=v;
+      currentYear=v;
+    } else if(field==="scope"){
+      document.getElementById("inScope").value=v;
+      currentScope=v;
+    }
+    // re-render header chips
+    renderChartHeader(
+      document.getElementById("inCompany").value.trim()||"Company",
+      document.getElementById("inYear").value.trim()||"",
+      document.getElementById("inScope").value.trim()||""
+    );
+    // update subtitle scope chip
+    const cur=getCurrencySymbol(),unit=getUnit();
+    const sc=document.getElementById("inScope").value.trim();
+    document.getElementById("chartSubtitle").innerHTML=
+      renderMetaChip("scope",sc,"font-size:11px;color:#999;letter-spacing:.06em;text-transform:uppercase;")+
+      (sc?`<span style="color:#ccc;font-size:10px;margin:0 3px;">·</span>`:"")+
+      `<span style="font-size:11px;color:#999;letter-spacing:.06em;text-transform:uppercase;">${cur} ${unit}</span>`;
+    // update watermark
+    const wmEl=document.getElementById("svg").querySelector("text:last-child");
+    if(wmEl) wmEl.textContent=[currentCompany,currentYear,currentScope,`${cur} ${unit}`].filter(Boolean).join(" · ");
+  };
+  inp.addEventListener("blur",commit);
+  inp.addEventListener("keydown",ev=>{
+    if(ev.key==="Enter"){ev.preventDefault();commit();}
+    if(ev.key==="Escape"){commit();}
+  });
 }
 
 // ─── GENERATE ─────────────────────────────────────────────────────────────────
@@ -1216,9 +1472,6 @@ let currentRawLinks=null,currentNodeNames=null;
 function generate(){
   const errBox=document.getElementById("errBox");
   errBox.classList.remove("on");
-  const company=document.getElementById("inCompany").value.trim()||"Company";
-  const year=document.getElementById("inYear").value.trim()||"";
-  const scope=document.getElementById("inScope").value.trim()||"";
   const raw=document.getElementById("inData").value.trim();
   if(!raw){errBox.textContent="Please enter flow data.";errBox.classList.add("on");return;}
   let parsed;
@@ -1226,22 +1479,52 @@ function generate(){
   catch(e){errBox.textContent=e.message;errBox.classList.add("on");return;}
   const{nodeNames,links:rawLinks,hasYoY,meta}=parsed;
 
+  // auto-fill currency/unit from meta
+  const hasCurrencyMeta=meta.CURRENCY||meta.UNIT;
+  applyCurrencyMeta(meta.CURRENCY||null, meta.UNIT||null);
+
+  // highlight currency/unit fields if not provided by prompt
+  const curField=document.getElementById("inCurrency").closest(".field");
+  const unitField=document.getElementById("inUnit").closest(".field");
+  if(!hasCurrencyMeta){
+    curField.classList.add("field-warn");
+    unitField.classList.add("field-warn");
+  } else {
+    curField.classList.remove("field-warn");
+    unitField.classList.remove("field-warn");
+  }
+
+  // auto-fill text metadata
+  if(meta.COMPANY) document.getElementById("inCompany").value=meta.COMPANY;
+  if(meta.PERIOD)  document.getElementById("inYear").value=meta.PERIOD;
+  if(meta.SCOPE)   document.getElementById("inScope").value=meta.SCOPE;
+
+  const company=document.getElementById("inCompany").value.trim()||"Company";
+  const year   =document.getElementById("inYear").value.trim()||"";
+  const scope  =document.getElementById("inScope").value.trim()||"";
+
   // cache for re-use by export functions
   currentCompany=company;currentYear=year;currentScope=scope;currentHasYoY=hasYoY;
   currentRawLinks=rawLinks;currentNodeNames=nodeNames;
 
   document.getElementById("placeholder").style.display="none";
   const ci=document.getElementById("chartInner");ci.style.display="flex";
-  document.getElementById("chartTitle").innerHTML=`${company}${year?` — <span>${year}</span>`:""}`;
+
+  // render inline-editable header chips
+  renderChartHeader(company,year,scope);
+
   const unit=getUnit(),cur=getCurrencySymbol();
-  document.getElementById("chartSubtitle").textContent=[scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
+  document.getElementById("chartSubtitle").innerHTML=
+    renderMetaChip("scope",scope,"font-size:11px;color:#999;letter-spacing:.06em;text-transform:uppercase;")+
+    (scope?`<span style="color:#ccc;font-size:10px;">·</span>`:"")+
+    `<span style="font-size:11px;color:#999;letter-spacing:.06em;text-transform:uppercase;">${cur} ${unit}</span>`;
 
   const H=parseInt(document.getElementById("inHeight").value)||520;
   currentH=H;
   const NODE_W=18, NODE_PAD=16;
   const isMobile=window.innerWidth<=700;
   const marginLR=isMobile?60:160;
-  const MARGIN={top:24, right:marginLR, bottom:36, left:marginLR};
+  const MARGIN={top:24, right:marginLR, bottom:52, left:marginLR};
   const chartArea=document.querySelector(".chart-area");
   // mobile: fixed 800px — always readable, #wrap scrolls it horizontally
   const W=isMobile ? 800 : Math.min(Math.max(chartArea.clientWidth-56, 900), 1400);
@@ -1261,8 +1544,9 @@ function generate(){
 
   // warnings
   const warnings=validateFlows(nodes,links);
+  if(!hasCurrencyMeta) warnings.unshift("Currency and unit not found in data — please set them manually in the fields highlighted above");
   const wb=document.getElementById("warnBox");
-  if(warnings.length){wb.innerHTML="⚠ Possible imbalances:<br>"+warnings.map(w=>`• ${w}`).join("<br>");wb.classList.add("on");}
+  if(warnings.length){wb.innerHTML="⚠ "+warnings.map(w=>`${w}`).join("<br>⚠ ");wb.classList.add("on");}
   else{wb.classList.remove("on");wb.innerHTML="";}
 
   // YoY legend
@@ -1303,7 +1587,7 @@ function generate(){
     path.addEventListener("mousemove",e=>{
       if(dragging)return;
       path.setAttribute("fill-opacity","0.85");
-      let html=`<strong style="color:#1a1a2e">${l.source.name}</strong> <span style="color:#aaa">→</span> <strong style="color:#1a1a2e">${l.target.name}</strong><br><span style="color:var(--accent);font-weight:600">${fmtVal(l.v)}</span>`;
+      let html=`<strong style="color:#1a1a2e">${l.source.name}</strong> <span style="color:#aaa">→</span> <strong style="color:#1a1a2e">${l.target.name}</strong><br><span style="color:var(--accent);font-weight:600">${l.isNegative?"(−)":""}${fmtVal(l.v)}</span>`;
       if(yoyPct!=null){
         const sign=yoyPct>=0?"▲":"▼",col=yoyPct>=0?"#22c55e":"#ef4444";
         html+=` <span style="color:${col};font-weight:600">${sign}${Math.abs(yoyPct).toFixed(1)}%</span>`;
@@ -1352,7 +1636,8 @@ function generate(){
 
   // watermark
   const wm=document.createElementNS(NS,"text");
-  wm.setAttribute("x",MARGIN.left);wm.setAttribute("y",H-14);
+  wm.setAttribute("x",svgW-MARGIN.right);wm.setAttribute("y",H-18);
+  wm.setAttribute("text-anchor","end");
   wm.setAttribute("font-size","10");wm.setAttribute("fill","#bbb");
   wm.setAttribute("font-family","Segoe UI,sans-serif");wm.setAttribute("pointer-events","none");
   wm.textContent=[company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
@@ -1373,7 +1658,6 @@ function generate(){
     nodes.forEach(n=>{
       n._rect.setAttribute("y",n.y0);n._rect.setAttribute("height",Math.max(n.y1-n.y0,2));
       const cy=(n.y0+n.y1)/2;
-      // update tspan y positions for wrapped labels
       const tspans=[...n._t1.querySelectorAll("tspan")];
       const lineH=14;
       const numLines=tspans.length||1;
@@ -1410,6 +1694,9 @@ function generate(){
   window._svgUp=()=>{
     if(!dragging) return;
     dragging.node._rect.style.cursor="grab";
+    if(dragging.node._t1) dragging.node._t1.style.cursor="grab";
+    if(dragging.node._t2) dragging.node._t2.style.cursor="grab";
+    if(dragging.node._t3) dragging.node._t3.style.cursor="grab";
     dragging=null;
     document.body.style.userSelect="";
   };
@@ -1434,7 +1721,8 @@ function generate(){
     t1.setAttribute("text-anchor",anchor);
     t1.setAttribute("font-size","12");t1.setAttribute("fill","#1a1a2e");
     t1.setAttribute("font-family","Segoe UI,sans-serif");
-    t1.setAttribute("pointer-events","none");
+    t1.setAttribute("pointer-events","all");
+    t1.style.cursor="grab";
     n._t1=t1;
     // wrap at ~22 chars
     const words=n.name.split(" ");
@@ -1460,7 +1748,9 @@ function generate(){
     const t2=document.createElementNS(NS,"text");
     t2.setAttribute("x",tx);t2.setAttribute("y",t2BaseY);t2.setAttribute("text-anchor",anchor);
     t2.setAttribute("font-size","10");t2.setAttribute("fill","#888");t2.setAttribute("font-family","Segoe UI,sans-serif");
-    t2.setAttribute("pointer-events","none");t2.textContent=fmtVal(n.value);n._t2=t2;
+    t2.setAttribute("pointer-events","all");
+    t2.style.cursor="grab";
+    t2.textContent=fmtVal(n.value);n._t2=t2;
 
     // t3 — YoY delta line
     let t3=null;
@@ -1471,7 +1761,8 @@ function generate(){
       t3.setAttribute("font-size","9.5");
       t3.setAttribute("fill",pct>=0?"#16a34a":"#dc2626");
       t3.setAttribute("font-family","Segoe UI,sans-serif");t3.setAttribute("font-weight","700");
-      t3.setAttribute("pointer-events","none");
+      t3.setAttribute("pointer-events","all");
+      t3.style.cursor="grab";
       t3.textContent=(pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"% YoY";
       t3.style.display=badgesVisible?"":"none";
       n._t3=t3;
@@ -1522,7 +1813,15 @@ function generate(){
         const v=inp.value.trim();
         if(v&&v!==n.name){
           n.name=v;
-          t1.textContent=v;
+          // update t1: rebuild tspans with new name
+          const tspans=[...t1.querySelectorAll("tspan")];
+          if(tspans.length){
+            // simple update: put entire new name in first tspan, clear rest
+            tspans[0].textContent=v;
+            for(let i=1;i<tspans.length;i++) tspans[i].textContent="";
+          } else {
+            t1.textContent=v;
+          }
           wm.textContent=[company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
         }
         inp.remove();
@@ -1534,18 +1833,79 @@ function generate(){
       });
     });
 
-    nodeGroup.appendChild(rect);nodeGroup.appendChild(t1);nodeGroup.appendChild(t2);
+    // attach same drag behaviour to labels so user can drag from the label too
+    const showNodeTip=(e)=>{
+      if(dragging)return;
+      const conn=new Set([...n.sourceLinks,...n.targetLinks].map(l=>l.index));
+      currentLinkPaths.forEach((p,i)=>p.setAttribute("fill-opacity",conn.has(i)?"0.85":"0.15"));
+      let html=`<strong style="color:#1a1a2e">${n.name}</strong><br><span style="color:var(--accent);font-weight:600">${fmtVal(n.value)}</span>`;
+      if(nodeYoY.has(n.id)){const p2=nodeYoY.get(n.id);const c2=p2>=0?"#22c55e":"#ef4444";html+=` <span style="color:${c2};font-weight:600">${p2>=0?"▲":"▼"}${Math.abs(p2).toFixed(1)}% YoY</span>`;}
+      tip.innerHTML=html;tip.classList.add("on");tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";
+    };
+    const moveNodeTip=(e)=>{if(!dragging){tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";}};
+    const hideNodeTip=()=>{if(dragging)return;currentLinkPaths.forEach(p=>p.setAttribute("fill-opacity","0.5"));tip.classList.remove("on");};
+    [t1,t2,...(t3?[t3]:[])].forEach(el=>{
+      el.addEventListener("mouseenter",showNodeTip);
+      el.addEventListener("mousemove",moveNodeTip);
+      el.addEventListener("mouseleave",hideNodeTip);
+    });
+    const startDragFromLabel=e=>{
+      if(dblclickPending)return;
+      e.preventDefault();e.stopPropagation();
+      tip.classList.remove("on");
+      dragging={node:n,startMouseY:e.clientY,startY0:n.y0,startY1:n.y1};
+      rect.style.cursor="grabbing";
+      t1.style.cursor="grabbing";
+      t2.style.cursor="grabbing";
+      document.body.style.userSelect="none";
+    };
+    const endLabelCursor=()=>{
+      t1.style.cursor="grab";
+      t2.style.cursor="grab";
+      if(t3) t3.style.cursor="grab";
+    };
+    t1.addEventListener("mousedown",startDragFromLabel);
+    t2.addEventListener("mousedown",startDragFromLabel);
+    if(t3) t3.addEventListener("mousedown",startDragFromLabel);
+    // mouseup on labels to reset cursor
+    t1.addEventListener("mouseup",endLabelCursor);
+    t2.addEventListener("mouseup",endLabelCursor);
+    if(t3) t3.addEventListener("mouseup",endLabelCursor);
+
+    nodeGroup.appendChild(rect);
+    nodeGroup.appendChild(t1);
+    nodeGroup.appendChild(t2);
     if(t3) nodeGroup.appendChild(t3);
   }); // end nodes.forEach
 
   // cards
   const cardData=buildCards(nodes,links,meta);
   document.getElementById("cards").innerHTML=cardData.map(c=>`
-    <div class="card"><div class="lbl">${c.lbl}</div><div class="val" style="color:${c.color}">${c.val}</div><div class="dsc">${c.dsc}</div></div>`).join("");
+    <div class="card" style="--card-accent:${c.color}">
+      <div class="card-lbl">${c.lbl}</div>
+      <div class="card-main">
+        <div class="card-val">${c.val}</div>
+        ${c.change?`<div class="card-change ${c.change.cls}">${c.change.label}</div>`:""}
+      </div>
+      ${c.prev!=null?`<div class="card-prev">prev: <span>${c.prev}</span></div>`:""}
+      ${c.dsc?`<div class="card-dsc">${c.dsc}</div>`:""}
+    </div>`).join("");
 
   document.getElementById("exportDd").style.display="flex";
   document.getElementById("paletteWrap").style.display="flex";
+  document.getElementById("btnShare").style.display="";
   saveHistory(company,year,scope,raw);
+
+  // restore node positions from shared URL if present
+  if(window._pendingNodePos&&window._pendingNodePos.length===nodes.length){
+    nodes.forEach((n,i)=>{
+      const y0=window._pendingNodePos[i];
+      const h=n.y1-n.y0;
+      n.y0=y0;n.y1=y0+h;
+    });
+    redrawAll();
+    window._pendingNodePos=null;
+  }
 
   // on mobile close the panel after generating so chart is visible
   if(window.innerWidth<=700){
@@ -1566,7 +1926,12 @@ function exportChart(){
   const totalVal=document.getElementById("chartTotal").textContent;
   const SCALE=2,svgW=parseInt(svgEl.getAttribute("width")),svgH=parseInt(svgEl.getAttribute("height"));
   const cardEls=document.querySelectorAll("#cards .card");
-  const cards=[...cardEls].map(c=>({lbl:c.querySelector(".lbl")?.textContent||"",val:c.querySelector(".val")?.textContent||"",color:c.querySelector(".val")?.style.color||"#333",dsc:c.querySelector(".dsc")?.textContent||""}));
+  const cards=[...cardEls].map(c=>({
+    lbl:c.querySelector(".card-lbl")?.textContent||"",
+    val:c.querySelector(".card-val")?.textContent||"",
+    color:getComputedStyle(c).getPropertyValue("--card-accent").trim()||"#333",
+    dsc:c.querySelector(".card-dsc")?.textContent||""
+  }));
   const PAD=28,HDR_H=80,CARD_H=78,CARD_GAP=10,FOOTER_H=36;
   const CARD_W=(svgW-PAD*2-CARD_GAP*3)/4;
   const CARDS_Y=HDR_H+svgH+10,TOTAL_H=HDR_H+svgH+10+CARD_H+FOOTER_H;
@@ -1585,7 +1950,18 @@ function exportChart(){
   ctx.textAlign="right";
   ctx.fillStyle=activeTheme.accent;ctx.font="bold 19px 'Segoe UI',sans-serif";ctx.fillText(totalVal,svgW-PAD,26);
   ctx.fillStyle="#999";ctx.font="10px 'Segoe UI',sans-serif";ctx.fillText("TOTAL INFLOW",svgW-PAD,50);
-  if(scope){const bt=scope.toUpperCase(),bw=ctx.measureText(bt).width+14;ctx.fillStyle=activeTheme.accent;roundRect(ctx,svgW-PAD-bw-4,58,bw,16,4);ctx.fill();ctx.fillStyle="#fff";ctx.font="bold 9px 'Segoe UI',sans-serif";ctx.fillText(bt,svgW-PAD,69);}
+  if(scope){
+    const bt=scope.toUpperCase();
+    ctx.font="bold 9px 'Segoe UI',sans-serif";
+    const bw=ctx.measureText(bt).width+16;
+    const bx=svgW-PAD-bw, by=54, bh=16;
+    ctx.fillStyle=activeTheme.accent;
+    roundRect(ctx,bx,by,bw,bh,4);ctx.fill();
+    ctx.fillStyle="#fff";
+    ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillText(bt, bx+bw/2, by+bh/2);
+    ctx.textAlign="left";ctx.textBaseline="middle";
+  }
   ctx.textAlign="left";
   const svgClone=svgEl.cloneNode(true);
   const bg=document.createElementNS("http://www.w3.org/2000/svg","rect");
@@ -1608,8 +1984,8 @@ function exportChart(){
       words.forEach(w=>{const test=line+w+" ";if(ctx.measureText(test).width>CARD_W-20&&line){ctx.fillText(line.trim(),cx+12,ly);ly+=13;line=w+" ";}else line=test;});
       if(line.trim())ctx.fillText(line.trim(),cx+12,ly);
     });
-    ctx.fillStyle="#bbb";ctx.font="10px 'Segoe UI',sans-serif";ctx.textAlign="center";
-    ctx.fillText([company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · "),svgW/2,CARDS_Y+CARD_H+18);
+    ctx.fillStyle="#bbb";ctx.font="10px 'Segoe UI',sans-serif";ctx.textAlign="right";
+    ctx.fillText([company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · "),svgW-PAD,CARDS_Y+CARD_H+18);
     ctx.textAlign="left";
     const a=document.createElement("a");a.download=filename;a.href=canvas.toDataURL("image/png");a.click();
     const btn=document.querySelector("#exportDd .tbtn"),orig=btn.textContent;
