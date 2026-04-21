@@ -11,14 +11,14 @@
   --accent:#059669;
   --accent-dark:#047857;
 }
-body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:100vh;display:flex;flex-direction:column;}
+body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:100dvh;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
 
 /* topbar */
-.topbar{background:#fff;border-bottom:1px solid #e0e0e0;padding:10px 20px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap;}
+.topbar{background:#fff;border-bottom:1px solid #e0e0e0;padding:10px 16px;display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:nowrap;}
 .topbar h1{font-size:16px;font-weight:700;color:#1a1a2e;white-space:nowrap;}
 .topbar h1 span{color:var(--accent);}
 .topbar-sub{font-size:11px;color:#bbb;}
-.topbar-right{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;}
 .tbtn{background:none;border:1px solid #ddd;border-radius:6px;padding:5px 11px;font-size:12px;cursor:pointer;color:#555;transition:all .15s;white-space:nowrap;}
 .tbtn:hover{border-color:var(--accent);color:var(--accent);}
 .tbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
@@ -43,9 +43,9 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .export-dd{display:none;}
 
 /* workspace */
-.workspace{display:flex;flex:1;overflow:hidden;}
+.workspace{display:flex;flex:1;overflow:hidden;position:relative;}
 
-/* panel */
+/* panel — side panel on desktop, slide-up overlay on mobile */
 .panel{width:310px;flex-shrink:0;background:#fff;border-right:1px solid #e0e0e0;display:flex;flex-direction:column;overflow:hidden;transition:width .25s,opacity .25s;}
 .panel.collapsed{width:0;opacity:0;pointer-events:none;}
 .panel-inner{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;min-width:310px;}
@@ -80,15 +80,18 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .error-box.on{display:block;}
 
 /* history */
-.history-list{display:flex;flex-direction:column;gap:5px;}
-.history-item{background:#fafafa;border:1px solid #eee;border-radius:6px;padding:7px 9px;cursor:pointer;transition:all .15s;font-size:11px;}
+.history-list{display:flex;flex-direction:column;gap:5px;max-height:260px;overflow-y:auto;}
+.history-item{background:#fafafa;border:1px solid #eee;border-radius:6px;padding:7px 9px;transition:all .15s;font-size:11px;display:flex;align-items:center;gap:6px;}
 .history-item:hover{border-color:var(--accent);background:#fffbf0;}
-.history-item strong{display:block;font-size:11px;color:#1a1a2e;}
+.history-item-info{flex:1;cursor:pointer;min-width:0;}
+.history-item strong{display:block;font-size:11px;color:#1a1a2e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .history-item span{color:#aaa;font-size:10px;}
+.history-del{background:none;border:none;cursor:pointer;color:#ddd;font-size:14px;line-height:1;padding:2px 4px;border-radius:3px;flex-shrink:0;transition:color .15s;}
+.history-del:hover{color:#ef4444;}
 .history-empty{font-size:11px;color:#bbb;text-align:center;padding:8px 0;}
 
 /* chart area */
-.chart-area{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;}
+.chart-area{flex:1;overflow:auto;display:flex;flex-direction:column;align-items:center;min-width:0;}
 .chart-header{padding:16px 24px 6px;display:flex;justify-content:space-between;align-items:flex-end;flex-shrink:0;width:100%;max-width:1400px;}
 .chart-header h2{font-size:20px;font-weight:700;color:#1a1a2e;}
 .chart-header h2 span{color:var(--accent);}
@@ -96,19 +99,18 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .tot .v{font-size:18px;color:var(--accent);text-align:right;font-weight:600;}
 .tot .l{font-size:10px;color:#999;text-align:right;text-transform:uppercase;letter-spacing:.1em;margin-top:2px;}
 
-#wrap{padding:0 14px 8px;background:#fff;border-radius:8px;border:1px solid #e8e8e8;flex-shrink:0;width:100%;max-width:1400px;}
+#wrap{padding:0 14px 8px;background:#fff;border-radius:8px;border:1px solid #e8e8e8;flex-shrink:0;width:100%;max-width:1400px;overflow-x:auto;min-width:0;}
 svg{display:block;}
 
 .warn-box{width:100%;max-width:1400px;background:#fffbf0;border:1px solid #f0e0b0;border-radius:6px;padding:7px 12px;font-size:11px;color:#7a5c00;line-height:1.7;display:none;flex-shrink:0;margin-bottom:4px;}
 .warn-box.on{display:block;}
 
-.yoy-legend{width:100%;max-width:1400px;display:none;align-items:center;gap:14px;padding:4px 0 6px;font-size:11px;color:#666;flex-shrink:0;}
+.yoy-legend{width:100%;max-width:1400px;display:none;align-items:center;gap:10px;padding:4px 0 6px;font-size:11px;color:#666;flex-shrink:0;flex-wrap:wrap;min-width:0;}
 .yoy-legend.on{display:flex;}
-.yoy-legend span{display:flex;align-items:center;gap:4px;}
-.yoy-dot{width:8px;height:8px;border-radius:50%;}
+.yoy-legend span{display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.yoy-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
-.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:8px 0 16px;flex-shrink:0;width:100%;max-width:1400px;}
-@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr);}}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;padding:8px 0 16px;flex-shrink:0;width:100%;max-width:1400px;}
 .card{background:#fff;border:1px solid #e0e0e0;border-radius:6px;padding:11px 13px;}
 .card .lbl{font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#999;margin-bottom:3px;}
 .card .val{font-size:18px;font-weight:700;margin-bottom:2px;}
@@ -124,6 +126,72 @@ svg{display:block;}
 
 /* YoY badge on SVG */
 .yoy-badge{font-size:9.5px;font-family:'Segoe UI',sans-serif;font-weight:700;}
+
+/* mobile panel overlay */
+.panel-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:199;}
+.panel-overlay.on{display:block;}
+
+/* ── MOBILE ───────────────────────────────────────────────────────────────── */
+@media(max-width:700px){
+  /* topbar: hide non-essential items */
+  .topbar-sub{display:none;}
+  .palette-wrap{display:none!important;}
+  .topbar-right .dd-wrap:not(#promptDd):not(#exportDd){display:none;}
+  #btnPanel{display:none;}
+
+  /* chart area stretches full width — no centering that clips overflow */
+  .chart-area{align-items:stretch;}
+  #chartInner{align-items:stretch!important;}
+
+  /* all chart children go full width */
+  .chart-header,.warn-box,.yoy-legend,.cards{max-width:none;}
+
+  /* wrap fills full width, clips nothing, scrolls SVG horizontally */
+  #wrap{
+    max-width:none;width:100%;
+    border-radius:0;border-left:none;border-right:none;
+    padding:0;overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  /* panel becomes bottom sheet */
+  .panel{
+    position:fixed;bottom:0;left:0;right:0;
+    width:100%!important;max-height:85vh;
+    border-right:none;border-top:1px solid #e0e0e0;
+    border-radius:16px 16px 0 0;z-index:200;
+    opacity:1!important;transform:translateY(100%);
+    transition:transform .3s ease;overflow:hidden;
+  }
+  .panel.mobile-open{transform:translateY(0);}
+  .panel.collapsed{transform:translateY(100%);pointer-events:none;}
+  .panel-inner{min-width:unset;padding-bottom:80px;}
+
+  /* chart header compact */
+  .chart-header{padding:10px 12px 4px;flex-wrap:wrap;gap:4px;}
+  .chart-header h2{font-size:15px;}
+  .tot .v{font-size:14px;}
+  .tot .l{font-size:9px;}
+
+  /* cards 2 col */
+  .cards{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));padding:8px 10px 80px;}
+
+  /* FAB */
+  #fabPanel{
+    display:flex;position:fixed;bottom:20px;right:20px;
+    width:52px;height:52px;border-radius:50%;
+    background:var(--accent);color:#fff;border:none;font-size:22px;
+    cursor:pointer;align-items:center;justify-content:center;
+    box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:201;transition:transform .15s;
+  }
+  #fabPanel:active{transform:scale(0.93);}
+  .shortcut-hint{display:none;}
+}
+
+@media(min-width:701px){
+  #fabPanel{display:none;}
+  .panel-overlay{display:none!important;}
+}
 </style>
 </head>
 <body>
@@ -142,6 +210,9 @@ svg{display:block;}
         </div>
         <div class="dd-item" onclick="exportPDF();toggleDd('exportDd')">
           <strong>Export as PDF</strong><span>Chart + full flow data table</span>
+        </div>
+        <div class="dd-item" onclick="exportJSON();toggleDd('exportDd')">
+          <strong>Export as JSON</strong><span>Save chart data to file — import later or share</span>
         </div>
       </div>
     </div>
@@ -250,10 +321,10 @@ svg{display:block;}
       <div class="field">
         <label>Column Spacing</label>
         <div style="display:flex;align-items:center;gap:8px;">
-          <input type="range" id="inColSpacing" min="0" max="200" value="0" step="10"
+          <input type="range" id="inColSpacing" min="0" max="200" value="10" step="5"
             style="flex:1;accent-color:var(--accent);cursor:pointer;"
             oninput="document.getElementById('inColSpacingVal').textContent='+'+this.value+'px'"/>
-          <span id="inColSpacingVal" style="font-size:11px;color:var(--accent);min-width:42px;">+0px</span>
+          <span id="inColSpacingVal" style="font-size:11px;color:var(--accent);min-width:42px;">+10px</span>
         </div>
       </div>
 
@@ -261,8 +332,8 @@ svg{display:block;}
       <div class="hint">
         One flow per line:<br>
         <code>Source, Target, CurrentValue, PriorValue</code><br>
-        PriorValue is optional — omit for no YoY badges.<br>
-        Lines starting with <code>#</code> are ignored.
+        PriorValue optional · Lines with <code>#</code> ignored<br>
+        Add at bottom: <code>EPS, 15.42</code> &nbsp;·&nbsp; <code>DPS, 8.50</code>
       </div>
 
       <div class="field">
@@ -285,13 +356,18 @@ Net Sales, Cost of Sales, 11662"></textarea>
       </div>
       <div class="shortcut-hint">Ctrl + Enter to generate</div>
 
-      <div class="section-title">Recent Charts</div>
+      <div class="section-title">Saved Charts</div>
+      <div style="display:flex;gap:5px;margin-bottom:4px;">
+        <button class="btn-sec" style="flex:1;font-size:10px;" onclick="importJSON()">⬆ Import JSON</button>
+        <button class="btn-sec" style="flex:1;font-size:10px;" onclick="copyShareURL()">🔗 Share URL</button>
+      </div>
       <div class="history-list" id="historyList"></div>
     </div>
   </div>
 
   <!-- CHART AREA -->
   <div class="chart-area" id="chartArea">
+
     <div class="placeholder" id="placeholder">
       <svg width="60" height="60" viewBox="0 0 64 64" fill="none">
         <rect x="4" y="20" width="10" height="24" rx="2" fill="#ccc"/>
@@ -302,7 +378,7 @@ Net Sales, Cost of Sales, 11662"></textarea>
         <path d="M37 24 Q44 20 50 30" stroke="#ddd" stroke-width="4" fill="none"/>
         <path d="M37 44 Q44 44 50 38" stroke="#ddd" stroke-width="4" fill="none"/>
       </svg>
-      <p>Fill in details, paste flow data, click <strong>Generate</strong></p>
+      <p>Fill in details, paste flow data, tap <strong>Generate</strong></p>
       <p style="font-size:11px;color:#ccc;">Ctrl+Enter to generate</p>
     </div>
 
@@ -328,6 +404,9 @@ Net Sales, Cost of Sales, 11662"></textarea>
     </div>
   </div>
 </div>
+<div class="panel-overlay" id="panelOverlay" onclick="togglePanel()"></div>
+<button id="fabPanel" onclick="togglePanel()">✏️</button>
+
 <div id="tip"></div>
 
 <!-- ── How To Use Dialog ───────────────────────────────────────────────────── -->
@@ -433,15 +512,20 @@ const PALETTES={
   "Vivid":      ["#d4a853","#14b8a6","#3b82f6","#a78bfa","#22c55e","#f43f5e","#fb923c","#6366f1","#8b949e","#fbbf24","#e11d48","#0ea5e9","#84cc16","#f97316","#ec4899","#10b981","#ef4444","#60a5fa","#a3e635","#c084fc"],
   "Corporate":  ["#1e3a5f","#2e6da4","#4a9fd4","#6cb4e4","#0077b6","#0096c7","#00b4d8","#48cae4","#264653","#2a9d8f","#57cc99","#023e8a","#03045e","#90e0ef","#38b000","#008000","#005f73","#0a9396","#94d2bd","#e9d8a6"],
   "Warm":       ["#c1121f","#e85d04","#f48c06","#faa307","#ffba08","#d62828","#f77f00","#fcbf49","#9b2226","#ae2012","#bb3e03","#ca6702","#ee9b00","#780000","#a44200","#e9c46a","#f4a261","#e76f51","#ef233c","#d90429"],
-  "Pastel":     ["#a8dadc","#457b9d","#1d3557","#e63946","#06d6a0","#118ab2","#073b4c","#ffd166","#ef476f","#84a98c","#52796f","#354f52","#b7d5ea","#8fb8d1","#6a9ab0","#c9cba3","#ffe1a8","#e26d5c","#723d46","#472d30"],
-  "Green–Gold": ["#606c38","#283618","#dda15e","#bc6c25","#588157","#3a5a40","#a3b18a","#dad7cd","#b5838d","#6d6875","#e9c46a","#f4a261","#264653","#2a9d8f","#57cc99","#80ed99","#386641","#6a994e","#a7c957","#bc4749"],
-  "Monochrome": ["#111","#222","#333","#444","#555","#666","#777","#888","#999","#aaa","#bbb","#ccc","#0d0d0d","#1a1a1a","#2d2d2d","#404040","#595959","#737373","#8c8c8c","#a6a6a6"],
-  "Ocean":      ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#90e0ef","#ade8f4","#caf0f8","#005f73","#0a9396","#94d2bd","#e9d8a6","#ee9b00","#ca6702","#bb3e03","#ae2012","#9b2226","#001219","#006400"],
-  "Sunset":     ["#ff6b6b","#ff8e53","#ff9f43","#ffd32a","#0be881","#0fbcf9","#f53b57","#3c40c4","#ffd42a","#ffdd59","#ff5e57","#ff3f34","#ff9f43","#ffa502","#ff6348","#ff4757","#2ed573","#1e90ff","#eccc68","#a29bfe"],
-  "Berry":      ["#6c3483","#884ea0","#a569bd","#c39bd3","#d2b4de","#4a235a","#7d3c98","#9b59b6","#af7ac5","#c8a2c8","#512e5f","#76448a","#8e44ad","#a569bd","#b784c7","#1a5276","#1f618d","#2874a6","#3498db","#5dade2"],
-  "Earth":      ["#7b3f00","#a0522d","#b8860b","#cd853f","#d2691e","#8b4513","#a52a2a","#800000","#556b2f","#6b8e23","#808000","#8fbc8f","#2e8b57","#3cb371","#20b2aa","#008080","#4682b4","#708090","#696969","#808080"],
-  "Neon":       ["#ff00ff","#00ffff","#ff6600","#ffff00","#00ff00","#ff0066","#6600ff","#ff3300","#00ff99","#ff0099","#33ccff","#ff6633","#99ff00","#cc00ff","#ff9900","#00ccff","#ff0033","#66ff00","#ff00cc","#0033ff"],
-  "PSX Classic":["#006633","#009933","#00cc44","#ffcc00","#ff9900","#cc0000","#990000","#003366","#0066cc","#3399ff","#66ccff","#99ffcc","#ccff99","#ffff66","#ffcc66","#ff9966","#ff6666","#cc3333","#336699","#6699cc"],
+  "Pastel":      ["#a8dadc","#457b9d","#1d3557","#e63946","#06d6a0","#118ab2","#073b4c","#ffd166","#ef476f","#84a98c","#52796f","#354f52","#b7d5ea","#8fb8d1","#6a9ab0","#c9cba3","#ffe1a8","#e26d5c","#723d46","#472d30"],
+  "Green–Gold":  ["#606c38","#283618","#dda15e","#bc6c25","#588157","#3a5a40","#a3b18a","#dad7cd","#b5838d","#6d6875","#e9c46a","#f4a261","#264653","#2a9d8f","#57cc99","#80ed99","#386641","#6a994e","#a7c957","#bc4749"],
+  "Monochrome":  ["#111","#222","#333","#444","#555","#666","#777","#888","#999","#aaa","#bbb","#ccc","#0d0d0d","#1a1a1a","#2d2d2d","#404040","#595959","#737373","#8c8c8c","#a6a6a6"],
+  "Ocean":       ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#90e0ef","#ade8f4","#caf0f8","#005f73","#0a9396","#94d2bd","#e9d8a6","#ee9b00","#ca6702","#bb3e03","#ae2012","#9b2226","#001219","#006400"],
+  "Sunset":      ["#ff6b6b","#ff8e53","#ff9f43","#ffd32a","#0be881","#0fbcf9","#f53b57","#3c40c4","#ffd42a","#ffdd59","#ff5e57","#ff3f34","#ff9f43","#ffa502","#ff6348","#ff4757","#2ed573","#1e90ff","#eccc68","#a29bfe"],
+  "Berry":       ["#6c3483","#884ea0","#a569bd","#c39bd3","#d2b4de","#4a235a","#7d3c98","#9b59b6","#af7ac5","#c8a2c8","#512e5f","#76448a","#8e44ad","#a569bd","#b784c7","#1a5276","#1f618d","#2874a6","#3498db","#5dade2"],
+  "Earth":       ["#7b3f00","#a0522d","#b8860b","#cd853f","#d2691e","#8b4513","#a52a2a","#800000","#556b2f","#6b8e23","#808000","#8fbc8f","#2e8b57","#3cb371","#20b2aa","#008080","#4682b4","#708090","#696969","#808080"],
+  "Neon":        ["#ff00ff","#00ffff","#ff6600","#ffff00","#00ff00","#ff0066","#6600ff","#ff3300","#00ff99","#ff0099","#33ccff","#ff6633","#99ff00","#cc00ff","#ff9900","#00ccff","#ff0033","#66ff00","#ff00cc","#0033ff"],
+  "PSX Classic": ["#006633","#009933","#00cc44","#ffcc00","#ff9900","#cc0000","#990000","#003366","#0066cc","#3399ff","#66ccff","#99ffcc","#ccff99","#ffff66","#ffcc66","#ff9966","#ff6666","#cc3333","#336699","#6699cc"],
+  "Corporate":   ["#1a3a5c","#2166ac","#4393c3","#74add1","#abd9e9","#006d2c","#31a354","#74c476","#bae4b3","#8c2d04","#d94801","#f16913","#fd8d3c","#fdbe85","#54278f","#756bb1","#9e9ac8","#cbc9e2","#dadaeb","#636363"],
+  "Warm Neutrals":["#c9b99a","#b5967a","#9c7b5e","#7c5c42","#5e3d28","#d6c4a8","#e8dcc8","#f5f0e8","#a0856a","#876650","#6b4e38","#4d3624","#c4a882","#b89468","#a07850","#8a6238","#e0c8a0","#d4b880","#c8a860","#bc9840"],
+  "Finance Blue": ["#003366","#004d99","#0066cc","#0080ff","#3399ff","#66b2ff","#99ccff","#cce5ff","#002244","#1a3d6b","#005fa3","#0073c6","#1a8fe6","#4da6ff","#80c0ff","#b3d9ff","#001122","#002255","#004488","#0055aa"],
+  "Tropical":    ["#ff595e","#ffca3a","#6a4c93","#1982c4","#8ac926","#ff595e","#ff924c","#ff2d55","#4cc9f0","#4361ee","#3a0ca3","#7209b7","#f72585","#06d6a0","#118ab2","#073b4c","#ffd166","#ef476f","#06d6a0","#118ab2"],
+  "Muted Pro":   ["#4a4e69","#9a8c98","#c9ada7","#f2e9e4","#22223b","#6d6875","#b5838d","#e5989b","#ffb4a2","#ffcdb2","#355070","#6d597a","#b56576","#e56b6f","#eaac8b","#2d6a4f","#40916c","#52b788","#74c69d","#95d5b2"],
 };
 let activePalette="Vivid";
 const getPalette=()=>PALETTES[activePalette];
@@ -500,6 +584,11 @@ function setTheme(theme){
 }
 
 window.addEventListener("DOMContentLoaded",()=>{
+  // collapse panel by default on mobile
+  if(window.innerWidth<=700){
+    const p=document.getElementById("panel");
+    p.classList.add("collapsed");
+  }
   // build theme swatches
   const wrap = document.getElementById("themeSwatches");
   APP_THEMES.forEach(theme=>{
@@ -527,9 +616,10 @@ window.addEventListener("DOMContentLoaded",()=>{
   Object.keys(PALETTES).forEach(n=>{
     const o=document.createElement("option");
     o.value=n;o.textContent=n;
-    if(n===activePalette)o.selected=true;
+    if(n===(window._pendingPalette||activePalette))o.selected=true;
     sel.appendChild(o);
   });
+  if(window._pendingPalette){activePalette=window._pendingPalette;}
   renderSwatch(activePalette);
   renderHistory();
 });
@@ -571,24 +661,42 @@ function applyPalette(){
   });
 }
 
-// ─── HISTORY ──────────────────────────────────────────────────────────────────
-const HIST_KEY="sankeyHistory2";
+// ─── CHART LIBRARY (unlimited localStorage) ───────────────────────────────────
+const HIST_KEY="sankeyLib1";
+
+function getHistory(){
+  try{return JSON.parse(localStorage.getItem(HIST_KEY)||"[]");}catch(e){return[];}
+}
 function saveHistory(company,year,scope,data){
-  let h=getHistory().filter(x=>!(x.company===company&&x.year===year));
-  h.unshift({company,year,scope,data,ts:Date.now()});
-  h=h.slice(0,5);
+  let h=getHistory();
+  // update existing entry if same company+year, else prepend
+  const idx=h.findIndex(x=>x.company===company&&x.year===year);
+  const entry={company,year,scope,data,
+    palette:activePalette,
+    colSpacing:document.getElementById("inColSpacing").value||"0",
+    ts:Date.now()};
+  if(idx>=0) h[idx]=entry;
+  else h.unshift(entry);
   try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}
   renderHistory();
 }
-function getHistory(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||"[]");}catch(e){return[];}}
+function deleteHistory(i,e){
+  e.stopPropagation();
+  const h=getHistory();h.splice(i,1);
+  try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}
+  renderHistory();
+}
 function renderHistory(){
   const list=document.getElementById("historyList");
   const h=getHistory();
-  if(!h.length){list.innerHTML='<div class="history-empty">No recent charts</div>';return;}
+  if(!h.length){list.innerHTML='<div class="history-empty">No saved charts</div>';return;}
   list.innerHTML=h.map((it,i)=>`
-    <div class="history-item" onclick="loadHistory(${i})">
-      <strong>${it.company||"Unnamed"}</strong>
-      <span>${[it.year,it.scope].filter(Boolean).join(" · ")} · ${new Date(it.ts).toLocaleDateString()}</span>
+    <div class="history-item">
+      <div class="history-item-info" onclick="loadHistory(${i})">
+        <strong>${it.company||"Unnamed"}</strong>
+        <span>${[it.year,it.scope].filter(Boolean).join(" · ")} · ${new Date(it.ts).toLocaleDateString()}</span>
+      </div>
+      <button class="history-del" onclick="deleteHistory(${i},event)" title="Delete">✕</button>
     </div>`).join("");
 }
 function loadHistory(i){
@@ -597,11 +705,144 @@ function loadHistory(i){
   document.getElementById("inYear").value=it.year||"";
   document.getElementById("inScope").value=it.scope||"";
   document.getElementById("inData").value=it.data||"";
+  if(it.palette&&PALETTES[it.palette]){
+    activePalette=it.palette;
+    document.getElementById("paletteSelect").value=it.palette;
+    renderSwatch(it.palette);
+  }
+  if(it.colSpacing){
+    const sl=document.getElementById("inColSpacing");
+    sl.value=it.colSpacing;
+    document.getElementById("inColSpacingVal").textContent="+"+it.colSpacing+"px";
+  }
   generate();
 }
 
+// ─── EXPORT JSON ──────────────────────────────────────────────────────────────
+function exportJSON(){
+  if(!currentNodes){alert("Generate a chart first.");return;}
+  const payload={
+    version:1,
+    company:currentCompany,year:currentYear,scope:currentScope,
+    data:document.getElementById("inData").value,
+    palette:activePalette,
+    colSpacing:document.getElementById("inColSpacing").value||"0",
+    chartHeight:document.getElementById("inHeight").value||"520",
+    ts:Date.now()
+  };
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=`${currentCompany||"chart"}${currentYear?" "+currentYear:""}.json`.replace(/[^a-z0-9 _.-]/gi,"_");
+  a.click();URL.revokeObjectURL(a.href);
+}
+
+// hidden file input for import
+const _importInput=document.createElement("input");
+_importInput.type="file";_importInput.accept=".json,application/json";
+_importInput.addEventListener("change",e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const p=JSON.parse(ev.target.result);
+      document.getElementById("inCompany").value=p.company||"";
+      document.getElementById("inYear").value=p.year||"";
+      document.getElementById("inScope").value=p.scope||"";
+      document.getElementById("inData").value=p.data||"";
+      if(p.palette&&PALETTES[p.palette]){
+        activePalette=p.palette;
+        document.getElementById("paletteSelect").value=p.palette;
+        renderSwatch(p.palette);
+      }
+      if(p.colSpacing){
+        const sl=document.getElementById("inColSpacing");
+        sl.value=p.colSpacing;
+        document.getElementById("inColSpacingVal").textContent="+"+p.colSpacing+"px";
+      }
+      if(p.chartHeight){
+        const sl=document.getElementById("inHeight");
+        sl.value=p.chartHeight;
+        document.getElementById("inHeightVal").textContent=p.chartHeight+"px";
+      }
+      generate();
+    }catch(err){alert("Invalid JSON file: "+err.message);}
+  };
+  reader.readAsText(file);
+  _importInput.value="";
+});
+function importJSON(){_importInput.click();}
+
+// ─── SHAREABLE URL ────────────────────────────────────────────────────────────
+// Simple LZ-inspired base64 encode (no external lib needed for reasonable data sizes)
+function encodePayload(obj){
+  try{return btoa(unescape(encodeURIComponent(JSON.stringify(obj))));}catch(e){return null;}
+}
+function decodePayload(str){
+  try{return JSON.parse(decodeURIComponent(escape(atob(str))));}catch(e){return null;}
+}
+function copyShareURL(){
+  const data=document.getElementById("inData").value.trim();
+  if(!data){alert("Paste flow data and generate a chart first.");return;}
+  const payload={
+    c:document.getElementById("inCompany").value.trim(),
+    y:document.getElementById("inYear").value.trim(),
+    s:document.getElementById("inScope").value.trim(),
+    d:data,
+    p:activePalette,
+    cs:document.getElementById("inColSpacing").value||"0",
+    h:document.getElementById("inHeight").value||"520"
+  };
+  const encoded=encodePayload(payload);
+  if(!encoded){alert("Data too large to encode as URL.");return;}
+  const url=`${location.origin}${location.pathname}#chart=${encoded}`;
+  navigator.clipboard.writeText(url).then(()=>{
+    // brief toast
+    const btn=event.currentTarget||document.querySelector("[onclick='copyShareURL()']");
+    const orig=btn.textContent;
+    btn.textContent="✓ Copied!";btn.style.color="var(--accent)";btn.style.borderColor="var(--accent)";
+    setTimeout(()=>{btn.textContent=orig;btn.style.color="";btn.style.borderColor="";},2500);
+  }).catch(()=>{
+    prompt("Copy this URL:",url);
+  });
+}
+
+// on load, check for shared chart in URL hash
+(function checkURLHash(){
+  const hash=location.hash;
+  if(!hash.startsWith("#chart=")) return;
+  const encoded=hash.slice(7);
+  const p=decodePayload(encoded);
+  if(!p) return;
+  document.getElementById("inCompany").value=p.c||"";
+  document.getElementById("inYear").value=p.y||"";
+  document.getElementById("inScope").value=p.s||"";
+  document.getElementById("inData").value=p.d||"";
+  if(p.p&&PALETTES[p.p]){
+    activePalette=p.p;
+    // palette select may not be built yet — will be set in DOMContentLoaded
+    window._pendingPalette=p.p;
+  }
+  if(p.cs){
+    document.getElementById("inColSpacing").value=p.cs;
+    document.getElementById("inColSpacingVal").textContent="+"+p.cs+"px";
+  }
+  if(p.h){
+    document.getElementById("inHeight").value=p.h;
+    document.getElementById("inHeightVal").textContent=p.h+"px";
+  }
+  // generate after DOM is ready
+  window.addEventListener("DOMContentLoaded",()=>setTimeout(generate,100));
+})();
+
 // ─── PROMPTS ──────────────────────────────────────────────────────────────────
 function copyPrompt(type){
+  const EPS_DPS_NOTE=`
+# After all flow lines, add EPS and DPS on separate lines (in PKR, not Millions):
+EPS, [earnings per share as reported in PKR]
+DPS, [dividends per share as reported in PKR]
+# If not disclosed, omit these lines entirely.`;
+
   const texts={
     csv:`Extract financial flow data from this annual report. Return ONLY comma-separated data, one flow per line, no headers, no explanation:
 
@@ -623,18 +864,20 @@ Profit Before Tax, Taxation, 2464.73
 Profit Before Tax, Net Profit, 4119.31
 Net Profit, Dividends, 2119.34
 Net Profit, Retained Earnings, 1999.98
+EPS, 15.42
+DPS, 8.50
 
-Return only the CSV lines. Nothing else.`,
+Return only the CSV lines and EPS/DPS. Nothing else.`,
 
     comparative:`Extract financial flow data from this annual report. This report contains a COMPARATIVE P&L with current year and prior year columns. Return ONLY comma-separated data, one flow per line, no headers, no explanation:
 
 Source, Target, CurrentYearValue, PriorYearValue
 
 Both values in PKR Millions, rounded to 2 decimal places.
-- If a prior year value is missing or unavailable for a specific line, leave the 4th column empty: "Source, Target, CurrentValue,"
-- If prior year data is entirely absent from the report, return only 3 columns per line (Source, Target, CurrentValue) and note this at the very end as a single comment line starting with #
+- If a prior year value is missing for a specific line, leave the 4th column empty: "Source, Target, CurrentValue,"
+- If prior year data is entirely absent, return only 3 columns and note with a # comment line at the end
 
-Example output (with comparative data):
+Example output:
 Total Revenue, Net Sales, 25789.24, 22340.11
 Total Revenue, Other Income, 446.67, 380.20
 Net Sales, Cost of Sales, 11662.35, 10234.56
@@ -650,21 +893,23 @@ Profit Before Tax, Taxation, 2464.73, 1920.50
 Profit Before Tax, Net Profit, 4119.31, 3212.65
 Net Profit, Dividends, 2119.34, 1680.00
 Net Profit, Retained Earnings, 1999.98, 1532.65
+EPS, 15.42
+DPS, 8.50
 
 Rules:
-- All values in PKR Millions, rounded to 2 decimal places
-- Do NOT compute % changes — the app will do this automatically
-- If a line item doesn't exist in either year, omit that row entirely
-- If additional discrete expense lines exist (e.g. Exploration, R&D), add as "Gross Profit, [Name], cur, prior"
-- If additional income streams exist beyond Other Income, add as "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
-- Verify: Cost of Sales + Gross Profit = Net Sales for both years; Dividends + Retained Earnings = Net Profit for both years
-- Flag any derived figures with a trailing comment on that line`,
+- All flow values in PKR Millions, rounded to 2 decimal places
+- EPS and DPS in PKR (not millions) as reported — extract from the EPS note or financial highlights section
+- Do NOT compute % changes — the app does this automatically
+- If additional discrete expense lines exist (Exploration, R&D etc.), add as "Gross Profit, [Name], cur, prior"
+- If additional income streams exist, add "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
+- Verify: CoS + Gross Profit = Net Sales for both years; Dividends + Retained Earnings = Net Profit
+- Flag any derived figures`,
 
-    detailed:`I need to extract financial flow data from this annual report to build a Sankey chart. Extract from the Profit & Loss / Income Statement and Statement of Value Addition. Return data in this exact format — one flow per line, comma-separated, no headers:
+    detailed:`I need to extract financial flow data from this annual report to build a Sankey chart. Extract from the P&L, Statement of Value Addition, and EPS note. Return data in this exact format — one flow per line, comma-separated, no headers:
 
 Source Node, Target Node, CurrentYearValue, PriorYearValue
 
-Standard flows to extract in order:
+Standard flows:
 Total Revenue, Net Sales, [cur], [prior]
 Total Revenue, Other Income, [cur], [prior]
 Net Sales, Cost of Sales, [cur], [prior]
@@ -681,14 +926,19 @@ Profit Before Tax, Net Profit, [cur], [prior]
 Net Profit, Dividends, [cur], [prior]
 Net Profit, Retained Earnings, [cur], [prior]
 
+Then add on separate lines (EPS and DPS in PKR, not millions):
+EPS, [current year EPS]
+DPS, [current year DPS]
+
 Rules:
-- All values in PKR Millions, rounded to 2 decimal places
-- If prior year column is absent, omit the 4th column — return 3 columns only
-- If a specific prior year value is missing, leave 4th column blank: "A, B, 1234,"
+- Flow values in PKR Millions, rounded to 2 decimal places
+- EPS/DPS in PKR as reported (from EPS note or financial highlights) — not in millions
+- If prior year column is absent, return 3 columns only
+- If a specific prior value is missing, leave 4th column blank: "A, B, 1234,"
 - Do NOT compute % changes — the app handles this automatically
-- If discrete expense lines exist (Exploration, R&D, Levies etc.), add as extra "Gross Profit, [Name], cur, prior" rows
-- If additional income streams exist beyond Other Income, add "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior" — unless it bypasses PBT, then "[Name], Net Profit, cur, prior"
-- Verify for BOTH years: CoS + Gross Profit = Net Sales; Dividends + Retained Earnings = Net Profit
+- Discrete expense lines (Exploration, R&D, Levies etc.) → "Gross Profit, [Name], cur, prior"
+- Additional income streams → "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
+- Verify both years: CoS + Gross Profit = Net Sales; Dividends + Retained Earnings = Net Profit
 - Flag all derived figures and rounding adjustments`
   };
   navigator.clipboard.writeText(texts[type]).then(()=>{
@@ -701,10 +951,20 @@ Rules:
 
 // ─── PANEL TOGGLE ─────────────────────────────────────────────────────────────
 function togglePanel(){
-  const p=document.getElementById("panel"),b=document.getElementById("btnPanel");
-  p.classList.toggle("collapsed");b.classList.toggle("active");
-  b.textContent=p.classList.contains("collapsed")?"⟩ Panel":"⟨ Panel";
-  setTimeout(()=>{if(currentNodes)generate();},280);
+  const p=document.getElementById("panel");
+  const b=document.getElementById("btnPanel");
+  const overlay=document.getElementById("panelOverlay");
+  const isMobile=window.innerWidth<=700;
+  if(isMobile){
+    const isOpen=p.classList.contains("mobile-open");
+    p.classList.toggle("mobile-open",!isOpen);
+    p.classList.toggle("collapsed",isOpen);
+    if(overlay) overlay.classList.toggle("on",!isOpen);
+  } else {
+    p.classList.toggle("collapsed");
+    if(b){b.classList.toggle("active");b.textContent=p.classList.contains("collapsed")?"⟩ Panel":"⟨ Panel";}
+    setTimeout(()=>{if(currentNodes)generate();},280);
+  }
 }
 
 // ─── SAMPLE DATA ──────────────────────────────────────────────────────────────
@@ -728,7 +988,9 @@ Other Income, Profit Before Tax, 447, 380
 Profit Before Tax, Taxation, 2465, 1921
 Profit Before Tax, Net Profit, 4119, 3213
 Net Profit, Dividends, 2119, 1680
-Net Profit, Retained Earnings, 2000, 1533`;
+Net Profit, Retained Earnings, 2000, 1533
+EPS, 15.42
+DPS, 8.50`;
 }
 
 // ─── PARSE ────────────────────────────────────────────────────────────────────
@@ -737,19 +999,29 @@ function parseData(raw){
   const nodeIndex=new Map();
   const links=[];
   let hasYoY=false;
+  const meta={}; // EPS, DPS etc.
   const getNode=name=>{
     name=name.trim();
     if(!nodeIndex.has(name))nodeIndex.set(name,nodeIndex.size);
     return nodeIndex.get(name);
   };
+  // known single-value meta keys (2-column lines with no target node)
+  const META_KEYS=["EPS","DPS","eps","dps"];
   for(const line of lines){
     const parts=line.split(",");
+    if(parts.length<2) throw new Error(`Bad line: "${line}" — need at least Source, Target, Value`);
+    // detect meta lines: "EPS, 15.42" or "DPS, 8.50"
+    const key=parts[0].trim().toUpperCase();
+    if(META_KEYS.includes(parts[0].trim().toUpperCase()) && parts.length===2){
+      const v=parseFloat(parts[1].replace(/[^0-9.-]/g,""));
+      if(!isNaN(v)) meta[key]=v;
+      continue;
+    }
     if(parts.length<3) throw new Error(`Bad line: "${line}" — need at least Source, Target, Value`);
     const s=getNode(parts[0]),t=getNode(parts[1]);
     const v=parseFloat(parts[2].replace(/[^0-9.-]/g,""));
     if(isNaN(v)||v<=0) throw new Error(`Invalid value on line: "${line}"`);
     if(s===t) throw new Error(`Source equals target: "${line}"`);
-    // prior year — 4th column, may be empty
     let prior=null;
     if(parts.length>=4&&parts[3].trim()!==""){
       const pv=parseFloat(parts[3].replace(/[^0-9.-]/g,""));
@@ -757,7 +1029,7 @@ function parseData(raw){
     }
     links.push({s,t,v,prior});
   }
-  return{nodeNames:[...nodeIndex.keys()],links,hasYoY};
+  return{nodeNames:[...nodeIndex.keys()],links,hasYoY,meta};
 }
 
 // ─── VALIDATION ───────────────────────────────────────────────────────────────
@@ -863,34 +1135,77 @@ function ribbonPath(l){
 }
 
 // ─── INSIGHT CARDS ────────────────────────────────────────────────────────────
-function buildCards(nodes,links){
+function buildCards(nodes, links, meta={}){
   const find=(...ps)=>nodes.find(n=>ps.some(p=>n.name.toLowerCase().includes(p.toLowerCase())));
-  const netSales=find("Net Sales","Net Revenue");
-  const grossProfit=find("Gross Profit");
-  const netProfit=find("Net Profit","NPAT");
-  const dividends=find("Dividend");
-  const cos=find("Cost of Sales","Cost of Goods");
-  const tax=find("Tax");
+  const cur=getCurrencySymbol();
+
+  const netSales    = find("Net Sales","Net Revenue");
+  const grossProfit = find("Gross Profit");
+  const netProfit   = find("Net Profit","NPAT","Profit After Tax");
+  const dividends   = find("Dividend");
+  const opProfit    = find("Operating Profit");
+  const finCost     = find("Finance Cost","Finance Charges","Interest");
+  const pbt         = find("Profit Before Tax","PBT");
+
+  const fmt2=v=>v!=null?`${cur} ${v.toFixed(2)}`:null;
+  const pct=( a, b)=>a&&b&&b>0?Math.round(a/b*100):null;
+  const pctF=(a, b)=>a&&b&&b>0?((a/b)*100).toFixed(1)+'%':null;
+
   const cards=[];
-  if(grossProfit&&netSales&&netSales.value>0){
-    const pct=Math.round(grossProfit.value/netSales.value*100);
-    cards.push({lbl:"Gross Margin",val:`${pct}%`,color:"#2d9e6b",dsc:`${fmtVal(grossProfit.value)} on net sales of ${fmtVal(netSales.value)}`});
+
+  // 1. EPS — first
+  if(meta.EPS!=null)
+    cards.push({lbl:"EPS",val:`${cur} ${meta.EPS.toFixed(2)}`,color:"#6366f1",
+      dsc:"Earnings per share as reported"});
+
+  // 2. DPS — second
+  if(meta.DPS!=null)
+    cards.push({lbl:"DPS",val:`${cur} ${meta.DPS.toFixed(2)}`,color:"#8b5cf6",
+      dsc:"Dividends per share as reported"});
+
+  // 3. Gross Margin
+  if(grossProfit&&netSales&&netSales.value>0)
+    cards.push({lbl:"Gross Margin",val:`${pct(grossProfit.value,netSales.value)}%`,color:"#2d9e6b",
+      dsc:`Gross profit of ${fmtVal(grossProfit.value)} on net sales of ${fmtVal(netSales.value)}`});
+
+  // 4. Net Margin
+  if(netProfit&&netSales&&netSales.value>0)
+    cards.push({lbl:"Net Margin",val:`${pct(netProfit.value,netSales.value)}%`,color:"#059669",
+      dsc:`Net profit of ${fmtVal(netProfit.value)} on net sales of ${fmtVal(netSales.value)}`});
+
+  // 5. Operating Margin
+  if(opProfit&&netSales&&netSales.value>0)
+    cards.push({lbl:"Operating Margin",val:`${pct(opProfit.value,netSales.value)}%`,color:"#0d9488",
+      dsc:`Operating profit of ${fmtVal(opProfit.value)} on net sales of ${fmtVal(netSales.value)}`});
+
+  // 6. Revenue Growth (YoY)
+  if(netSales){
+    const inPrior=links.filter(l=>l.target===netSales&&l.prior).reduce((a,l)=>a+l.prior,0);
+    if(inPrior>0){
+      const growth=((netSales.value-inPrior)/inPrior*100);
+      const col=growth>=0?"#22c55e":"#ef4444";
+      cards.push({lbl:"Revenue Growth",val:`${growth>=0?"▲":"▼"}${Math.abs(growth).toFixed(1)}%`,color:col,
+        dsc:`vs prior year revenue of ${fmtVal(inPrior)}`});
+    }
   }
-  if(cos){
-    const pct=netSales?Math.round(cos.value/netSales.value*100):null;
-    cards.push({lbl:"Cost of Sales",val:fmtVal(cos.value),color:"#e63946",dsc:pct?`${pct}% of net revenue`:"Direct cost of production"});
+
+  // 7. Interest Coverage
+  if(opProfit&&finCost&&finCost.value>0){
+    const cov=(opProfit.value/finCost.value).toFixed(1);
+    const col=parseFloat(cov)>=3?"#2d9e6b":parseFloat(cov)>=1.5?"#f59e0b":"#ef4444";
+    cards.push({lbl:"Interest Coverage",val:`${cov}×`,color:col,
+      dsc:`Operating profit covers finance cost ${cov}× (>3× is healthy)`});
   }
-  if(tax){
-    const pbt=find("Profit Before Tax","PBT");
-    const rate=pbt&&pbt.value>0?Math.round(tax.value/pbt.value*100):null;
-    cards.push({lbl:"Taxation",val:fmtVal(tax.value),color:"#e07b39",dsc:rate?`${rate}% effective rate on PBT of ${fmtVal(pbt.value)}`:"Total tax outflow"});
+
+  // 8. Dividend Cover
+  if(netProfit&&dividends&&dividends.value>0){
+    const cov=(netProfit.value/dividends.value).toFixed(2);
+    const col=parseFloat(cov)>=2?"#2d9e6b":parseFloat(cov)>=1?"#f59e0b":"#ef4444";
+    cards.push({lbl:"Dividend Cover",val:`${cov}×`,color:col,
+      dsc:`Earnings cover dividends ${cov}× (>2× is comfortable)`});
   }
-  if(dividends&&netProfit&&netProfit.value>0){
-    const pct=Math.round(dividends.value/netProfit.value*100);
-    cards.push({lbl:"Dividend Payout",val:`${pct}%`,color:"var(--accent)",dsc:`${fmtVal(dividends.value)} paid to shareholders`});
-  }
-  while(cards.length<4)cards.push({lbl:"—",val:"—",color:"#ccc",dsc:""});
-  return cards.slice(0,4);
+
+  return cards;
 }
 
 // ─── GENERATE ─────────────────────────────────────────────────────────────────
@@ -909,7 +1224,7 @@ function generate(){
   let parsed;
   try{parsed=parseData(raw);}
   catch(e){errBox.textContent=e.message;errBox.classList.add("on");return;}
-  const{nodeNames,links:rawLinks,hasYoY}=parsed;
+  const{nodeNames,links:rawLinks,hasYoY,meta}=parsed;
 
   // cache for re-use by export functions
   currentCompany=company;currentYear=year;currentScope=scope;currentHasYoY=hasYoY;
@@ -924,9 +1239,12 @@ function generate(){
   const H=parseInt(document.getElementById("inHeight").value)||520;
   currentH=H;
   const NODE_W=18, NODE_PAD=16;
-  const MARGIN={top:30, right:160, bottom:42, left:160};
+  const isMobile=window.innerWidth<=700;
+  const marginLR=isMobile?60:160;
+  const MARGIN={top:24, right:marginLR, bottom:36, left:marginLR};
   const chartArea=document.querySelector(".chart-area");
-  const W=Math.min(Math.max(chartArea.clientWidth-56, 900), 1400);
+  // mobile: fixed 800px — always readable, #wrap scrolls it horizontally
+  const W=isMobile ? 800 : Math.min(Math.max(chartArea.clientWidth-56, 900), 1400);
   currentW=W;
   const IW=W-MARGIN.left-MARGIN.right, IH=H-MARGIN.top-MARGIN.bottom;
   const extraColSpacing=parseInt(document.getElementById("inColSpacing").value)||0;
@@ -1221,12 +1539,22 @@ function generate(){
   }); // end nodes.forEach
 
   // cards
-  document.getElementById("cards").innerHTML=buildCards(nodes,links).map(c=>`
+  const cardData=buildCards(nodes,links,meta);
+  document.getElementById("cards").innerHTML=cardData.map(c=>`
     <div class="card"><div class="lbl">${c.lbl}</div><div class="val" style="color:${c.color}">${c.val}</div><div class="dsc">${c.dsc}</div></div>`).join("");
 
   document.getElementById("exportDd").style.display="flex";
   document.getElementById("paletteWrap").style.display="flex";
   saveHistory(company,year,scope,raw);
+
+  // on mobile close the panel after generating so chart is visible
+  if(window.innerWidth<=700){
+    const p=document.getElementById("panel");
+    const overlay=document.getElementById("panelOverlay");
+    p.classList.remove("mobile-open");
+    p.classList.add("collapsed");
+    if(overlay) overlay.classList.remove("on");
+  }
 }
 
 // ─── EXPORT PNG ───────────────────────────────────────────────────────────────
@@ -1418,6 +1746,7 @@ function roundRect(ctx,x,y,w,h,r){
   ctx.closePath();
 }
 
+// ─── ORIENTATION HANDLING ─────────────────────────────────────────────────────
 // ─── KEYBOARD ─────────────────────────────────────────────────────────────────
 document.addEventListener("keydown",e=>{
   if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)) generate();
