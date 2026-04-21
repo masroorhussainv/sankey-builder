@@ -159,6 +159,31 @@ svg{display:block;}
 #tip{position:fixed;background:#fff;border:1px solid #ddd;border-radius:6px;padding:8px 12px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .12s;z-index:9999;line-height:1.7;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
 #tip.on{opacity:1;}
 
+/* node context menu */
+#nodeCtxMenu{
+  position:fixed;z-index:99999;
+  background:#fff;border:1px solid #e0e0e0;border-radius:7px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.13);
+  padding:4px 0;min-width:150px;
+  display:none;
+}
+#nodeCtxMenu.on{display:block;}
+.ctx-item{
+  padding:8px 14px;font-size:12px;color:#1a1a2e;
+  cursor:pointer;display:flex;align-items:center;gap:8px;
+  transition:background .1s;user-select:none;
+}
+.ctx-item:hover{background:#f5f5f5;}
+.ctx-icon{font-size:13px;width:16px;text-align:center;}
+.ctx-resize-btn{
+  width:28px;height:26px;border:1px solid #e0e0e0;background:#f8f8f8;
+  border-radius:4px;font-size:16px;line-height:1;cursor:pointer;
+  color:#1a1a2e;display:flex;align-items:center;justify-content:center;
+  margin-left:3px;transition:background .1s;user-select:none;
+}
+.ctx-resize-btn:hover{background:#e8e8e8;border-color:#bbb;}
+.ctx-resize-btn:active{background:#ddd;}
+
 .label-edit{position:fixed;background:#fff;border:1px solid var(--accent);border-radius:6px;padding:4px 8px;font-size:12px;outline:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:120px;}
 
 /* inline-editable chart header chips */
@@ -451,6 +476,21 @@ END_OF_DATA"></textarea>
 </div>
 <div class="panel-overlay" id="panelOverlay" onclick="togglePanel()"></div>
 <button id="fabPanel" onclick="togglePanel()">✏️</button>
+
+<div id="nodeCtxMenu">
+  <div class="ctx-item" id="ctxRename"><span class="ctx-icon">✏️</span> Rename</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item ctx-resize-row" id="ctxResizeRow" style="justify-content:space-between;cursor:default;">
+    <span style="color:#666;font-size:11px;font-weight:600;letter-spacing:.04em;">BAR HEIGHT</span>
+    <span style="display:flex;align-items:center;gap:0;">
+      <button class="ctx-resize-btn" id="ctxShrink">−</button>
+      <button class="ctx-resize-btn" id="ctxGrow">+</button>
+    </span>
+  </div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item" id="ctxHighlight"><span class="ctx-icon">🔆</span> Highlight flows</div>
+  <div class="ctx-item" id="ctxReset"><span class="ctx-icon">↺</span> Reset position</div>
+</div>
 
 <div id="tip"></div>
 
@@ -1689,14 +1729,16 @@ function generate(){
     const h=dragging.startY1-dragging.startY0;
     let newY0=dragging.startY0+(e.clientY-dragging.startMouseY);
     newY0=Math.max(MARGIN.top,Math.min(MARGIN.top+IH-h,newY0));
-    n.y0=newY0;n.y1=newY0+h;redrawAll();
+    n.y0=newY0;n.y1=newY0+h;
+    redrawAll();
   };
   window._svgUp=()=>{
     if(!dragging) return;
-    dragging.node._rect.style.cursor="grab";
-    if(dragging.node._t1) dragging.node._t1.style.cursor="grab";
-    if(dragging.node._t2) dragging.node._t2.style.cursor="grab";
-    if(dragging.node._t3) dragging.node._t3.style.cursor="grab";
+    const nd=dragging.node;
+    if(nd._rect) nd._rect.style.cursor="grab";
+    if(nd._t1) nd._t1.style.cursor="grab";
+    if(nd._t2) nd._t2.style.cursor="grab";
+    if(nd._t3) nd._t3.style.cursor="grab";
     dragging=null;
     document.body.style.userSelect="";
   };
@@ -1769,8 +1811,6 @@ function generate(){
     }
 
     rect.addEventListener("mouseenter",e=>{
-      if(dragging)return;
-      const conn=new Set([...n.sourceLinks,...n.targetLinks].map(l=>l.index));
       currentLinkPaths.forEach((p,i)=>p.setAttribute("fill-opacity",conn.has(i)?"0.85":"0.15"));
       let html=`<strong style="color:#1a1a2e">${n.name}</strong><br><span style="color:var(--accent);font-weight:600">${fmtVal(n.value)}</span>`;
       if(nodeYoY.has(n.id)){
@@ -1782,7 +1822,61 @@ function generate(){
     });
     rect.addEventListener("mousemove",e=>{if(!dragging){tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";}});
     rect.addEventListener("mouseleave",()=>{if(dragging)return;currentLinkPaths.forEach(p=>p.setAttribute("fill-opacity","0.5"));tip.classList.remove("on");});
+    // right-click context menu on node and its labels
+    const onCtxMenu=e=>{
+      const renameFn=newName=>{
+        n.name=newName;
+        const tspans=[...t1.querySelectorAll("tspan")];
+        if(tspans.length){tspans[0].textContent=newName;for(let i=1;i<tspans.length;i++)tspans[i].textContent="";}
+        else t1.textContent=newName;
+        if(wm) wm.textContent=[company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
+      };
+      const resetFn=()=>{
+        // reset to original y position from layout
+        const h=n.y1-n.y0;
+        const col=byCol[n.col]||[];
+        col.sort((a,b)=>b.value-a.value);
+        const totalH=col.reduce((a2,nd)=>a2+nd.value*n.ky,0)+NODE_PAD*(col.length-1);
+        let y2=MARGIN.top+(IH-totalH)/2;
+        col.forEach(nd=>{nd.y0=y2;nd.y1=y2+nd.value*n.ky;nd.ky=n.ky;y2=nd.y1+NODE_PAD;});
+        redrawAll();
+      };
+      showCtxMenu(e,n,renameFn,resetFn,redrawAll);
+    };
+    rect.addEventListener("contextmenu",onCtxMenu);
+    t1.addEventListener("contextmenu",onCtxMenu);
+    t2.addEventListener("contextmenu",onCtxMenu);
+    if(t3) t3.addEventListener("contextmenu",onCtxMenu);
+
+    // shared rename function — called from rect dblclick and label dblclick
     let dblclickPending=false;
+    const startRename=(clientX,clientY)=>{
+      if(dragging){dragging.node._rect.style.cursor="grab";dragging=null;document.body.style.userSelect="";}
+      dblclickPending=true;
+      setTimeout(()=>{dblclickPending=false;},300);
+      tip.classList.remove("on");
+      const inp=document.createElement("input");
+      inp.className="label-edit";
+      inp.value=n.name;
+      inp.style.left=(clientX+4)+"px";
+      inp.style.top=(clientY-12)+"px";
+      document.body.appendChild(inp);
+      requestAnimationFrame(()=>{inp.focus();inp.select();});
+      const commit=()=>{
+        const v=inp.value.trim();
+        if(v&&v!==n.name){
+          n.name=v;
+          const tspans=[...t1.querySelectorAll("tspan")];
+          if(tspans.length){tspans[0].textContent=v;for(let i=1;i<tspans.length;i++)tspans[i].textContent="";}
+          else t1.textContent=v;
+          wm.textContent=[company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
+        }
+        inp.remove();
+      };
+      inp.addEventListener("blur",commit);
+      inp.addEventListener("keydown",ev=>{if(ev.key==="Enter"){ev.preventDefault();commit();}if(ev.key==="Escape")inp.remove();});
+    };
+
     rect.addEventListener("mousedown",e=>{
       if(dblclickPending)return;
       e.preventDefault();
@@ -1791,86 +1885,30 @@ function generate(){
       rect.style.cursor="grabbing";
       document.body.style.userSelect="none";
     });
+    rect.addEventListener("dblclick",e=>{e.preventDefault();e.stopPropagation();startRename(e.clientX,e.clientY);});
 
-    // double-click rename
-    rect.addEventListener("dblclick",e=>{
-      e.preventDefault();e.stopPropagation();
-      if(dragging){dragging.node._rect.style.cursor="grab";dragging=null;svgEl.style.userSelect="";}
-      dblclickPending=true;
-      setTimeout(()=>{dblclickPending=false;},300);
-      tip.classList.remove("on");
-
-      const inp=document.createElement("input");
-      inp.className="label-edit";
-      inp.value=n.name;
-      // position the input right where the user clicked
-      inp.style.left=(e.clientX+4)+"px";
-      inp.style.top =(e.clientY-12)+"px";
-      document.body.appendChild(inp);
-      requestAnimationFrame(()=>{inp.focus();inp.select();});
-
-      const commit=()=>{
-        const v=inp.value.trim();
-        if(v&&v!==n.name){
-          n.name=v;
-          // update t1: rebuild tspans with new name
-          const tspans=[...t1.querySelectorAll("tspan")];
-          if(tspans.length){
-            // simple update: put entire new name in first tspan, clear rest
-            tspans[0].textContent=v;
-            for(let i=1;i<tspans.length;i++) tspans[i].textContent="";
-          } else {
-            t1.textContent=v;
-          }
-          wm.textContent=[company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
-        }
-        inp.remove();
-      };
-      inp.addEventListener("blur",commit);
-      inp.addEventListener("keydown",ev=>{
-        if(ev.key==="Enter"){ev.preventDefault();commit();}
-        if(ev.key==="Escape"){inp.remove();}
-      });
-    });
-
-    // attach same drag behaviour to labels so user can drag from the label too
-    const showNodeTip=(e)=>{
-      if(dragging)return;
-      const conn=new Set([...n.sourceLinks,...n.targetLinks].map(l=>l.index));
-      currentLinkPaths.forEach((p,i)=>p.setAttribute("fill-opacity",conn.has(i)?"0.85":"0.15"));
-      let html=`<strong style="color:#1a1a2e">${n.name}</strong><br><span style="color:var(--accent);font-weight:600">${fmtVal(n.value)}</span>`;
-      if(nodeYoY.has(n.id)){const p2=nodeYoY.get(n.id);const c2=p2>=0?"#22c55e":"#ef4444";html+=` <span style="color:${c2};font-weight:600">${p2>=0?"▲":"▼"}${Math.abs(p2).toFixed(1)}% YoY</span>`;}
-      tip.innerHTML=html;tip.classList.add("on");tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";
-    };
-    const moveNodeTip=(e)=>{if(!dragging){tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";}};
-    const hideNodeTip=()=>{if(dragging)return;currentLinkPaths.forEach(p=>p.setAttribute("fill-opacity","0.5"));tip.classList.remove("on");};
-    [t1,t2,...(t3?[t3]:[])].forEach(el=>{
-      el.addEventListener("mouseenter",showNodeTip);
-      el.addEventListener("mousemove",moveNodeTip);
-      el.addEventListener("mouseleave",hideNodeTip);
-    });
     const startDragFromLabel=e=>{
       if(dblclickPending)return;
       e.preventDefault();e.stopPropagation();
       tip.classList.remove("on");
       dragging={node:n,startMouseY:e.clientY,startY0:n.y0,startY1:n.y1};
-      rect.style.cursor="grabbing";
-      t1.style.cursor="grabbing";
-      t2.style.cursor="grabbing";
+      rect.style.cursor="grabbing";t1.style.cursor="grabbing";t2.style.cursor="grabbing";
       document.body.style.userSelect="none";
     };
-    const endLabelCursor=()=>{
-      t1.style.cursor="grab";
-      t2.style.cursor="grab";
-      if(t3) t3.style.cursor="grab";
-    };
+    const endLabelCursor=()=>{t1.style.cursor="grab";t2.style.cursor="grab";if(t3)t3.style.cursor="grab";};
     t1.addEventListener("mousedown",startDragFromLabel);
     t2.addEventListener("mousedown",startDragFromLabel);
     if(t3) t3.addEventListener("mousedown",startDragFromLabel);
-    // mouseup on labels to reset cursor
     t1.addEventListener("mouseup",endLabelCursor);
     t2.addEventListener("mouseup",endLabelCursor);
     if(t3) t3.addEventListener("mouseup",endLabelCursor);
+    t1.addEventListener("dblclick",e=>{e.preventDefault();e.stopPropagation();startRename(e.clientX,e.clientY);});
+    t2.addEventListener("dblclick",e=>{e.preventDefault();e.stopPropagation();startRename(e.clientX,e.clientY);});
+    // tooltip on labels
+    const showTipL=e=>{if(dragging)return;const conn=new Set([...n.sourceLinks,...n.targetLinks].map(l=>l.index));currentLinkPaths.forEach((p,i)=>p.setAttribute("fill-opacity",conn.has(i)?"0.85":"0.15"));let html=`<strong style="color:#1a1a2e">${n.name}</strong><br><span style="color:var(--accent);font-weight:600">${fmtVal(n.value)}</span>`;if(nodeYoY.has(n.id)){const p2=nodeYoY.get(n.id);const c2=p2>=0?"#22c55e":"#ef4444";html+=` <span style="color:${c2};font-weight:600">${p2>=0?"▲":"▼"}${Math.abs(p2).toFixed(1)}% YoY</span>`;}tip.innerHTML=html;tip.classList.add("on");tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";};
+    const moveTipL=e=>{if(!dragging){tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";}};
+    const hideTipL=()=>{if(dragging)return;currentLinkPaths.forEach(p=>p.setAttribute("fill-opacity","0.5"));tip.classList.remove("on");};
+    [t1,t2,...(t3?[t3]:[])].forEach(el=>{el.addEventListener("mouseenter",showTipL);el.addEventListener("mousemove",moveTipL);el.addEventListener("mouseleave",hideTipL);});
 
     nodeGroup.appendChild(rect);
     nodeGroup.appendChild(t1);
@@ -2181,6 +2219,50 @@ function roundRect(ctx,x,y,w,h,r){
 }
 
 // ─── ORIENTATION HANDLING ─────────────────────────────────────────────────────
+// ─── NODE CONTEXT MENU ────────────────────────────────────────────────────────
+let _ctxNode=null;
+const ctxMenu=document.getElementById("nodeCtxMenu");
+
+function showCtxMenu(e, node, renameFn, resetFn, redrawFn){
+  e.preventDefault();e.stopPropagation();
+  _ctxNode=node;
+  const x=Math.min(e.clientX, window.innerWidth-160);
+  const y=Math.min(e.clientY, window.innerHeight-150);
+  ctxMenu.style.left=x+"px";ctxMenu.style.top=y+"px";
+  ctxMenu.classList.add("on");
+
+  document.getElementById("ctxRename").onclick=()=>{
+    hideCtxMenu();
+    const v=window.prompt("Rename node:",node.name);
+    if(v&&v.trim()&&v.trim()!==node.name) renameFn(v.trim());
+  };
+  // +/- resize buttons — keep menu open, click repeatedly
+  const STEP=20; // px per click
+  const doResize=delta=>{
+    const newH=Math.max(6,(node.y1-node.y0)+delta);
+    node.y1=node.y0+newH;
+    node.ky=node.value>0?newH/node.value:node.ky;
+    redrawFn();
+  };
+  document.getElementById("ctxGrow").onclick=e=>{e.stopPropagation();doResize(STEP);};
+  document.getElementById("ctxShrink").onclick=e=>{e.stopPropagation();doResize(-STEP);};
+  document.getElementById("ctxHighlight").onclick=()=>{
+    hideCtxMenu();
+    if(window.currentLinkPaths&&window.currentLinks){
+      const conn=new Set([...node.sourceLinks,...node.targetLinks].map(l=>l.index));
+      currentLinkPaths.forEach((p,i)=>p.setAttribute("fill-opacity",conn.has(i)?"0.9":"0.08"));
+    }
+  };
+  document.getElementById("ctxReset").onclick=()=>{
+    hideCtxMenu();
+    if(resetFn) resetFn();
+  };
+}
+function hideCtxMenu(){ctxMenu.classList.remove("on");}
+document.addEventListener("click",e=>{if(!e.target.closest("#nodeCtxMenu"))hideCtxMenu();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")hideCtxMenu();});
+document.addEventListener("contextmenu",e=>{if(!e.target.closest("#nodeCtxMenu"))hideCtxMenu();});
+
 // ─── KEYBOARD ─────────────────────────────────────────────────────────────────
 document.addEventListener("keydown",e=>{
   if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)) generate();
