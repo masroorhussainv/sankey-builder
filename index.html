@@ -103,6 +103,7 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .history-item.active-chart{background:#f0fdf4;border-color:var(--accent);}
 .history-item.active-chart .history-item-info strong{color:var(--accent);}
 .history-active-badge{font-size:9px;font-weight:700;color:var(--accent);background:#dcfce7;border-radius:3px;padding:1px 5px;margin-left:4px;text-transform:uppercase;letter-spacing:.05em;}
+.history-multi-badge{font-size:9px;font-weight:700;color:#fff;background:var(--accent);border-radius:3px;padding:1px 5px;margin-left:4px;}
 .history-empty{font-size:11px;color:#bbb;text-align:center;padding:8px 0;}
 
 /* chart area */
@@ -861,6 +862,25 @@ function removeChart(index){
 }
 
 function updateChartData(data){
+  // Check if data contains multiple chart markers
+  const chartMarkerRegex=/^===+\s*CHART:\s*(.+?)\s*===+/mi;
+  const hasMultipleCharts=chartMarkerRegex.test(data);
+
+  if(hasMultipleCharts){
+    // Parse multiple charts
+    const charts=parseMultipleCharts(data);
+    if(charts.length>0){
+      chartsData=charts;
+      activeChartIndex=0;
+      // Update input field with first chart's data
+      document.getElementById("inData").value=chartsData[0].data;
+      renderTabs();
+      generate();
+      return;
+    }
+  }
+
+  // Single chart or update current chart
   if(chartsData.length===0){
     const newId="Chart 1";
     chartsData.push({id:newId,name:newId,data:data});
@@ -1044,14 +1064,58 @@ function getHistory(){
 }
 function saveHistory(company,year,scope,data){
   let h=getHistory();
-  // update existing entry if same company+year, else prepend
-  const idx=h.findIndex(x=>x.company===company&&x.year===year);
-  const entry={company,year,scope,data,
-    palette:activePalette,
-    colSpacing:document.getElementById("inColSpacing").value||"0",
-    ts:Date.now()};
-  if(idx>=0) h[idx]=entry;
-  else h.unshift(entry);
+
+  // Check if we have multiple charts - save as multi-chart session
+  if(chartsData.length>1){
+    // Save all charts as one session
+    const charts=chartsData.map(c=>({
+      id:c.id,
+      name:c.name,
+      data:c.data
+    }));
+
+    // Safely extract metadata for display
+    let periods=[], scopes=[];
+    chartsData.forEach(c=>{
+      try{
+        const parsed=parseData(c.data);
+        if(parsed.meta?.PERIOD) periods.push(parsed.meta.PERIOD);
+        if(parsed.meta?.SCOPE) scopes.push(parsed.meta.SCOPE);
+      }catch(e){
+        // Ignore parsing errors for metadata display
+        periods.push("");
+        scopes.push("");
+      }
+    });
+
+    const entry={
+      isMultiChart:true,
+      company:"Multiple Charts",
+      year:periods.filter(Boolean).join(", "),
+      scope:scopes.filter(Boolean).join(", "),
+      charts:charts,
+      palette:activePalette,
+      colSpacing:document.getElementById("inColSpacing").value||"150",
+      ts:Date.now()
+    };
+
+    // Check if same multi-chart session exists
+    const chartIds=chartsData.map(c=>c.id).sort().join(",");
+    const idx=h.findIndex(x=>x.isMultiChart && x.charts && x.charts.map(c=>c.id).sort().join(",")===chartIds);
+
+    if(idx>=0) h[idx]=entry;
+    else h.unshift(entry);
+  }else{
+    // Single chart - save as before
+    const idx=h.findIndex(x=>x.company===company&&x.year===year && !x.isMultiChart);
+    const entry={company,year,scope,data,
+      palette:activePalette,
+      colSpacing:document.getElementById("inColSpacing").value||"150",
+      ts:Date.now()};
+    if(idx>=0) h[idx]=entry;
+    else h.unshift(entry);
+  }
+
   try{localStorage.setItem(HIST_KEY,JSON.stringify(h));}catch(e){}
   renderHistory();
 }
@@ -1066,13 +1130,18 @@ function renderHistory(){
   const h=getHistory();
   if(!h.length){list.innerHTML='<div class="history-empty">No saved charts</div>';return;}
   list.innerHTML=h.map((it,i)=>{
-    const isActive=currentCompany&&currentYear
+    // Check if multi-chart entry
+    const isMulti=it.isMultiChart && it.charts && it.charts.length>1;
+    const multiBadge=isMulti?`<span class="history-multi-badge">${it.charts.length} charts</span>`:"";
+
+    const isActive=!isMulti && currentCompany&&currentYear
       ? it.company===currentCompany&&it.year===currentYear
       : false;
     const badge=isActive?`<span class="history-active-badge">current</span>`:"";
+
     return`<div class="history-item${isActive?" active-chart":""}" data-idx="${i}">
       <div class="history-item-info" onclick="loadHistory(${i})">
-        <strong>${it.company||"Unnamed"}${badge}</strong>
+        <strong>${it.company||"Unnamed"}${multiBadge}${badge}</strong>
         <span>${[it.year,it.scope].filter(Boolean).join(" · ")} · ${new Date(it.ts).toLocaleDateString()}</span>
       </div>
       <button class="history-del" onclick="deleteHistory(${i},event)" title="Delete">✕</button>
@@ -1084,21 +1153,50 @@ function renderHistory(){
 }
 function loadHistory(i){
   const it=getHistory()[i];if(!it)return;
-  document.getElementById("inCompany").value=it.company||"";
-  document.getElementById("inYear").value=it.year||"";
-  document.getElementById("inScope").value=it.scope||"";
-  document.getElementById("inData").value=it.data||"";
-  if(it.palette&&PALETTES[it.palette]){
-    activePalette=it.palette;
-    document.getElementById("paletteSelect").value=it.palette;
-    renderSwatch(it.palette);
+
+  if(it.isMultiChart && it.charts){
+    // Load all charts from multi-chart session
+    chartsData=it.charts.map(c=>({
+      id:c.id,
+      name:c.name,
+      data:c.data
+    }));
+    activeChartIndex=0;
+
+    // Apply settings
+    if(it.palette&&PALETTES[it.palette]){
+      activePalette=it.palette;
+      document.getElementById("paletteSelect").value=it.palette;
+      renderSwatch(it.palette);
+    }
+    if(it.colSpacing){
+      const sl=document.getElementById("inColSpacing");
+      sl.value=it.colSpacing;
+      document.getElementById("inColSpacingVal").textContent=it.colSpacing+"px";
+    }
+
+    renderTabs();
+    // Update input field with first chart's data
+    document.getElementById("inData").value=chartsData[0].data;
+    generate();
+  }else{
+    // Single chart load - original behavior
+    document.getElementById("inCompany").value=it.company||"";
+    document.getElementById("inYear").value=it.year||"";
+    document.getElementById("inScope").value=it.scope||"";
+    document.getElementById("inData").value=it.data||"";
+    if(it.palette&&PALETTES[it.palette]){
+      activePalette=it.palette;
+      document.getElementById("paletteSelect").value=it.palette;
+      renderSwatch(it.palette);
+    }
+    if(it.colSpacing){
+      const sl=document.getElementById("inColSpacing");
+      sl.value=it.colSpacing;
+      document.getElementById("inColSpacingVal").textContent=it.colSpacing+"px";
+    }
+    generate();
   }
-  if(it.colSpacing){
-    const sl=document.getElementById("inColSpacing");
-    sl.value=it.colSpacing;
-    document.getElementById("inColSpacingVal").textContent=it.colSpacing+"px";
-  }
-  generate();
 }
 
 // ─── EXPORT JSON ──────────────────────────────────────────────────────────────
@@ -1937,12 +2035,16 @@ function startMetaEdit(chipEl, field){
 let currentNodes=null,currentLinks=null,currentLinkPaths=[],currentLinkBadges=[],dragging=null;
 let currentCompany="",currentYear="",currentScope="",currentHasYoY=false,currentW=0,currentH=0;
 let currentRawLinks=null,currentNodeNames=null;
+let currentRawData=null; // Store full raw data for multi-chart sessions
 
 function generate(){
   const errBox=document.getElementById("errBox");
   errBox.classList.remove("on");
   const raw=document.getElementById("inData").value.trim();
   if(!raw){errBox.textContent="Please enter flow data.";errBox.classList.add("on");return;}
+
+  // Save full raw data for multi-chart sessions
+  currentRawData=raw;
 
   // Check for multiple charts and update chartsData
   const charts=parseMultipleCharts(raw);
@@ -2626,7 +2728,7 @@ function generate(){
   document.getElementById("exportDd").style.display="flex";
   document.getElementById("paletteWrap").style.display="flex";
   document.getElementById("btnShare").style.display="";
-  saveHistory(company,year,scope,raw);
+  saveHistory(company,year,scope,currentRawData||raw);
 
   // center SVG horizontally in the wrap container if it overflows
   requestAnimationFrame(()=>{
