@@ -48,7 +48,8 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 /* panel — side panel on desktop, slide-up overlay on mobile */
 .panel{width:360px;min-width:220px;max-width:600px;flex-shrink:0;background:#fff;border-right:none;display:flex;flex-direction:column;overflow:hidden;transition:opacity .25s;}
 .panel.collapsed{width:0!important;min-width:0!important;opacity:0;pointer-events:none;}
-.panel-inner{padding:14px;display:flex;flex-direction:column;gap:10px;flex:1;overflow-y:auto;min-width:200px;}
+.panel-inner{padding:10px 12px;display:flex;flex-direction:column;gap:6px;flex:1;overflow-y:auto;min-width:200px;}
+.field textarea{min-height:120px;line-height:1.6;}
 
 /* drag resizer between panel and chart */
 .panel-resizer{
@@ -71,16 +72,15 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .field-warn select,.field-warn input{border-color:#f59e0b!important;background:#fffbf0!important;}
 
 .field label{display:block;font-size:10px;font-weight:600;color:#666;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;}
-.field input,.field textarea,.field select{width:100%;border:1px solid #ddd;border-radius:6px;padding:6px 9px;font-size:12px;font-family:'Segoe UI',monospace;color:#1a1a2e;background:#fafafa;outline:none;transition:border-color .15s;resize:vertical;}
+.field input,.field textarea,.field select{width:100%;border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:12px;font-family:'Segoe UI',monospace;color:#1a1a2e;background:#fafafa;outline:none;transition:border-color .15s;resize:vertical;}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);background:#fff;}
-.field textarea{min-height:220px;line-height:1.6;}
 .field-row{display:flex;gap:8px;}
 .field-row .field{flex:1;}
 
 .hint{background:#fffbf0;border:1px solid #f0e0b0;border-radius:6px;padding:8px 10px;font-size:11px;color:#7a5c00;line-height:1.7;}
 .hint code{background:#f5e6c0;padding:1px 4px;border-radius:3px;font-family:monospace;}
 
-.section-title{font-size:10px;font-weight:700;color:#aaa;letter-spacing:.1em;text-transform:uppercase;padding:3px 0 2px;border-bottom:1px solid #f0f0f0;}
+.section-title{font-size:10px;font-weight:700;color:#aaa;letter-spacing:.1em;text-transform:uppercase;padding:2px 0 1px;border-bottom:1px solid #f0f0f0;}
 
 .shortcut-hint{font-size:10px;color:#bbb;text-align:right;margin-top:-4px;}
 .btn-gen{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;}
@@ -274,8 +274,11 @@ svg{display:block;}
     <div class="dd-wrap export-dd" id="exportDd">
       <button class="tbtn" onclick="toggleDd('exportDd')">⬇ Export ▾</button>
       <div class="dd-menu" id="exportDdMenu">
-        <div class="dd-item" onclick="exportChart();toggleDd('exportDd')">
-          <strong>Export as PNG</strong><span>High-resolution image with header &amp; cards</span>
+        <div class="dd-item" onclick="exportChart(false);toggleDd('exportDd')">
+          <strong>Export as PNG</strong><span>Chart + header + stat cards</span>
+        </div>
+        <div class="dd-item" onclick="exportChart(true);toggleDd('exportDd')">
+          <strong>Export Chart Only</strong><span>Clean chart image, no stat cards</span>
         </div>
         <div class="dd-item" onclick="exportPDF();toggleDd('exportDd')">
           <strong>Export as PDF</strong><span>Chart + full flow data table</span>
@@ -325,7 +328,6 @@ svg{display:block;}
     <div class="panel-inner">
 
       <div class="section-title">Chart Details</div>
-      <!-- currency + unit always visible -->
       <div class="field-row">
         <div class="field">
           <label>Currency</label>
@@ -352,33 +354,32 @@ svg{display:block;}
         </div>
       </div>
       <div class="field" id="customCurrencyField" style="display:none;">
-        <label>Custom Currency Symbol</label>
+        <label>Custom Currency</label>
         <input type="text" id="inCustomCurrency" placeholder="e.g. BDT" maxlength="6"/>
       </div>
-
       <div class="field">
         <label>Company Name</label>
         <input type="text" id="inCompany" placeholder="Auto-filled from data"/>
       </div>
       <div class="field-row">
         <div class="field">
-          <label>Fiscal Period</label>
-          <input type="text" id="inYear" placeholder="Auto-filled from data"/>
+          <label>Period</label>
+          <input type="text" id="inYear" placeholder="Auto-filled"/>
         </div>
         <div class="field">
-          <label>Statements</label>
-          <input type="text" id="inScope" placeholder="Auto-filled from data"/>
+          <label>Scope</label>
+          <input type="text" id="inScope" placeholder="Auto-filled"/>
         </div>
       </div>
 
       <div class="section-title">Chart Settings</div>
       <div class="field">
-        <label>Chart Height</label>
+        <label>Height</label>
         <div style="display:flex;align-items:center;gap:8px;">
-          <input type="range" id="inHeight" min="300" max="900" value="520" step="20"
+          <input type="range" id="inHeight" min="300" max="1000" value="580" step="20"
             style="flex:1;accent-color:var(--accent);cursor:pointer;"
             oninput="document.getElementById('inHeightVal').textContent=this.value+'px'"/>
-          <span id="inHeightVal" style="font-size:11px;color:var(--accent);min-width:38px;">520px</span>
+          <span id="inHeightVal" style="font-size:11px;color:var(--accent);min-width:38px;">580px</span>
         </div>
       </div>
       <div class="field">
@@ -387,34 +388,23 @@ svg{display:block;}
           <input type="range" id="inColSpacing" min="0" max="200" value="10" step="5"
             style="flex:1;accent-color:var(--accent);cursor:pointer;"
             oninput="document.getElementById('inColSpacingVal').textContent='+'+this.value+'px'"/>
-          <span id="inColSpacingVal" style="font-size:11px;color:var(--accent);min-width:42px;">+10px</span>
+          <span id="inColSpacingVal" style="font-size:11px;color:var(--accent);min-width:38px;">+10px</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Bar Width</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="range" id="inNodeWidth" min="10" max="50" value="40" step="2"
+            style="flex:1;accent-color:var(--accent);cursor:pointer;"
+            oninput="document.getElementById('inNodeWidthVal').textContent=this.value+'px'"/>
+          <span id="inNodeWidthVal" style="font-size:11px;color:var(--accent);min-width:38px;">40px</span>
         </div>
       </div>
 
       <div class="section-title">Flow Data</div>
-      <div class="hint">
-        One flow per line: <code>Source, Target, Value, PriorValue</code><br>
-        Add at bottom: <code>EPS, 15.42</code> · <code>DPS, 8.50</code><br>
-        Prompts auto-extract <code>COMPANY</code>, <code>PERIOD</code>, <code>SCOPE</code>, <code>CURRENCY</code>, <code>UNIT</code>
-      </div>
-
+      <div class="hint" style="font-size:10px;">📋 Copy prompt → paste into NotebookLM → paste result below</div>
       <div class="field">
-        <label>Flow Data (CSV)</label>
-        <textarea id="inData" spellcheck="false" placeholder="Paste extracted data here.
-
-Use 📋 Prompt to copy a prompt, paste it into NotebookLM with your annual report, then paste the result here.
-
-Format:
-COMPANY, Apple Inc.
-PERIOD, FY 2024
-SCOPE, Consolidated
-CURRENCY, USD
-UNIT, Millions
-Total Net Sales, Cost of Sales, 116517
-Total Net Sales, Gross Margin, 103142
-...
-EPS, 4.05, 3.89
-DPS, 1.00, 0.94
+        <textarea id="inData" spellcheck="false" placeholder="Paste extracted data here. Use 📋 Prompt button above to get the extraction prompt for NotebookLM.
 END_OF_DATA"></textarea>
       </div>
 
@@ -612,9 +602,21 @@ function getUnit(){
 }
 function fmtVal(v){
   const cur=getCurrencySymbol(), unit=getUnit();
-  if(unit==="Billions") return `${cur} ${(v/1000).toFixed(2)}B`;
-  if(unit==="Thousands") return `${cur} ${(v*1000).toLocaleString()}K`;
-  return v>=1000?`${cur} ${(v/1000).toFixed(2)}B`:`${cur} ${v.toLocaleString()}M`;
+  if(unit==="Billions"){
+    // values are in billions
+    if(v>=1000) return `${cur} ${(v/1000).toFixed(2)}T`;
+    return `${cur} ${v.toFixed(2)}B`;
+  }
+  if(unit==="Thousands"){
+    // values are already in thousands — abbreviate for readability
+    if(v>=1000000) return `${cur} ${(v/1000000).toFixed(2)}B`;   // millions of thousands = billions
+    if(v>=1000)    return `${cur} ${(v/1000).toFixed(2)}M`;       // thousands of thousands = millions
+    return `${cur} ${v.toLocaleString(undefined,{maximumFractionDigits:0})}K`;
+  }
+  // Millions (default)
+  if(v>=1000) return `${cur} ${(v/1000).toFixed(2)}B`;
+  if(v>=1)    return `${cur} ${v.toLocaleString(undefined,{maximumFractionDigits:2})}M`;
+  return `${cur} ${(v*1000000).toLocaleString(undefined,{maximumFractionDigits:0})}`;
 }
 
 // apply currency from parsed meta — known currencies map to select; others go to custom
@@ -732,9 +734,29 @@ function switchPalette(name){
 }
 function applyPalette(){
   const pal=getPalette(),svgEl=document.getElementById("svg");
+  const palName=activePalette||"";
+  const isMono=palName.startsWith("Mono:");
+  const getLum=hex=>{
+    const rgb=hexToRgb(hex);if(!rgb)return 0.5;
+    const [r,g,b]=rgb.map(c=>{const s=c/255;return s<=0.03928?s/12.92:Math.pow((s+0.055)/1.055,2.4);});
+    return 0.2126*r+0.7152*g+0.0722*b;
+  };
+  let sorted=null;
+  if(isMono) sorted=[...pal].sort((a,b)=>getLum(a)-getLum(b));
+  const numCols2=currentNodes?Math.max(...currentNodes.map(n=>n.col))+1:1;
   currentNodes.forEach(n=>{
-    n.color=pal[n.id%pal.length];
-    if(n._rect)n._rect.setAttribute("fill",n.color);
+    if(isMono){
+      const colFrac=numCols2<=1?0:n.col/(numCols2-1);
+      const idx=Math.round(colFrac*(sorted.length-1));
+      n.color=sorted[idx];
+    } else {
+      n.color=pal[n.id%pal.length];
+    }
+    if(n._rect) n._rect.setAttribute("fill",n.color);
+    if(n._t3){
+      const tsV=n._t3.querySelector("tspan");
+      if(tsV) tsV.setAttribute("fill",getReadableColor(n.color));
+    }
   });
   currentLinks.forEach((l,i)=>{
     const g=svgEl.querySelector(`#gr${i}`);if(!g)return;
@@ -1188,15 +1210,43 @@ function parseData(raw){
       continue;
     }
     if(parts.length<3) throw new Error(`Bad line: "${line}" — need at least Source, Target, Value`);
-    const s=getNode(parts[0]),t=getNode(parts[1]);
+
+    // Strategy: last part is always prior (or blank), second-to-last is always current value.
+    // Everything before the value columns is source (first part) and target (rest).
+    // This correctly handles commas inside node names.
+    const lastPart=parts[parts.length-1].trim();
+    const secondLast=parts[parts.length-2].trim();
+    const lastNum=parseFloat(lastPart.replace(/[^0-9.-]/g,""));
+    const secondNum=parseFloat(secondLast.replace(/[^0-9.-]/g,""));
+    const lastIsNum=lastPart===""||(!isNaN(lastNum)&&lastPart.replace(/[^0-9.-]/g,"")===lastPart.replace(/\s/g,""));
+    const secondIsNum=!isNaN(secondNum)&&secondLast.replace(/[^0-9.-]/g,"")===secondLast.replace(/\s/g,"");
+
+    let curIdx, priorIdx=null;
+    if(secondIsNum&&lastIsNum&&parts.length>=4){
+      // 4-column format: ..., value, prior
+      curIdx=parts.length-2;
+      priorIdx=parts.length-1;
+    } else if(secondIsNum&&parts.length>=3){
+      // 3-column format: ..., value (last part is not a clean number)
+      curIdx=parts.length-1;
+    } else {
+      throw new Error(`Invalid value on line: "${line}"`);
+    }
+
+    const srcName=parts[0].trim();
+    const tgtName=parts.slice(1,curIdx).join(",").trim();
+    if(!srcName||!tgtName) throw new Error(`Bad line: "${line}" — need Source, Target`);
+
+    const s=getNode(srcName),t=getNode(tgtName);
     if(s===t) throw new Error(`Source equals target: "${line}"`);
-    const vRaw=parseFloat(parts[2].replace(/[^0-9.-]/g,""));
-    if(isNaN(vRaw)||vRaw===0) throw new Error(`Invalid value on line: "${line}"`);
+    const vRaw=parseFloat(parts[curIdx].replace(/[^0-9.-]/g,""));
+    if(isNaN(vRaw)) throw new Error(`Invalid value on line: "${line}"`);
+    if(vRaw===0) continue;
     const v=Math.abs(vRaw);
     const isNegative=vRaw<0;
     let prior=null;
-    if(parts.length>=4&&parts[3].trim()!==""){
-      const pv=parseFloat(parts[3].replace(/[^0-9.-]/g,""));
+    if(priorIdx!==null&&parts[priorIdx].trim()!==""){
+      const pv=parseFloat(parts[priorIdx].replace(/[^0-9.-]/g,""));
       if(!isNaN(pv)&&pv!==0){prior=Math.abs(pv);hasYoY=true;}
     }
     links.push({s,t,v,prior,isNegative});
@@ -1264,30 +1314,72 @@ function buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,extraColSpa
     col.forEach(n=>{n.y0=y;n.h=n.value*globalKy;n.y1=y+n.h;n.ky=globalKy;y=n.y1+NODE_PAD;});
   });
 
+  // store initial y0 for clamping — prevent nodes from straying too far from initial layout
+  nodes.forEach(n=>{n.initY0=n.y0;n.initY1=n.y1;});
+
+  const MIN_GAP=NODE_PAD; // guaranteed minimum pixels between any two node bars
+
   function resolveCol(col){
+    if(col.length===0) return;
     const s=[...col].sort((a,b)=>a.y0-b.y0);
-    let y=MARGIN.top;s.forEach(n=>{if(n.y0<y){n.y1+=y-n.y0;n.y0=y;}y=n.y1+NODE_PAD;});
-    y=MARGIN.top+IH;[...s].reverse().forEach(n=>{if(n.y1>y){n.y0-=n.y1-y;n.y1=y;}y=n.y0-NODE_PAD;});
+    const totalNodeH=s.reduce((sum,n)=>sum+(n.y1-n.y0),0);
+    const totalNeeded=totalNodeH+(s.length-1)*MIN_GAP;
+    const avail=IH;
+
+    if(totalNeeded<=avail){
+      // enough space — forward pass enforcing MIN_GAP, then backward pass to keep in bounds
+      let y=MARGIN.top;
+      s.forEach(n=>{
+        if(n.y0<y){n.y1+=y-n.y0;n.y0=y;}
+        y=n.y1+MIN_GAP;
+      });
+      y=MARGIN.top+IH;
+      [...s].reverse().forEach(n=>{
+        if(n.y1>y){const sh=n.y1-y;n.y0-=sh;n.y1-=sh;}
+        y=n.y0-MIN_GAP;
+      });
+    } else {
+      // not enough space — distribute proportionally with minimum gap squeezed as needed
+      const minG=Math.max(2,(avail-totalNodeH)/Math.max(s.length-1,1));
+      let y=MARGIN.top;
+      s.forEach(n=>{n.y0=y;n.y1=y+(n.y1-n.y0);y=n.y1+minG;});
+    }
+
+    // final clamp — never go out of SVG bounds, preserve bar height
+    s.forEach(n=>{
+      const h=n.y1-n.y0;
+      n.y0=Math.max(MARGIN.top,Math.min(MARGIN.top+IH-h,n.y0));
+      n.y1=n.y0+h;
+    });
   }
-  for(let it=0;it<80;it++){
-    const a=Math.pow(0.99,it);
+
+  // gentler relaxation — fewer iterations, lower alpha, clamp drift
+  for(let it=0;it<30;it++){
+    const a=0.15*Math.pow(0.9,it);
     for(let c=1;c<numCols;c++){
       (byCol[c]||[]).forEach(n=>{
         if(!n.targetLinks.length)return;
-        const ws=n.targetLinks.reduce((a,l)=>a+((l.source.y0+l.source.y1)/2)*l.v,0);
-        const vs=n.targetLinks.reduce((a,l)=>a+l.v,0);
-        const dy=(ws/vs-(n.y0+n.y1)/2)*a;n.y0+=dy;n.y1+=dy;
-      });resolveCol(byCol[c]||[]);
+        const ws=n.targetLinks.reduce((s2,l)=>s2+((l.source.y0+l.source.y1)/2)*l.v,0);
+        const vs=n.targetLinks.reduce((s2,l)=>s2+l.v,0);
+        const dy=(ws/vs-(n.y0+n.y1)/2)*a;
+        n.y0+=dy;n.y1+=dy;
+      });
+      resolveCol(byCol[c]||[]);
     }
     for(let c=numCols-2;c>=0;c--){
       (byCol[c]||[]).forEach(n=>{
         if(!n.sourceLinks.length)return;
-        const ws=n.sourceLinks.reduce((a,l)=>a+((l.target.y0+l.target.y1)/2)*l.v,0);
-        const vs=n.sourceLinks.reduce((a,l)=>a+l.v,0);
-        const dy=(ws/vs-(n.y0+n.y1)/2)*a;n.y0+=dy;n.y1+=dy;
-      });resolveCol(byCol[c]||[]);
+        const ws=n.sourceLinks.reduce((s2,l)=>s2+((l.target.y0+l.target.y1)/2)*l.v,0);
+        const vs=n.sourceLinks.reduce((s2,l)=>s2+l.v,0);
+        const dy=(ws/vs-(n.y0+n.y1)/2)*a;
+        n.y0+=dy;n.y1+=dy;
+      });
+      resolveCol(byCol[c]||[]);
     }
   }
+
+  // final pass — enforce minimum gap one last time after all relaxation is done
+  Object.values(byCol).forEach(col=>resolveCol(col));
   return{nodes,links,byCol,numCols,colOrder,colX};
 }
 
@@ -1295,9 +1387,15 @@ function computeLinkOffsets(nodes){
   nodes.forEach(n=>{
     n.sourceLinks.sort((a,b)=>a.target.y0-b.target.y0);
     n.targetLinks.sort((a,b)=>a.source.y0-b.source.y0);
+    // scale ribbons to fit exactly within the node's actual bar height
+    const barH=Math.max(n.y1-n.y0,1);
+    const outTotal=n.sourceLinks.reduce((s,l)=>s+l.v,0);
+    const inTotal =n.targetLinks.reduce((s,l)=>s+l.v,0);
+    const srcKy=outTotal>0?barH/outTotal:n.ky;
+    const tgtKy=inTotal >0?barH/inTotal :n.ky;
     let sy=n.y0,ty=n.y0;
-    n.sourceLinks.forEach(l=>{l.sy0=sy;l.sh=l.v*n.ky;l.sy1=sy+l.sh;sy+=l.sh;});
-    n.targetLinks.forEach(l=>{l.ty0=ty;l.th=l.v*n.ky;l.ty1=ty+l.th;ty+=l.th;});
+    n.sourceLinks.forEach(l=>{l.sy0=sy;l.sh=l.v*srcKy;l.sy1=sy+l.sh;sy+=l.sh;});
+    n.targetLinks.forEach(l=>{l.ty0=ty;l.th=l.v*tgtKy;l.ty1=ty+l.th;ty+=l.th;});
   });
 }
 
@@ -1561,10 +1659,10 @@ function generate(){
 
   const H=parseInt(document.getElementById("inHeight").value)||520;
   currentH=H;
-  const NODE_W=18, NODE_PAD=16;
+  const NODE_W=parseInt(document.getElementById("inNodeWidth").value)||40, NODE_PAD=16;
   const isMobile=window.innerWidth<=700;
   const marginLR=isMobile?60:160;
-  const MARGIN={top:24, right:marginLR, bottom:52, left:marginLR};
+  const MARGIN={top:32, right:marginLR, bottom:52, left:marginLR};
   const chartArea=document.querySelector(".chart-area");
   // mobile: fixed 800px — always readable, #wrap scrolls it horizontally
   const W=isMobile ? 800 : Math.min(Math.max(chartArea.clientWidth-56, 900), 1400);
@@ -1580,7 +1678,31 @@ function generate(){
 
   const sources=nodes.filter(n=>n.targetLinks.length===0);
   document.getElementById("chartTotal").textContent=fmtVal(sources.reduce((a,n)=>a+n.value,0));
-  nodes.forEach(n=>{n.color=getPalette()[n.id%getPalette().length];});
+  // assign palette colors
+  // monochrome palettes: sort dark→light and assign by column so left=dark, right=light
+  // all other palettes: original id-based cycling
+  {
+    const pal=getPalette();
+    const palName=activePalette||"";
+    const isMono=palName.startsWith("Mono:");
+    if(isMono){
+      const getLum=hex=>{
+        const rgb=hexToRgb(hex);if(!rgb)return 0.5;
+        const [r,g,b]=rgb.map(c=>{const s=c/255;return s<=0.03928?s/12.92:Math.pow((s+0.055)/1.055,2.4);});
+        return 0.2126*r+0.7152*g+0.0722*b;
+      };
+      const sorted=[...pal].sort((a,b)=>getLum(a)-getLum(b)); // darkest first
+      const numCols2=Math.max(...nodes.map(n=>n.col))+1;
+      nodes.forEach(n=>{
+        // spread colors evenly across columns
+        const colFrac=numCols2<=1?0:n.col/(numCols2-1);
+        const idx=Math.round(colFrac*(sorted.length-1));
+        n.color=sorted[idx];
+      });
+    } else {
+      nodes.forEach(n=>{n.color=pal[n.id%pal.length];});
+    }
+  }
 
   // warnings
   const warnings=validateFlows(nodes,links);
@@ -1665,7 +1787,10 @@ function generate(){
       badgesVisible=!badgesVisible;
       btnYoY.classList.toggle("active",badgesVisible);
       nodes.forEach(n=>{
-        if(n._t3) n._t3.style.display=badgesVisible?"":"none";
+        if(n._t3&&n._t3._tsYoY){
+          n._t3._tsYoY.style.display=badgesVisible?"":"none";
+          if(n._t3._tsSp) n._t3._tsSp.style.display=badgesVisible?"":"none";
+        }
       });
     };
   }
@@ -1674,22 +1799,41 @@ function generate(){
   const nodeGroup=document.createElementNS(NS,"g");svgEl.appendChild(nodeGroup);
   dragging=null;
 
-  // watermark
+  // watermark — company bold+dark, year accent green, rest muted
   const wm=document.createElementNS(NS,"text");
   wm.setAttribute("x",svgW-MARGIN.right);wm.setAttribute("y",H-18);
   wm.setAttribute("text-anchor","end");
-  wm.setAttribute("font-size","10");wm.setAttribute("fill","#bbb");
+  wm.setAttribute("font-size","10");
   wm.setAttribute("font-family","Segoe UI,sans-serif");wm.setAttribute("pointer-events","none");
-  wm.textContent=[company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
+  function buildWatermark(co,yr,sc,cu){
+    wm.textContent="";
+    const parts=[];
+    if(co) parts.push({text:co,fill:"#1a1a2e",weight:"700"});
+    if(yr) parts.push({text:yr,fill:"var(--accent)",weight:"600"});
+    if(sc) parts.push({text:sc,fill:"#bbb",weight:"400"});
+    if(cu) parts.push({text:cu.toUpperCase(),fill:"#bbb",weight:"400"});
+    parts.forEach((p,i)=>{
+      if(i>0){const sep=document.createElementNS(NS,"tspan");sep.setAttribute("fill","#ccc");sep.textContent=" · ";wm.appendChild(sep);}
+      const ts=document.createElementNS(NS,"tspan");
+      ts.setAttribute("fill",p.fill);ts.setAttribute("font-weight",p.weight);
+      ts.textContent=p.text;wm.appendChild(ts);
+    });
+  }
+  buildWatermark(company,year,scope,`${cur} ${unit}`);
   svgEl.appendChild(wm);
 
   function recomputeLinks(){
     nodes.forEach(n=>{
       n.sourceLinks.sort((a,b)=>a.target.y0-b.target.y0);
       n.targetLinks.sort((a,b)=>a.source.y0-b.source.y0);
+      const barH=Math.max(n.y1-n.y0,1);
+      const outTotal=n.sourceLinks.reduce((s,l)=>s+l.v,0);
+      const inTotal =n.targetLinks.reduce((s,l)=>s+l.v,0);
+      const srcKy=outTotal>0?barH/outTotal:n.ky;
+      const tgtKy=inTotal >0?barH/inTotal :n.ky;
       let sy=n.y0,ty=n.y0;
-      n.sourceLinks.forEach(l=>{l.sy0=sy;l.sh=l.v*n.ky;l.sy1=sy+l.sh;sy+=l.sh;});
-      n.targetLinks.forEach(l=>{l.ty0=ty;l.th=l.v*n.ky;l.ty1=ty+l.th;ty+=l.th;});
+      n.sourceLinks.forEach(l=>{l.sy0=sy;l.sh=l.v*srcKy;l.sy1=sy+l.sh;sy+=l.sh;});
+      n.targetLinks.forEach(l=>{l.ty0=ty;l.th=l.v*tgtKy;l.ty1=ty+l.th;ty+=l.th;});
     });
   }
   function redrawAll(){
@@ -1697,16 +1841,26 @@ function generate(){
     links.forEach((l,i)=>currentLinkPaths[i].setAttribute("d",ribbonPath(l)));
     nodes.forEach(n=>{
       n._rect.setAttribute("y",n.y0);n._rect.setAttribute("height",Math.max(n.y1-n.y0,2));
-      const cy=(n.y0+n.y1)/2;
       const tspans=[...n._t1.querySelectorAll("tspan")];
       const lineH=14;
       const numLines=tspans.length||1;
-      const t1BaseY=numLines===1?cy-4:cy-(numLines-1)*lineH/2-4;
+      const totalTextH=numLines*lineH;
+      const cy2=(n.y0+n.y1)/2;
+      const rawTop=cy2-totalTextH/2;
+      const clampedTop=Math.max(n.y0+4,Math.min(rawTop,n.y1-4-totalTextH));
+      const t1BaseY=clampedTop+lineH-2;
       tspans.forEach((ts,li)=>ts.setAttribute("y",t1BaseY+li*lineH));
       n._t1.setAttribute("y",t1BaseY);
       const t2BaseY=t1BaseY+numLines*lineH+2;
       n._t2.setAttribute("y",t2BaseY);
-      if(n._t3) n._t3.setAttribute("y",t2BaseY+13);
+      // t3 sits above the bar top, centered on bar — always present
+      if(n._t3){
+        n._t3.setAttribute("x",n.x0+NODE_W/2);
+        n._t3.setAttribute("y",n.y0-4);
+        // keep value tspan color in sync with bar color
+        const tsV=n._t3.querySelector("tspan");
+        if(tsV) tsV.setAttribute("fill",getReadableColor(n.color));
+      }
     });
   }
 
@@ -1758,15 +1912,16 @@ function generate(){
     rect.setAttribute("fill",n.color);rect.setAttribute("rx","2");rect.style.cursor="grab";
     n._rect=rect;
 
-    // t1 — node name with wrapping for long labels
+    // t1 — node name beside bar
+    // anchor: center in bar ideally, but cap so text stays within bar bounds
     const t1=document.createElementNS(NS,"text");
     t1.setAttribute("text-anchor",anchor);
-    t1.setAttribute("font-size","12");t1.setAttribute("fill","#1a1a2e");
+    t1.setAttribute("font-size","12.5");t1.setAttribute("fill","#1a1a2e");
+    t1.setAttribute("font-weight","600");
     t1.setAttribute("font-family","Segoe UI,sans-serif");
     t1.setAttribute("pointer-events","all");
     t1.style.cursor="grab";
     n._t1=t1;
-    // wrap at ~22 chars
     const words=n.name.split(" ");
     const maxChars=22;
     const lines=[];let cur2="";
@@ -1776,7 +1931,12 @@ function generate(){
     });
     if(cur2) lines.push(cur2);
     const lineH=14;
-    const t1BaseY=lines.length===1 ? cy-4 : cy - (lines.length-1)*lineH/2 - 4;
+    const totalTextH=lines.length*lineH;
+    // ideal center, then clamp so block stays inside bar vertically
+    const idealMid=cy;
+    const rawTop=idealMid-totalTextH/2;
+    const clampedTop=Math.max(n.y0+4, Math.min(rawTop, n.y1-4-totalTextH));
+    const t1BaseY=clampedTop+lineH-2;
     lines.forEach((line,li)=>{
       const ts=document.createElementNS(NS,"tspan");
       ts.setAttribute("x",tx);
@@ -1786,31 +1946,56 @@ function generate(){
     });
     t1.setAttribute("x",tx);t1.setAttribute("y",t1BaseY);
 
+
+    // t2 — invisible placeholder, kept for drag handler compatibility
     const t2BaseY = t1BaseY + lines.length*lineH + 2;
     const t2=document.createElementNS(NS,"text");
     t2.setAttribute("x",tx);t2.setAttribute("y",t2BaseY);t2.setAttribute("text-anchor",anchor);
-    t2.setAttribute("font-size","10");t2.setAttribute("fill","#888");t2.setAttribute("font-family","Segoe UI,sans-serif");
-    t2.setAttribute("pointer-events","all");
-    t2.style.cursor="grab";
-    t2.textContent=fmtVal(n.value);n._t2=t2;
+    t2.setAttribute("font-size","10");t2.setAttribute("fill","none");
+    t2.setAttribute("font-family","Segoe UI,sans-serif");
+    t2.setAttribute("pointer-events","all");t2.style.cursor="grab";
+    n._t2=t2;
 
-    // t3 — YoY delta line
-    let t3=null;
+    // t3 — composite above-bar label: value (bar color) + YoY (green/red)
+    // always created so value is always shown; YoY portion added only when available
     const pct=nodeYoY.get(n.id);
+    const barCx=n.x0+NODE_W/2;
+    const t3=document.createElementNS(NS,"text");
+    t3.setAttribute("x",barCx);
+    t3.setAttribute("y",n.y0-4);
+    t3.setAttribute("text-anchor","middle");
+    t3.setAttribute("font-size","9.5");
+    t3.setAttribute("font-family","Segoe UI,sans-serif");
+    // pointer-events set to all below after handlers are defined
+    // value tspan — same color as bar
+    const tsVal=document.createElementNS(NS,"tspan");
+    tsVal.setAttribute("fill",getReadableColor(n.color));
+    tsVal.setAttribute("font-weight","700");
+    tsVal.textContent=fmtVal(n.value);
+    t3.appendChild(tsVal);
+    // YoY tspan — only when data present
     if(pct!=null){
-      t3=document.createElementNS(NS,"text");
-      t3.setAttribute("x",tx);t3.setAttribute("y",t2BaseY+13);t3.setAttribute("text-anchor",anchor);
-      t3.setAttribute("font-size","9.5");
-      t3.setAttribute("fill",pct>=0?"#16a34a":"#dc2626");
-      t3.setAttribute("font-family","Segoe UI,sans-serif");t3.setAttribute("font-weight","700");
-      t3.setAttribute("pointer-events","all");
-      t3.style.cursor="grab";
-      t3.textContent=(pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"% YoY";
-      t3.style.display=badgesVisible?"":"none";
-      n._t3=t3;
+      const tsSp=document.createElementNS(NS,"tspan");
+      tsSp.setAttribute("fill","#ccc");tsSp.textContent=" ";
+      t3.appendChild(tsSp);
+      const tsYoY=document.createElementNS(NS,"tspan");
+      tsYoY.setAttribute("fill",pct>=0?"#16a34a":"#dc2626");
+      tsYoY.setAttribute("font-weight","700");
+      tsYoY.textContent=(pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"%";
+      t3.appendChild(tsYoY);
+      // hide YoY portion when badges toggled off (keep value visible always)
+      t3._tsYoY=tsYoY;t3._tsSp=tsSp;
     }
+    // respect badge toggle for YoY part
+    if(pct!=null&&!badgesVisible){
+      if(t3._tsYoY) t3._tsYoY.style.display="none";
+      if(t3._tsSp) t3._tsSp.style.display="none";
+    }
+    n._t3=t3;
 
     rect.addEventListener("mouseenter",e=>{
+      if(dragging)return;
+      const conn=new Set([...n.sourceLinks,...n.targetLinks].map(l=>l.index));
       currentLinkPaths.forEach((p,i)=>p.setAttribute("fill-opacity",conn.has(i)?"0.85":"0.15"));
       let html=`<strong style="color:#1a1a2e">${n.name}</strong><br><span style="color:var(--accent);font-weight:600">${fmtVal(n.value)}</span>`;
       if(nodeYoY.has(n.id)){
@@ -1829,7 +2014,7 @@ function generate(){
         const tspans=[...t1.querySelectorAll("tspan")];
         if(tspans.length){tspans[0].textContent=newName;for(let i=1;i<tspans.length;i++)tspans[i].textContent="";}
         else t1.textContent=newName;
-        if(wm) wm.textContent=[company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
+        if(wm) buildWatermark(company,year,scope,`${cur} ${unit}`);
       };
       const resetFn=()=>{
         // reset to original y position from layout
@@ -1869,7 +2054,7 @@ function generate(){
           const tspans=[...t1.querySelectorAll("tspan")];
           if(tspans.length){tspans[0].textContent=v;for(let i=1;i<tspans.length;i++)tspans[i].textContent="";}
           else t1.textContent=v;
-          wm.textContent=[company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · ");
+          buildWatermark(company,year,scope,`${cur} ${unit}`);
         }
         inp.remove();
       };
@@ -1898,17 +2083,24 @@ function generate(){
     const endLabelCursor=()=>{t1.style.cursor="grab";t2.style.cursor="grab";if(t3)t3.style.cursor="grab";};
     t1.addEventListener("mousedown",startDragFromLabel);
     t2.addEventListener("mousedown",startDragFromLabel);
-    if(t3) t3.addEventListener("mousedown",startDragFromLabel);
     t1.addEventListener("mouseup",endLabelCursor);
     t2.addEventListener("mouseup",endLabelCursor);
-    if(t3) t3.addEventListener("mouseup",endLabelCursor);
     t1.addEventListener("dblclick",e=>{e.preventDefault();e.stopPropagation();startRename(e.clientX,e.clientY);});
     t2.addEventListener("dblclick",e=>{e.preventDefault();e.stopPropagation();startRename(e.clientX,e.clientY);});
     // tooltip on labels
     const showTipL=e=>{if(dragging)return;const conn=new Set([...n.sourceLinks,...n.targetLinks].map(l=>l.index));currentLinkPaths.forEach((p,i)=>p.setAttribute("fill-opacity",conn.has(i)?"0.85":"0.15"));let html=`<strong style="color:#1a1a2e">${n.name}</strong><br><span style="color:var(--accent);font-weight:600">${fmtVal(n.value)}</span>`;if(nodeYoY.has(n.id)){const p2=nodeYoY.get(n.id);const c2=p2>=0?"#22c55e":"#ef4444";html+=` <span style="color:${c2};font-weight:600">${p2>=0?"▲":"▼"}${Math.abs(p2).toFixed(1)}% YoY</span>`;}tip.innerHTML=html;tip.classList.add("on");tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";};
     const moveTipL=e=>{if(!dragging){tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";}};
     const hideTipL=()=>{if(dragging)return;currentLinkPaths.forEach(p=>p.setAttribute("fill-opacity","0.5"));tip.classList.remove("on");};
-    [t1,t2,...(t3?[t3]:[])].forEach(el=>{el.addEventListener("mouseenter",showTipL);el.addEventListener("mousemove",moveTipL);el.addEventListener("mouseleave",hideTipL);});
+    [t1,t2].forEach(el=>{el.addEventListener("mouseenter",showTipL);el.addEventListener("mousemove",moveTipL);el.addEventListener("mouseleave",hideTipL);});
+    // t3 (above-bar label) — same drag + tooltip behaviour
+    if(t3){
+      t3.setAttribute("pointer-events","all");t3.style.cursor="grab";
+      t3.addEventListener("mousedown",startDragFromLabel);
+      t3.addEventListener("mouseup",endLabelCursor);
+      t3.addEventListener("mouseenter",showTipL);
+      t3.addEventListener("mousemove",moveTipL);
+      t3.addEventListener("mouseleave",hideTipL);
+    }
 
     nodeGroup.appendChild(rect);
     nodeGroup.appendChild(t1);
@@ -1934,6 +2126,14 @@ function generate(){
   document.getElementById("btnShare").style.display="";
   saveHistory(company,year,scope,raw);
 
+  // center SVG horizontally in the wrap container if it overflows
+  requestAnimationFrame(()=>{
+    const wrap=document.getElementById("wrap");
+    if(wrap&&wrap.scrollWidth>wrap.clientWidth){
+      wrap.scrollLeft=(wrap.scrollWidth-wrap.clientWidth)/2;
+    }
+  });
+
   // restore node positions from shared URL if present
   if(window._pendingNodePos&&window._pendingNodePos.length===nodes.length){
     nodes.forEach((n,i)=>{
@@ -1956,31 +2156,37 @@ function generate(){
 }
 
 // ─── EXPORT PNG ───────────────────────────────────────────────────────────────
-function exportChart(){
+function exportChart(chartOnly=false){
   const svgEl=document.getElementById("svg");
   const company=currentCompany,year=currentYear,scope=currentScope;
   const cur=getCurrencySymbol(),unit=getUnit();
-  const filename=`${company}${year?" - "+year:""}`.replace(/[^a-z0-9 _-]/gi,"_")+".png";
+  const suffix=chartOnly?"-chart":"";
+  const filename=`${company}${year?" - "+year:""}${suffix}`.replace(/[^a-z0-9 _-]/gi,"_")+".png";
   const totalVal=document.getElementById("chartTotal").textContent;
-  const SCALE=2,svgW=parseInt(svgEl.getAttribute("width")),svgH=parseInt(svgEl.getAttribute("height"));
+  const svgW=parseInt(svgEl.getAttribute("width")),svgH=parseInt(svgEl.getAttribute("height"));
+  const TARGET_W=Math.max(svgW,1800);
+  const exportScale=TARGET_W/svgW;
+  const PAD=28,HDR_H=80,FOOTER_H=28;
+
+  // cards section (skipped when chartOnly)
   const cardEls=document.querySelectorAll("#cards .card");
-  const cards=[...cardEls].map(c=>({
+  const cards=chartOnly?[]:([...cardEls].map(c=>({
     lbl:c.querySelector(".card-lbl")?.textContent||"",
     val:c.querySelector(".card-val")?.textContent||"",
     color:getComputedStyle(c).getPropertyValue("--card-accent").trim()||"#333",
     dsc:c.querySelector(".card-dsc")?.textContent||""
-  }));
-  const PAD=28,HDR_H=80,FOOTER_H=28;
+  })));
   const CARD_H=72,CARD_GAP=8;
-  const CARDS_PER_ROW=Math.min(cards.length,4);
-  const CARD_ROWS=Math.ceil(cards.length/CARDS_PER_ROW);
+  const CARDS_PER_ROW=Math.max(Math.min(cards.length,4),1);
+  const CARD_ROWS=cards.length?Math.ceil(cards.length/CARDS_PER_ROW):0;
   const CARD_W=(svgW-PAD*2-CARD_GAP*(CARDS_PER_ROW-1))/CARDS_PER_ROW;
   const CARDS_SECTION_H=CARD_ROWS*(CARD_H+CARD_GAP);
   const CARDS_Y=HDR_H+svgH+10;
-  const TOTAL_H=HDR_H+svgH+10+CARDS_SECTION_H+FOOTER_H;
+  const TOTAL_H=HDR_H+svgH+(chartOnly?0:10+CARDS_SECTION_H)+FOOTER_H;
+
   const canvas=document.createElement("canvas");
-  canvas.width=svgW*SCALE;canvas.height=TOTAL_H*SCALE;
-  const ctx=canvas.getContext("2d");ctx.scale(SCALE,SCALE);
+  canvas.width=svgW*exportScale;canvas.height=TOTAL_H*exportScale;
+  const ctx=canvas.getContext("2d");ctx.scale(exportScale,exportScale);
   ctx.fillStyle="#f0f2f5";ctx.fillRect(0,0,svgW,TOTAL_H);
   ctx.fillStyle="#fff";ctx.fillRect(0,0,svgW,HDR_H);
   ctx.fillStyle="#e0e0e0";ctx.fillRect(0,HDR_H-1,svgW,1);
@@ -2000,8 +2206,7 @@ function exportChart(){
     const bx=svgW-PAD-bw, by=54, bh=16;
     ctx.fillStyle=activeTheme.accent;
     roundRect(ctx,bx,by,bw,bh,4);ctx.fill();
-    ctx.fillStyle="#fff";
-    ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.fillStyle="#fff";ctx.textAlign="center";ctx.textBaseline="middle";
     ctx.fillText(bt, bx+bw/2, by+bh/2);
     ctx.textAlign="left";ctx.textBaseline="middle";
   }
@@ -2016,33 +2221,30 @@ function exportChart(){
   const img=new Image();
   img.onload=()=>{
     ctx.drawImage(img,0,HDR_H,svgW,svgH);URL.revokeObjectURL(svgUrl);
-    cards.forEach((c,i)=>{
-      const col=i%CARDS_PER_ROW;
-      const row=Math.floor(i/CARDS_PER_ROW);
-      const cx=PAD+col*(CARD_W+CARD_GAP);
-      const cy=CARDS_Y+row*(CARD_H+CARD_GAP);
-      // card background + left accent border
-      ctx.fillStyle="#fff";roundRect(ctx,cx,cy,CARD_W,CARD_H,5);ctx.fill();
-      ctx.strokeStyle="#ebebeb";ctx.lineWidth=1;roundRect(ctx,cx,cy,CARD_W,CARD_H,5);ctx.stroke();
-      // accent left border
-      ctx.fillStyle=c.color||"#e0e0e0";
-      roundRect(ctx,cx,cy,3,CARD_H,5);ctx.fill();
-      // label
-      ctx.fillStyle="#1a1a2e";ctx.font="bold 9.5px 'Segoe UI',sans-serif";
-      ctx.fillText((c.lbl||"").toUpperCase(),cx+11,cy+14);
-      // value
-      ctx.fillStyle=c.color||"#1a1a2e";ctx.font="bold 15px 'Segoe UI',sans-serif";
-      ctx.fillText(c.val||"",cx+11,cy+32);
-      // prev
-      const prevEl=document.querySelector(`#cards .card:nth-child(${i+1}) .card-prev`);
-      const prevTxt=prevEl?.textContent||"";
-      if(prevTxt){ctx.fillStyle="#aaa";ctx.font="9px 'Segoe UI',sans-serif";ctx.fillText(prevTxt,cx+11,cy+46);}
-      // description
-      ctx.fillStyle="#bbb";ctx.font="9px 'Segoe UI',sans-serif";
-      ctx.fillText((c.dsc||"").slice(0,38)+(c.dsc&&c.dsc.length>38?"…":""),cx+11,cy+60);
-    });
+    if(!chartOnly){
+      cards.forEach((c,i)=>{
+        const col=i%CARDS_PER_ROW;
+        const row=Math.floor(i/CARDS_PER_ROW);
+        const cx=PAD+col*(CARD_W+CARD_GAP);
+        const cy=CARDS_Y+row*(CARD_H+CARD_GAP);
+        ctx.fillStyle="#fff";roundRect(ctx,cx,cy,CARD_W,CARD_H,5);ctx.fill();
+        ctx.strokeStyle="#ebebeb";ctx.lineWidth=1;roundRect(ctx,cx,cy,CARD_W,CARD_H,5);ctx.stroke();
+        ctx.fillStyle=c.color||"#e0e0e0";roundRect(ctx,cx,cy,3,CARD_H,5);ctx.fill();
+        ctx.fillStyle="#1a1a2e";ctx.font="bold 9.5px 'Segoe UI',sans-serif";
+        ctx.fillText((c.lbl||"").toUpperCase(),cx+11,cy+14);
+        ctx.fillStyle=c.color||"#1a1a2e";ctx.font="bold 15px 'Segoe UI',sans-serif";
+        ctx.fillText(c.val||"",cx+11,cy+32);
+        const prevEl=document.querySelector(`#cards .card:nth-child(${i+1}) .card-prev`);
+        const prevTxt=prevEl?.textContent||"";
+        if(prevTxt){ctx.fillStyle="#aaa";ctx.font="9px 'Segoe UI',sans-serif";ctx.fillText(prevTxt,cx+11,cy+46);}
+        ctx.fillStyle="#bbb";ctx.font="9px 'Segoe UI',sans-serif";
+        ctx.fillText((c.dsc||"").slice(0,38)+(c.dsc&&c.dsc.length>38?"…":""),cx+11,cy+60);
+      });
+    }
+    // footer watermark
+    const wmY=chartOnly?HDR_H+svgH+18:CARDS_Y+CARD_ROWS*(CARD_H+CARD_GAP)+14;
     ctx.fillStyle="#bbb";ctx.font="10px 'Segoe UI',sans-serif";ctx.textAlign="right";
-    ctx.fillText([company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · "),svgW-PAD,CARDS_Y+CARD_ROWS*(CARD_H+CARD_GAP)+14);
+    ctx.fillText([company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · "),svgW-PAD,wmY);
     ctx.textAlign="left";
     const a=document.createElement("a");a.download=filename;a.href=canvas.toDataURL("image/png");a.click();
     const btn=document.querySelector("#exportDd .tbtn"),orig=btn.textContent;
@@ -2208,6 +2410,23 @@ async function exportPDF(){
 function hexToRgb(hex){
   const m=(hex||"").replace(/^var\(.*\)$/,"#888").match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
   return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:null;
+}
+// returns a readable text color for a given bar hex color
+// if the color is very light (luminance > 0.65), darken it significantly for text
+function getReadableColor(hex){
+  const rgb=hexToRgb(hex);
+  if(!rgb) return hex;
+  const [r,g,b]=rgb.map(c=>{const s=c/255;return s<=0.03928?s/12.92:Math.pow((s+0.055)/1.055,2.4);});
+  const L=0.2126*r+0.7152*g+0.0722*b; // relative luminance
+  if(L>0.45){
+    // too light for text — darken by blending with black
+    const factor=0.45;
+    const dr=Math.round(rgb[0]*factor);
+    const dg=Math.round(rgb[1]*factor);
+    const db=Math.round(rgb[2]*factor);
+    return `#${dr.toString(16).padStart(2,"0")}${dg.toString(16).padStart(2,"0")}${db.toString(16).padStart(2,"0")}`;
+  }
+  return hex;
 }
 function roundRect(ctx,x,y,w,h,r){
   ctx.beginPath();ctx.moveTo(x+r,y);
