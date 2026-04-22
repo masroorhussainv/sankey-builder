@@ -260,6 +260,63 @@ svg{display:block;}
   #fabPanel{display:none;}
   .panel-overlay{display:none!important;}
 }
+
+/* chart tabs */
+.chart-tabs{
+  display:flex;align-items:center;gap:8px;padding:8px 16px;
+  background:#fff;border-bottom:1px solid #e0e0e0;flex-shrink:0;
+}
+.tabs-container{
+  display:flex;gap:6px;flex:1;overflow-x:auto;min-width:0;
+}
+.chart-tab{
+  background:#f8f9fa;border:1px solid #e0e0e0;border-radius:6px;
+  padding:6px 12px;font-size:12px;cursor:pointer;white-space:nowrap;
+  display:flex;align-items:center;gap:6px;transition:all 0.15s;user-select:none;
+  cursor:grab;
+}
+.chart-tab:active{
+  cursor:grabbing;
+}
+.chart-tab.dragging{
+  opacity:0.5;
+}
+.chart-tab.drag-over{
+  border-left:3px solid var(--accent);
+  padding-left:9px;
+}
+.chart-tab:hover{
+  background:#fff;border-color:var(--accent);
+}
+.chart-tab.active{
+  background:var(--accent);color:#fff;border-color:var(--accent);
+}
+.chart-tab-name{
+  font-weight:600;max-width:150px;overflow:hidden;text-overflow:ellipsis;
+  cursor:inherit;
+}
+.chart-tab-close{
+  width:16px;height:16px;border-radius:3px;background:rgba(0,0,0,0.1);
+  display:flex;align-items:center;justify-content:center;font-size:11px;
+  transition:background 0.15s;flex-shrink:0;cursor:pointer;
+}
+.chart-tab-close:hover{
+  background:rgba(0,0,0,0.2);
+}
+.chart-tab.active .chart-tab-close{
+  background:rgba(255,255,255,0.2);
+}
+.tabs-actions{
+  display:flex;gap:6px;flex-shrink:0;
+}
+.tab-btn{
+  background:#fff;border:1px solid #ddd;border-radius:6px;
+  padding:6px 10px;font-size:16px;cursor:pointer;color:#555;
+  transition:all 0.15s;flex-shrink:0;line-height:1;
+}
+.tab-btn:hover{
+  border-color:var(--accent);color:var(--accent);
+}
 </style>
 </head>
 <body>
@@ -303,6 +360,9 @@ svg{display:block;}
         </div>
         <div class="dd-item" onclick="copyPrompt('comparative');toggleDd('promptDd')">
           <strong>CSV — With Prior Year</strong><span>Comparative format for YoY badges</span>
+        </div>
+        <div class="dd-item" onclick="copyPrompt('multichart');toggleDd('promptDd')">
+          <strong>Multi-Chart Extraction</strong><span>Extract multiple charts separated by markers</span>
         </div>
         <div class="dd-item" onclick="copyPrompt('detailed');toggleDd('promptDd')">
           <strong>Detailed Extraction</strong><span>Full rules, edge cases &amp; verification notes</span>
@@ -385,10 +445,10 @@ svg{display:block;}
       <div class="field">
         <label>Column Spacing</label>
         <div style="display:flex;align-items:center;gap:8px;">
-          <input type="range" id="inColSpacing" min="0" max="200" value="10" step="5"
+          <input type="range" id="inColSpacing" min="10" max="300" value="150" step="5"
             style="flex:1;accent-color:var(--accent);cursor:pointer;"
-            oninput="document.getElementById('inColSpacingVal').textContent='+'+this.value+'px'"/>
-          <span id="inColSpacingVal" style="font-size:11px;color:var(--accent);min-width:38px;">+10px</span>
+            oninput="document.getElementById('inColSpacingVal').textContent=this.value+'px'"/>
+          <span id="inColSpacingVal" style="font-size:11px;color:var(--accent);min-width:38px;">150px</span>
         </div>
       </div>
       <div class="field">
@@ -427,6 +487,14 @@ END_OF_DATA"></textarea>
   <!-- CHART AREA -->
   <div class="panel-resizer" id="panelResizer"></div>
   <div class="chart-area" id="chartArea">
+
+    <!-- Chart Tabs Bar -->
+    <div class="chart-tabs" id="chartTabs" style="display:none;">
+      <div class="tabs-container" id="tabsContainer"></div>
+      <div class="tabs-actions">
+        <button class="tab-btn" id="btnAddChart" title="Add new chart">+</button>
+      </div>
+    </div>
 
     <div class="placeholder" id="placeholder">
       <svg width="60" height="60" viewBox="0 0 64 64" fill="none">
@@ -497,7 +565,7 @@ END_OF_DATA"></textarea>
         <div class="help-num">1</div>
         <div class="help-body">
           <strong>Copy a prompt</strong>
-          <p>Click <strong>📋 Prompt ▾</strong> → <em>CSV — With Prior Year</em> for comparative data (recommended) or <em>Quick Extract</em> for current year only.</p>
+          <p>Click <strong>📋 Prompt ▾</strong> → <em>CSV — With Prior Year</em> for comparative data (recommended), <em>Quick Extract</em> for current year only, or <em>Multi-Chart Extraction</em> to extract multiple charts at once.</p>
         </div>
       </div>
 
@@ -513,12 +581,20 @@ END_OF_DATA"></textarea>
         <div class="help-num">3</div>
         <div class="help-body">
           <strong>Paste &amp; Generate</strong>
-          <p>Paste the output into the <em>Flow Data</em> box and click <strong>Generate →</strong> or <kbd>Ctrl+Enter</kbd>. Click any field in the chart header to edit it inline.</p>
+          <p>Paste the output into the <em>Flow Data</em> box and click <strong>Generate →</strong> or <kbd>Ctrl+Enter</kbd>. For multiple charts, separate them with <code>=== CHART: Name ===</code> markers. Click any field in the chart header to edit it inline.</p>
         </div>
       </div>
 
       <div class="help-step">
         <div class="help-num">4</div>
+        <div class="help-body">
+          <strong>Work with multiple charts</strong>
+          <p>Use tabs to switch between charts or click <strong>⊞ Grid</strong> for side-by-side comparison. Click <strong>+ Add Chart</strong> to create new empty charts. Drag tabs to reorder.</p>
+        </div>
+      </div>
+
+      <div class="help-step">
+        <div class="help-num">5</div>
         <div class="help-body">
           <strong>Interact</strong>
           <p><strong>Drag</strong> any node or its label to reposition · <strong>Hover</strong> bands and nodes for detail tooltips · <strong>Double-click</strong> a node to rename it · <strong>▲▼ YoY</strong> toggles change labels</p>
@@ -526,7 +602,7 @@ END_OF_DATA"></textarea>
       </div>
 
       <div class="help-step">
-        <div class="help-num">5</div>
+        <div class="help-num">6</div>
         <div class="help-body">
           <strong>Save &amp; Share</strong>
           <p><strong>🔗 Share</strong> copies a URL with the full chart including node positions · <strong>⬇ Export</strong> saves as PNG, PDF, or JSON · Saved charts appear in the panel automatically.</p>
@@ -625,6 +701,176 @@ function splitFmtVal(formatted){
   return {currency:"", value:formatted};
 }
 
+// ─── MULTI-CHART SUPPORT ────────────────────────────────────────────────────────
+function parseMultipleCharts(raw){
+  const charts=[];
+
+  // Check if data contains chart markers
+  const chartMarkerRegex=/^===+\s*CHART:\s*(.+?)\s*===+/mi;
+  if(!chartMarkerRegex.test(raw)){
+    // No chart markers, treat entire input as single chart
+    const chartId="Chart 1";
+    return[{id:chartId,name:chartId,data:raw}];
+  }
+
+  // Split by chart markers
+  const parts=raw.split(chartMarkerRegex);
+  // parts[0] is empty (before first marker), parts[1] is first chart name, parts[2] is first data, etc.
+
+  for(let i=1;i<parts.length;i+=2){
+    if(i+1>=parts.length) break;
+    const chartName=parts[i].trim()||`Chart ${charts.length+1}`;
+    const chartData=parts[i+1].trim();
+    const chartId=`Chart ${charts.length+1}`;
+    charts.push({id:chartId,name:chartName,data:chartData});
+  }
+
+  return charts.length>0?charts:[{id:"Chart 1",name:"Chart 1",data:raw}];
+}
+
+let chartsData=[]; // Array of chart objects
+let activeChartIndex=0;
+let chartPositions=new Map(); // Store y-positions for each chart to prevent jumping
+
+function renderTabs(){
+  const container=document.getElementById("tabsContainer");
+  const tabsBar=document.getElementById("chartTabs");
+  container.innerHTML="";
+
+  chartsData.forEach((chart,index)=>{
+    const tab=document.createElement("div");
+    tab.className=`chart-tab${index===activeChartIndex?" active":""}`;
+    tab.dataset.index=index;
+    tab.draggable=true;
+    tab.innerHTML=`
+      <span class="chart-tab-name">${chart.name}</span>
+      <span class="chart-tab-close" data-index="${index}">✕</span>
+    `;
+
+    // Drag and drop handlers
+    tab.addEventListener("dragstart",(e)=>{
+      tab.classList.add("dragging");
+      e.dataTransfer.setData("text/plain",index);
+      e.dataTransfer.effectAllowed="move";
+    });
+
+    tab.addEventListener("dragend",()=>{
+      tab.classList.remove("dragging");
+      container.querySelectorAll(".chart-tab").forEach(t=>t.classList.remove("drag-over"));
+    });
+
+    tab.addEventListener("dragover",(e)=>{
+      e.preventDefault();
+      e.dataTransfer.dropEffect="move";
+      const dragging=container.querySelector(".dragging");
+      if(dragging&&dragging!==tab){
+        tab.classList.add("drag-over");
+      }
+    });
+
+    tab.addEventListener("dragleave",()=>{
+      tab.classList.remove("drag-over");
+    });
+
+    tab.addEventListener("drop",(e)=>{
+      e.preventDefault();
+      tab.classList.remove("drag-over");
+      const fromIndex=parseInt(e.dataTransfer.getData("text/plain"));
+      const toIndex=index;
+      if(fromIndex!==toIndex){
+        reorderCharts(fromIndex,toIndex);
+      }
+    });
+
+    tab.addEventListener("click",(e)=>{
+      if(!e.target.classList.contains("chart-tab-close")){
+        switchToChart(index);
+      }
+    });
+    container.appendChild(tab);
+  });
+
+  // Add close button handlers
+  container.querySelectorAll(".chart-tab-close").forEach(btn=>{
+    btn.addEventListener("click",(e)=>{
+      e.stopPropagation();
+      const index=parseInt(btn.dataset.index);
+      removeChart(index);
+    });
+  });
+
+  // Show/hide tabs bar
+  tabsBar.style.display=chartsData.length>1?"flex":"none";
+}
+
+function switchToChart(index){
+  if(index<0||index>=chartsData.length)return;
+  activeChartIndex=index;
+  renderTabs();
+  // Update input with chart data
+  document.getElementById("inData").value=chartsData[index].data;
+  // Re-generate chart
+  generate();
+}
+
+function addNewChart(){
+  const newId=`Chart ${chartsData.length+1}`;
+  chartsData.push({id:newId,name:newId,data:""});
+  activeChartIndex=chartsData.length-1;
+  renderTabs();
+  document.getElementById("inData").value="";
+  document.getElementById("inData").focus();
+}
+
+function removeChart(index){
+  // Clear position cache for the chart being removed
+  const removedChartId=chartsData[index]?.id;
+  if(removedChartId){
+    chartPositions.delete(removedChartId);
+  }
+
+  if(chartsData.length<=1){
+    // If removing last chart, add a new empty one
+    chartsData=[{id:"Chart 1",name:"Chart 1",data:""}];
+    activeChartIndex=0;
+    renderTabs();
+    document.getElementById("inData").value="";
+    document.getElementById("inData").focus();
+    return;
+  }
+  chartsData.splice(index,1);
+  // Reassign chart IDs
+  chartsData.forEach((chart,i)=>{
+    chart.id=`Chart ${i+1}`;
+    if(chart.name.startsWith("Chart ")){
+      chart.name=chart.id;
+    }
+  });
+  // Clear old position cache entries
+  const validIds=new Set(chartsData.map(c=>c.id));
+  for(const key of chartPositions.keys()){
+    if(!validIds.has(key)){
+      chartPositions.delete(key);
+    }
+  }
+  if(activeChartIndex>=chartsData.length){
+    activeChartIndex=chartsData.length-1;
+  }
+  renderTabs();
+  switchToChart(activeChartIndex);
+}
+
+function updateChartData(data){
+  if(chartsData.length===0){
+    const newId="Chart 1";
+    chartsData.push({id:newId,name:newId,data:data});
+    activeChartIndex=0;
+  }else{
+    chartsData[activeChartIndex].data=data;
+  }
+  renderTabs();
+}
+
 // apply currency from parsed meta — known currencies map to select; others go to custom
 const KNOWN_CURRENCIES=["PKR","USD","EUR","GBP","SAR","AED","INR","JPY","CNY"];
 function applyCurrencyMeta(cur, unit){
@@ -713,6 +959,9 @@ window.addEventListener("DOMContentLoaded",()=>{
   if(window._pendingPalette) activePalette=window._pendingPalette;
   renderSwatch(activePalette);
   renderHistory();
+
+  // multi-chart buttons
+  document.getElementById("btnAddChart").addEventListener("click",addNewChart);
 });
 function toggleDd(id){
   const menu=document.getElementById(id+"Menu");
@@ -847,7 +1096,7 @@ function loadHistory(i){
   if(it.colSpacing){
     const sl=document.getElementById("inColSpacing");
     sl.value=it.colSpacing;
-    document.getElementById("inColSpacingVal").textContent="+"+it.colSpacing+"px";
+    document.getElementById("inColSpacingVal").textContent=it.colSpacing+"px";
   }
   generate();
 }
@@ -892,7 +1141,7 @@ _importInput.addEventListener("change",e=>{
       if(p.colSpacing){
         const sl=document.getElementById("inColSpacing");
         sl.value=p.colSpacing;
-        document.getElementById("inColSpacingVal").textContent="+"+p.colSpacing+"px";
+        document.getElementById("inColSpacingVal").textContent=p.colSpacing+"px";
       }
       if(p.chartHeight){
         const sl=document.getElementById("inHeight");
@@ -960,7 +1209,7 @@ function copyShareURL(btnEl){
   if(p.cur||p.unit) applyCurrencyMeta(p.cur||null, p.unit||null);
   if(p.cs){
     document.getElementById("inColSpacing").value=p.cs;
-    document.getElementById("inColSpacingVal").textContent="+"+p.cs+"px";
+    document.getElementById("inColSpacingVal").textContent=p.cs+"px";
   }
   if(p.h){
     document.getElementById("inHeight").value=p.h;
@@ -1006,6 +1255,54 @@ CRITICAL:
 - Do NOT mix segment breakdowns (e.g. Products/Services revenue) with P&L flows — use P&L structure only (Total Net Sales → Cost of Sales → Gross Margin)
 - Return ONLY the data lines above — no commentary, no questions, no extra text of any kind after the last data line
 - The very last line of your response must be exactly: END_OF_DATA`,
+
+    multichart:`Extract ONE financial flow chart from EACH annual report uploaded in this NotebookLM. If multiple annual reports are uploaded (e.g., 2023, 2024, 2025), extract one chart from each report automatically.
+
+Separate each chart with: === CHART: [Company Name - Period] ===
+
+For EACH report, extract the DETAILED P&L (Profit & Loss) with all intermediate line items in this exact format:
+
+=== CHART: [Company Name - Period, e.g. "Acme Corp - FY 2025"] ===
+COMPANY, [full company name]
+PERIOD, [fiscal period from report]
+SCOPE, [Consolidated or Unconsolidated or Standalone]
+CURRENCY, [currency symbol]
+UNIT, [Millions or Billions or Thousands]
+Total Revenue, Net Sales, [current], [prior]
+Total Revenue, Other Income, [current], [prior]
+Net Sales, Cost of Sales, [current], [prior]
+Net Sales, Gross Profit, [current], [prior]
+Gross Profit, Selling & Distribution, [current], [prior]
+Gross Profit, Admin Expenses, [current], [prior]
+Gross Profit, Other Operating Expenses, [current], [prior]
+Gross Profit, Operating Profit, [current], [prior]
+Operating Profit, Finance Cost, [current], [prior]
+Operating Profit, Profit Before Tax, [current], [prior]
+Other Income, Profit Before Tax, [current], [prior]
+Profit Before Tax, Taxation, [current], [prior]
+Profit Before Tax, Net Profit, [current], [prior]
+Net Profit, Dividends, [current], [prior]
+Net Profit, Retained Earnings, [current], [prior]
+EPS, [current in currency/share], [prior]
+DPS, [current in currency/share], [prior]
+
+=== CHART: [Company Name - Different Period, e.g. "Acme Corp - FY 2024"] ===
+[same detailed P&L structure for the next report]
+[continue for ALL uploaded annual reports]
+
+Rules for EACH report:
+- Extract the detailed P&L statement (not Value Added Statement)
+- Every flow on its own separate line
+- If prior year missing, leave 4th column empty: "A, B, 123,"
+- Verify: CoS + Gross Profit = Net Sales; Dividends + Retained = Net Profit
+- Extra expenses → "Gross Profit, [Expense Name], cur, prior"
+- Extra income → "Total Revenue, [Income Name], cur, prior" AND "[Income Name], Profit Before Tax, cur, prior"
+
+CRITICAL:
+- Return ONLY the chart data separated by markers — no commentary
+- Extract detailed P&L with ALL intermediate nodes (Cost of Sales, Gross Profit, Operating Expenses, Operating Profit, etc.)
+- One chart per uploaded report, separated by === CHART: markers
+- The very last line must be exactly: END_OF_DATA`,
 
     comparative:`Extract financial flow data from this annual report (comparative P&L). Return ONLY comma-separated lines — metadata first, then flows:
 
@@ -1152,7 +1449,8 @@ function loadSample(){
   document.getElementById("inYear").value="";
   document.getElementById("inScope").value="";
   document.getElementById("inData").value=
-`COMPANY, Fauji Fertilizer Company
+`=== CHART: Fauji Fertilizer ===
+COMPANY, Fauji Fertilizer Company
 PERIOD, FY 2025
 SCOPE, Unconsolidated
 CURRENCY, PKR
@@ -1173,7 +1471,31 @@ Profit Before Tax, Net Profit, 4119, 3213
 Net Profit, Dividends, 2119, 1680
 Net Profit, Retained Earnings, 2000, 1533
 EPS, 15.42, 13.37
-DPS, 8.50, 7.00`;
+DPS, 8.50, 7.00
+
+=== CHART: Engro Fertilizer ===
+COMPANY, Engro Fertilizer
+PERIOD, FY 2025
+SCOPE, Consolidated
+CURRENCY, PKR
+UNIT, Millions
+Total Revenue, Net Sales, 18456, 16234
+Total Revenue, Other Income, 234, 198
+Net Sales, Cost of Sales, 8234, 7892
+Net Sales, Gross Profit, 10222, 8342
+Gross Profit, Selling & Distribution, 4123, 3890
+Gross Profit, Admin Expenses, 876, 823
+Gross Profit, Other Op. Expenses, 234, 198
+Gross Profit, Operating Profit, 4989, 3431
+Operating Profit, Finance Cost, 156, 134
+Operating Profit, Profit Before Tax, 4833, 3297
+Other Income, Profit Before Tax, 234, 198
+Profit Before Tax, Taxation, 1456, 987
+Profit Before Tax, Net Profit, 3377, 2309
+Net Profit, Dividends, 1234, 1089
+Net Profit, Retained Earnings, 2143, 1220
+EPS, 12.45, 8.52
+DPS, 6.25, 5.50`;
 }
 
 // ─── PARSE ────────────────────────────────────────────────────────────────────
@@ -1287,7 +1609,7 @@ function validateFlows(nodes,links){
 }
 
 // ─── LAYOUT ───────────────────────────────────────────────────────────────────
-function buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,extraColSpacing=0){
+function buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,colSpacing=150){
   const nodes=nodeNames.map((name,id)=>({id,name,sourceLinks:[],targetLinks:[],value:0,col:0}));
   const links=rawLinks.map((l,i)=>({...l,index:i,source:nodes[l.s],target:nodes[l.t]}));
   links.forEach(l=>{l.source.sourceLinks.push(l);l.target.targetLinks.push(l);});
@@ -1303,7 +1625,7 @@ function buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,extraColSpa
 
   const colX=col=>{
     const pos=colOrder.indexOf(col);
-    return MARGIN.left+pos*(IW/Math.max(numCols-1,1)+extraColSpacing);
+    return MARGIN.left+pos*colSpacing;
   };
   nodes.forEach(n=>{n.x0=colX(n.col);n.x1=n.x0+NODE_W;});
 
@@ -1621,8 +1943,21 @@ function generate(){
   errBox.classList.remove("on");
   const raw=document.getElementById("inData").value.trim();
   if(!raw){errBox.textContent="Please enter flow data.";errBox.classList.add("on");return;}
+
+  // Check for multiple charts and update chartsData
+  const charts=parseMultipleCharts(raw);
+  if(charts.length>1){
+    // Multiple charts detected
+    chartsData=charts;
+    // Use the active chart data for generation
+    const activeChart=chartsData[activeChartIndex];
+    document.getElementById("inData").value=activeChart.data;
+    renderTabs();
+  }
+  updateChartData(document.getElementById("inData").value);
+
   let parsed;
-  try{parsed=parseData(raw);}
+  try{parsed=parseData(chartsData[activeChartIndex].data);}
   catch(e){errBox.textContent=e.message;errBox.classList.add("on");return;}
   const{nodeNames,links:rawLinks,hasYoY,meta}=parsed;
 
@@ -1677,12 +2012,29 @@ function generate(){
   const W=isMobile ? 800 : Math.min(Math.max(chartArea.clientWidth-56, 900), 1400);
   currentW=W;
   const IW=W-MARGIN.left-MARGIN.right, IH=H-MARGIN.top-MARGIN.bottom;
-  const extraColSpacing=parseInt(document.getElementById("inColSpacing").value)||0;
+  const colSpacing=parseInt(document.getElementById("inColSpacing").value)||150;
 
-  const{nodes,links,byCol,numCols,colOrder,colX}=buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,extraColSpacing);
+  const{nodes,links,byCol,numCols,colOrder,colX}=buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,colSpacing);
+
+  // Save/restore node positions to prevent jerky movement when switching charts
+  const chartKey=chartsData[activeChartIndex]?.id||"current";
+  if(chartPositions.has(chartKey)){
+    // Restore saved positions - use node names to match since indices can change
+    const savedPositions=chartPositions.get(chartKey);
+    nodes.forEach(n=>{
+      const savedPos=savedPositions.find(sp=>sp.name===n.name);
+      if(savedPos){
+        n.y0=savedPos.y0;
+        n.y1=savedPos.y1;
+      }
+    });
+  }
+  // Always save/update positions after generation
+  const positions=nodes.map(n=>({name:n.name,y0:n.y0,y1:n.y1}));
+  chartPositions.set(chartKey,positions);
+
   // svgW = left margin + column spans + right margin — both sides equal
-  const baseColSpacing=IW/Math.max(numCols-1,1);
-  const svgW=MARGIN.left + Math.max(numCols-1,0)*(baseColSpacing+extraColSpacing) + NODE_W + MARGIN.right;
+  const svgW=MARGIN.left + Math.max(numCols-1,0)*colSpacing + NODE_W + MARGIN.right;
   currentNodes=nodes;currentLinks=links;
 
   const sources=nodes.filter(n=>n.targetLinks.length===0);
@@ -2115,11 +2467,44 @@ function generate(){
       const conn=new Set([...n.sourceLinks,...n.targetLinks].map(l=>l.index));
       currentLinkPaths.forEach((p,i)=>p.setAttribute("fill-opacity",conn.has(i)?"0.85":"0.15"));
       let html=`<strong style="color:#1a1a2e">${n.name}</strong><br><span style="color:var(--accent);font-weight:600">${fmtVal(n.value)}</span>`;
+
+      // Show inflows (sources → this node) - use targetLinks
+      if(n.targetLinks.length>0){
+        html+='<div style="margin-top:4px;font-size:11px;color:#666;">Inflows:</div>';
+        n.targetLinks.forEach(l=>{
+          const yoyPct=l.prior!=null&&l.prior!==0?((l.v-l.prior)/l.prior*100):null;
+          let flowHtml=`<div style="font-size:11px;">• ${l.source.name}: <span style="color:var(--accent);font-weight:600">${fmtVal(l.v)}</span>`;
+          if(yoyPct!=null){
+            const sign=yoyPct>=0?"▲":"▼",col=yoyPct>=0?"#22c55e":"#ef4444";
+            flowHtml+=` <span style="color:${col};font-weight:600">${sign}${Math.abs(yoyPct).toFixed(1)}%</span>`;
+          }
+          flowHtml+='</div>';
+          html+=flowHtml;
+        });
+      }
+
+      // Show outflows (this node → targets) - use sourceLinks
+      if(n.sourceLinks.length>0){
+        html+='<div style="margin-top:4px;font-size:11px;color:#666;">Outflows:</div>';
+        n.sourceLinks.forEach(l=>{
+          const yoyPct=l.prior!=null&&l.prior!==0?((l.v-l.prior)/l.prior*100):null;
+          let flowHtml=`<div style="font-size:11px;">• ${l.target.name}: <span style="color:var(--accent);font-weight:600">${fmtVal(l.v)}</span>`;
+          if(yoyPct!=null){
+            const sign=yoyPct>=0?"▲":"▼",col=yoyPct>=0?"#22c55e":"#ef4444";
+            flowHtml+=` <span style="color:${col};font-weight:600">${sign}${Math.abs(yoyPct).toFixed(1)}%</span>`;
+          }
+          flowHtml+='</div>';
+          html+=flowHtml;
+        });
+      }
+
+      // Show node YoY if available
       if(nodeYoY.has(n.id)){
         const p=nodeYoY.get(n.id);
         const col=p>=0?"#22c55e":"#ef4444";
-        html+=` <span style="color:${col};font-weight:600">${p>=0?"▲":"▼"}${Math.abs(p).toFixed(1)}% YoY</span>`;
+        html+=`<div style="margin-top:4px;font-size:11px;"><span style="color:${col};font-weight:600">Net ${p>=0?"▲":"▼"}${Math.abs(p).toFixed(1)}% YoY</span></div>`;
       }
+
       tip.innerHTML=html;tip.classList.add("on");tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";
     });
     rect.addEventListener("mousemove",e=>{if(!dragging){tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";}});
