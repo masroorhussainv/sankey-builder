@@ -618,6 +618,12 @@ function fmtVal(v){
   if(v>=1)    return `${cur} ${v.toLocaleString(undefined,{maximumFractionDigits:2})}M`;
   return `${cur} ${(v*1000000).toLocaleString(undefined,{maximumFractionDigits:0})}`;
 }
+// split formatted value into currency and value parts for 2-line rendering
+function splitFmtVal(formatted){
+  const match=formatted.match(/^([A-Z]{3,}|[^\d\s])\s+(.+)$/);
+  if(match) return {currency:match[1], value:match[2]};
+  return {currency:"", value:formatted};
+}
 
 // apply currency from parsed meta — known currencies map to select; others go to custom
 const KNOWN_CURRENCIES=["PKR","USD","EUR","GBP","SAR","AED","INR","JPY","CNY"];
@@ -754,8 +760,11 @@ function applyPalette(){
     }
     if(n._rect) n._rect.setAttribute("fill",n.color);
     if(n._t3){
-      const tsV=n._t3.querySelector("tspan");
-      if(tsV) tsV.setAttribute("fill",getReadableColor(n.color));
+      // only update color if label is above bar (not inside)
+      if(!n._t3._isInside){
+        const tsV=n._t3.querySelector("tspan");
+        if(tsV) tsV.setAttribute("fill",getReadableColor(n.color));
+      }
     }
   });
   currentLinks.forEach((l,i)=>{
@@ -1853,13 +1862,67 @@ function generate(){
       n._t1.setAttribute("y",t1BaseY);
       const t2BaseY=t1BaseY+numLines*lineH+2;
       n._t2.setAttribute("y",t2BaseY);
-      // t3 sits above the bar top, centered on bar — always present
+      // t3: inside bar (3 lines) or above bar (1 line) depending on bar height
       if(n._t3){
-        n._t3.setAttribute("x",n.x0+NODE_W/2);
-        n._t3.setAttribute("y",n.y0-4);
-        // keep value tspan color in sync with bar color
-        const tsV=n._t3.querySelector("tspan");
-        if(tsV) tsV.setAttribute("fill",getReadableColor(n.color));
+        const barCx=n.x0+NODE_W/2;
+        const barH=n.y1-n.y0;
+        const MIN_H_FOR_INSIDE=50;
+        const shouldInside=barH>=MIN_H_FOR_INSIDE;
+
+        n._t3.setAttribute("x",barCx);
+
+        if(shouldInside){
+          // Inside bar: 3 lines centered vertically with white text
+          const lineH=10;
+          const tspans=n._t3.querySelectorAll("tspan");
+          const numLines=tspans.length;
+          const totalTextH=numLines*lineH;
+          const marginTop=(barH-totalTextH)/2;
+          const currencyY=n.y0+marginTop+lineH;
+          const valueY=currencyY+lineH;
+          const yoyY=valueY+lineH;
+
+          if(tspans.length>=1){
+            tspans[0].setAttribute("x",barCx);
+            tspans[0].setAttribute("y",currencyY);
+            tspans[0].setAttribute("fill","#fff");
+          }
+          if(tspans.length>=2){
+            tspans[1].setAttribute("x",barCx);
+            tspans[1].setAttribute("y",valueY);
+            tspans[1].setAttribute("fill","#fff");
+          }
+          if(tspans.length>=3){
+            tspans[2].setAttribute("x",barCx);
+            tspans[2].setAttribute("y",yoyY);
+          }
+          n._t3.setAttribute("y",currencyY);
+          n._t3._isInside=true;
+        }else{
+          // Above bar: 1 line with bar-colored text - ALWAYS REBUILD FOR PROPER CENTERING
+          const pct=nodeYoY.get(n.id);
+          n._t3.innerHTML=""; // Clear existing content
+          n._t3.setAttribute("y",n.y0-4);
+
+          const tsVal=document.createElementNS(NS,"tspan");
+          tsVal.setAttribute("fill",getReadableColor(n.color));
+          tsVal.setAttribute("font-weight","700");
+          tsVal.textContent=fmtVal(n.value);
+          n._t3.appendChild(tsVal);
+
+          if(pct!=null){
+            const tsSp=document.createElementNS(NS,"tspan");
+            tsSp.setAttribute("fill","#ccc");tsSp.textContent=" ";
+            n._t3.appendChild(tsSp);
+            const tsYoY=document.createElementNS(NS,"tspan");
+            tsYoY.setAttribute("fill",pct>=0?"#16a34a":"#dc2626");
+            tsYoY.setAttribute("font-weight","700");
+            tsYoY.textContent=(pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"%";
+            n._t3.appendChild(tsYoY);
+            n._t3._tsYoY=tsYoY;n._t3._tsSp=tsSp;
+          }
+          n._t3._isInside=false;
+        }
       }
     });
   }
@@ -1956,36 +2019,90 @@ function generate(){
     t2.setAttribute("pointer-events","all");t2.style.cursor="grab";
     n._t2=t2;
 
-    // t3 — composite above-bar label: value (bar color) + YoY (green/red)
-    // always created so value is always shown; YoY portion added only when available
+    // t3 — value + YoY label: inside bar (3 lines) for large bars, above bar for small bars
     const pct=nodeYoY.get(n.id);
     const barCx=n.x0+NODE_W/2;
+    const barH=n.y1-n.y0;
+    const MIN_H_FOR_INSIDE=50; // minimum height to fit 3 lines inside bar
+    const isInside=barH>=MIN_H_FOR_INSIDE;
+
     const t3=document.createElementNS(NS,"text");
     t3.setAttribute("x",barCx);
-    t3.setAttribute("y",n.y0-4);
     t3.setAttribute("text-anchor","middle");
-    t3.setAttribute("font-size","9.5");
     t3.setAttribute("font-family","Segoe UI,sans-serif");
-    // pointer-events set to all below after handlers are defined
-    // value tspan — same color as bar
-    const tsVal=document.createElementNS(NS,"tspan");
-    tsVal.setAttribute("fill",getReadableColor(n.color));
-    tsVal.setAttribute("font-weight","700");
-    tsVal.textContent=fmtVal(n.value);
-    t3.appendChild(tsVal);
-    // YoY tspan — only when data present
-    if(pct!=null){
-      const tsSp=document.createElementNS(NS,"tspan");
-      tsSp.setAttribute("fill","#ccc");tsSp.textContent=" ";
-      t3.appendChild(tsSp);
-      const tsYoY=document.createElementNS(NS,"tspan");
-      tsYoY.setAttribute("fill",pct>=0?"#16a34a":"#dc2626");
-      tsYoY.setAttribute("font-weight","700");
-      tsYoY.textContent=(pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"%";
-      t3.appendChild(tsYoY);
-      // hide YoY portion when badges toggled off (keep value visible always)
-      t3._tsYoY=tsYoY;t3._tsSp=tsSp;
+    t3._isInside=isInside; // store for redrawAll
+    t3._wasInsideMode=isInside; // remember initial creation mode
+
+    if(isInside){
+      // Inside bar: 3 lines (currency, value, YoY) centered vertically
+      const lineH=10;
+      const numLines=pct!=null?3:2;
+      const totalTextH=numLines*lineH;
+      const marginTop=(barH-totalTextH)/2;
+      const currencyY=n.y0+marginTop+lineH;
+      const valueY=currencyY+lineH;
+      const yoyY=valueY+lineH;
+
+      const formatted=fmtVal(n.value);
+      const {currency, value}=splitFmtVal(formatted);
+
+      // Line 1: currency symbol (white, smaller)
+      const tsCur=document.createElementNS(NS,"tspan");
+      tsCur.setAttribute("x",barCx);
+      tsCur.setAttribute("y",currencyY);
+      tsCur.setAttribute("fill","#fff");
+      tsCur.setAttribute("font-weight","600");
+      tsCur.setAttribute("font-size","8");
+      tsCur.textContent=currency;
+      t3.appendChild(tsCur);
+
+      // Line 2: value (white, bold)
+      const tsVal=document.createElementNS(NS,"tspan");
+      tsVal.setAttribute("x",barCx);
+      tsVal.setAttribute("y",valueY);
+      tsVal.setAttribute("fill","#fff");
+      tsVal.setAttribute("font-weight","700");
+      tsVal.setAttribute("font-size","9.5");
+      tsVal.textContent=value;
+      t3.appendChild(tsVal);
+
+      // Line 3: YoY (green/red)
+      if(pct!=null){
+        const tsYoY=document.createElementNS(NS,"tspan");
+        tsYoY.setAttribute("x",barCx);
+        tsYoY.setAttribute("y",yoyY);
+        tsYoY.setAttribute("fill",pct>=0?"#86efac":"#fca5a5");
+        tsYoY.setAttribute("font-weight","600");
+        tsYoY.setAttribute("font-size","8.5");
+        tsYoY.textContent=(pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"%";
+        t3.appendChild(tsYoY);
+        t3._tsYoY=tsYoY;
+      }
+      t3.setAttribute("y",currencyY);
+    }else{
+      // Above bar: 1 line, colored text (original behavior)
+      t3.setAttribute("y",n.y0-4);
+      t3.setAttribute("font-size","9.5");
+
+      const tsVal=document.createElementNS(NS,"tspan");
+      tsVal.setAttribute("fill",getReadableColor(n.color));
+      tsVal.setAttribute("font-weight","700");
+      tsVal.textContent=fmtVal(n.value);
+      t3.appendChild(tsVal);
+
+      if(pct!=null){
+        const tsSp=document.createElementNS(NS,"tspan");
+        tsSp.setAttribute("fill","#ccc");tsSp.textContent=" ";
+        t3.appendChild(tsSp);
+        const tsYoY=document.createElementNS(NS,"tspan");
+        tsYoY.setAttribute("fill",pct>=0?"#16a34a":"#dc2626");
+        tsYoY.setAttribute("font-weight","700");
+        tsYoY.textContent=(pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"%";
+        t3.appendChild(tsYoY);
+        t3._tsYoY=tsYoY;t3._tsSp=tsSp;
+      }
     }
+
     // respect badge toggle for YoY part
     if(pct!=null&&!badgesVisible){
       if(t3._tsYoY) t3._tsYoY.style.display="none";
