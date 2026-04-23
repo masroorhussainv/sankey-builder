@@ -35,9 +35,9 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 
 /* palette */
 .palette-wrap{display:none;align-items:center;gap:5px;}
-.swatch{display:flex;gap:3px;}
+.swatch{display:flex;gap:3px;flex:0 0 auto;}
 .swatch div{width:10px;height:10px;border-radius:2px;}
-.pal-sel{border:1px solid #ddd;border-radius:6px;padding:4px 7px;font-size:12px;color:#555;background:#fff;cursor:pointer;outline:none;}
+.pal-sel{border:1px solid #ddd;border-radius:6px;padding:4px 7px;font-size:12px;color:#555;background:#fff;cursor:pointer;outline:none;flex:1;}
 
 /* export dd */
 .export-dd{display:none;}
@@ -50,6 +50,34 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .panel.collapsed{width:0!important;min-width:0!important;opacity:0;pointer-events:none;}
 .panel-inner{padding:10px 12px;display:flex;flex-direction:column;gap:6px;flex:1;overflow-y:auto;min-width:200px;}
 .field textarea{min-height:120px;line-height:1.6;}
+
+/* Sidebar Tabs */
+.sidebar-tabs{display:flex;gap:4px;padding:0 0 10px 0;border-bottom:1px solid #eee;margin-bottom:10px;}
+.sidebar-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;background:none;border:none;border-radius:6px;cursor:pointer;transition:all .2s;font-size:10px;color:#888;font-weight:600;gap:4px;}
+.sidebar-tab:hover{background:#f5f5f5;color:#666;}
+.sidebar-tab.active{background:var(--accent);color:#fff;}
+.sidebar-tab .tab-icon{font-size:16px;}
+.sidebar-tab .tab-label{font-size:10px;font-weight:600;letter-spacing:.02em;text-transform:uppercase;}
+.tab-content{flex:1;display:flex;flex-direction:column;}
+.tab-pane{display:none;flex:1;flex-direction:column;overflow-y:auto;padding-right:4px;}
+.tab-pane.active{display:flex;}
+
+/* drag resizer between panel and chart */
+.panel-resizer{
+  width:5px;flex-shrink:0;background:#e8e8e8;
+  cursor:col-resize;position:relative;
+  transition:background .15s;
+  z-index:10;
+}
+.panel-resizer:hover,.panel-resizer.dragging{background:var(--accent);}
+.panel.collapsed+.panel-resizer{display:none;}
+.panel-resizer::after{
+  content:"";position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:3px;height:32px;border-radius:2px;
+  background:rgba(0,0,0,0.12);
+  pointer-events:none;
+}
 
 /* drag resizer between panel and chart */
 .panel-resizer{
@@ -116,6 +144,7 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .tot .l{font-size:10px;color:#999;text-align:right;text-transform:uppercase;letter-spacing:.1em;margin-top:2px;}
 
 #wrap{padding:0 14px 8px;background:#fff;border-radius:8px;border:1px solid #e8e8e8;flex-shrink:0;width:100%;max-width:1400px;overflow-x:auto;min-width:0;}
+#wrap.show-boundary{border:1px solid #ddd;box-shadow:0 0 0 1px rgba(0,0,0,0.04);}
 svg{display:block;}
 
 .warn-box{width:100%;max-width:1400px;background:#fffbf0;border:1px solid #f0e0b0;border-radius:6px;padding:7px 12px;font-size:11px;color:#7a5c00;line-height:1.7;display:none;flex-shrink:0;margin-bottom:4px;}
@@ -204,13 +233,13 @@ svg{display:block;}
   /* topbar: hide non-essential items */
   .topbar-sub{display:none;}
   .palette-wrap{display:none!important;}
-  .topbar-right .dd-wrap:not(#promptDd):not(#exportDd){display:none;}
+  .topbar-right .dd-wrap:not(#promptDd):not(#exportDd):not(#themeDd){display:none;}
   #btnPanel{display:none;}
+  .panel-resizer{display:none;}
 
   /* chart area stretches full width — no centering that clips overflow */
   .chart-area{align-items:stretch;}
   #chartInner{align-items:stretch!important;}
-  .panel-resizer{display:none;}
 
   /* all chart children go full width */
   .chart-header,.warn-box,.yoy-legend,.cards{max-width:none;}
@@ -266,6 +295,7 @@ svg{display:block;}
 .chart-tabs{
   display:flex;align-items:center;gap:8px;padding:8px 16px;
   background:#fff;border-bottom:1px solid #e0e0e0;flex-shrink:0;
+  width:100%;max-width:1400px;
 }
 .tabs-container{
   display:flex;gap:6px;flex:1;overflow-x:auto;min-width:0;
@@ -347,10 +377,10 @@ svg{display:block;}
       </div>
     </div>
     <!-- palette -->
-    <div class="palette-wrap" id="paletteWrap">
+    <div class="palette-wrap" id="paletteWrap" style="display:flex;">
       <span style="font-size:11px;color:#aaa;">Palette:</span>
-      <div class="swatch" id="paletteSwatch"></div>
-      <select class="pal-sel" id="paletteSelect" onchange="switchPalette(this.value)"></select>
+      <div class="swatch" id="paletteSwatchTop"></div>
+      <select class="pal-sel" id="paletteSelectTop" onchange="switchPalette(this.value)"></select>
     </div>
     <!-- prompts -->
     <div class="dd-wrap" id="promptDd">
@@ -371,14 +401,6 @@ svg{display:block;}
       </div>
     </div>
     <button class="tbtn" onclick="showHelp()">? How to Use</button>
-    <!-- theme picker -->
-    <div class="dd-wrap" id="themeDd">
-      <button class="tbtn" onclick="toggleDd('themeDd')" title="App theme color">🎨 Theme</button>
-      <div class="dd-menu" id="themeDdMenu" style="min-width:180px;">
-        <div style="padding:10px 12px 6px;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.08em;text-transform:uppercase;">App Accent Color</div>
-        <div id="themeSwatches" style="display:flex;flex-wrap:wrap;gap:7px;padding:6px 12px 12px;"></div>
-      </div>
-    </div>
     <button class="tbtn active" id="btnPanel" onclick="togglePanel()">⟨ Panel</button>
   </div>
 </div>
@@ -387,7 +409,27 @@ svg{display:block;}
   <!-- PANEL -->
   <div class="panel" id="panel">
     <div class="panel-inner">
+      <!-- Sidebar Tabs -->
+      <div class="sidebar-tabs">
+        <button class="sidebar-tab active" data-tab="data" onclick="switchSidebarTab('data')">
+          <span class="tab-icon">📝</span>
+          <span class="tab-label">Data + Generate</span>
+        </button>
+        <button class="sidebar-tab" data-tab="library" onclick="switchSidebarTab('library')">
+          <span class="tab-icon">📚</span>
+          <span class="tab-label">Library</span>
+        </button>
+        <button class="sidebar-tab" data-tab="settings" onclick="switchSidebarTab('settings')">
+          <span class="tab-icon">⚙️</span>
+          <span class="tab-label">Settings</span>
+        </button>
+      </div>
 
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- DATA TAB -->
+        <div class="tab-pane active" id="tab-data">
+      <div class="section-title">Chart Details</div>
       <div class="section-title">Chart Details</div>
       <div class="field-row">
         <div class="field">
@@ -439,7 +481,7 @@ svg{display:block;}
         <div style="display:flex;align-items:center;gap:8px;">
           <input type="range" id="inHeight" min="300" max="1000" value="580" step="20"
             style="flex:1;accent-color:var(--accent);cursor:pointer;"
-            oninput="document.getElementById('inHeightVal').textContent=this.value+'px'"/>
+            oninput="document.getElementById('inHeightVal').textContent=this.value+'px';if(currentNodes)generate();"/>
           <span id="inHeightVal" style="font-size:11px;color:var(--accent);min-width:38px;">580px</span>
         </div>
       </div>
@@ -448,7 +490,7 @@ svg{display:block;}
         <div style="display:flex;align-items:center;gap:8px;">
           <input type="range" id="inColSpacing" min="10" max="300" value="150" step="5"
             style="flex:1;accent-color:var(--accent);cursor:pointer;"
-            oninput="document.getElementById('inColSpacingVal').textContent=this.value+'px'"/>
+            oninput="document.getElementById('inColSpacingVal').textContent=this.value+'px';if(currentNodes)generate();"/>
           <span id="inColSpacingVal" style="font-size:11px;color:var(--accent);min-width:38px;">150px</span>
         </div>
       </div>
@@ -457,7 +499,7 @@ svg{display:block;}
         <div style="display:flex;align-items:center;gap:8px;">
           <input type="range" id="inNodeWidth" min="10" max="50" value="40" step="2"
             style="flex:1;accent-color:var(--accent);cursor:pointer;"
-            oninput="document.getElementById('inNodeWidthVal').textContent=this.value+'px'"/>
+            oninput="document.getElementById('inNodeWidthVal').textContent=this.value+'px';if(currentNodes)generate();"/>
           <span id="inNodeWidthVal" style="font-size:11px;color:var(--accent);min-width:38px;">40px</span>
         </div>
       </div>
@@ -476,12 +518,40 @@ END_OF_DATA"></textarea>
         <button class="btn-gen" style="flex:2;" onclick="generate()">Generate →</button>
       </div>
       <div class="shortcut-hint">Ctrl + Enter to generate</div>
+        </div>
 
+        <!-- LIBRARY TAB -->
+        <div class="tab-pane" id="tab-library">
       <div class="section-title">Saved Charts</div>
       <div style="display:flex;gap:5px;margin-bottom:4px;">
         <button class="btn-sec" style="flex:1;font-size:10px;" onclick="importJSON()">⬆ Import JSON</button>
       </div>
       <div class="history-list" id="historyList"></div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div class="tab-pane" id="tab-settings">
+      <div class="section-title">Appearance</div>
+      <div class="field">
+        <label>Color Palette</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="swatch" id="paletteSwatch" style="flex:0 0 auto;"></div>
+          <select class="pal-sel" id="paletteSelect" onchange="switchPalette(this.value)" style="flex:1;"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label>App Theme</label>
+        <div id="themeSwatches" style="display:flex;flex-wrap:wrap;gap:7px;padding:4px 0;"></div>
+      </div>
+      <div class="field">
+        <label>Chart Boundary</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="showChartBoundary" onchange="toggleChartBoundary(this.checked)" style="flex:0 0 auto;cursor:pointer;">
+          <span style="font-size:11px;color:#666;">Show subtle outline around chart</span>
+        </div>
+      </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -697,7 +767,8 @@ function fmtVal(v){
 }
 // split formatted value into currency and value parts for 2-line rendering
 function splitFmtVal(formatted){
-  const match=formatted.match(/^([A-Z]{3,}|[^\d\s])\s+(.+)$/);
+  // Match: 3+ letter currency (USD, PKR, EUR) OR currency with symbol (Rs., £, $) followed by space and value
+  const match=formatted.match(/^([A-Z]{3,}|[A-Z][a-z]{1,2}\.?|[^$A-Z0-9\s][$¢£€¥]?)\s+(.+)$/);
   if(match) return {currency:match[1], value:match[2]};
   return {currency:"", value:formatted};
 }
@@ -966,16 +1037,19 @@ window.addEventListener("DOMContentLoaded",()=>{
     });
   }
 
-  // palette select
-  const sel=document.getElementById("paletteSelect");
-  if(sel){
-    Object.keys(PALETTES).forEach(n=>{
-      const o=document.createElement("option");
-      o.value=n;o.textContent=n;
-      if(n===(window._pendingPalette||activePalette))o.selected=true;
-      sel.appendChild(o);
-    });
-  }
+  // palette select (both top bar and settings)
+  const paletteSelects=[document.getElementById("paletteSelect"),document.getElementById("paletteSelectTop")];
+  paletteSelects.forEach(sel=>{
+    if(sel){
+      sel.innerHTML="";
+      Object.keys(PALETTES).forEach(n=>{
+        const o=document.createElement("option");
+        o.value=n;o.textContent=n;
+        if(n===(window._pendingPalette||activePalette))o.selected=true;
+        sel.appendChild(o);
+      });
+    }
+  });
   if(window._pendingPalette) activePalette=window._pendingPalette;
   renderSwatch(activePalette);
   renderHistory();
@@ -995,16 +1069,23 @@ document.addEventListener("click",e=>{
 
 // ─── PALETTE ──────────────────────────────────────────────────────────────────
 function renderSwatch(name){
-  const w=document.getElementById("paletteSwatch");
-  w.innerHTML="";
-  PALETTES[name].slice(0,8).forEach(c=>{
-    const d=document.createElement("div");
-    d.style.cssText=`width:10px;height:10px;border-radius:2px;background:${c};`;
-    w.appendChild(d);
+  ["paletteSwatch","paletteSwatchTop"].forEach(swatchId=>{
+    const w=document.getElementById(swatchId);
+    if(w){
+      w.innerHTML="";
+      PALETTES[name].slice(0,8).forEach(c=>{
+        const d=document.createElement("div");
+        d.style.cssText=`width:10px;height:10px;border-radius:2px;background:${c};`;
+        w.appendChild(d);
+      });
+    }
   });
 }
 function switchPalette(name){
   activePalette=name;renderSwatch(name);
+  // Sync both palette selects
+  document.getElementById("paletteSelect").value=name;
+  document.getElementById("paletteSelectTop").value=name;
   if(currentNodes) applyPalette();
 }
 function applyPalette(){
@@ -1330,27 +1411,49 @@ CURRENCY, [currency symbol e.g. PKR, USD, EUR, GBP]
 UNIT, [Millions or Billions or Thousands]
 Total Revenue, Net Sales, 25789.24
 Total Revenue, Other Income, 446.67
+Total Revenue, Investment Income, 125.50
+Total Revenue, Dividends from Subsidiaries, 85.30
+Total Revenue, Share of Profit from Associates, 64.20
 Net Sales, Cost of Sales, 11662.35
 Net Sales, Gross Profit, 14126.89
 Gross Profit, Selling & Distribution, 6311.93
 Gross Profit, Admin Expenses, 1028.85
 Gross Profit, Other Operating Expenses, 516.44
+Gross Profit, Impairment Losses, 45.00
+Gross Profit, Reversal of Impairment, -12.50
+Gross Profit, Write-offs, 28.40
 Gross Profit, Operating Profit, 6258.87
 Operating Profit, Finance Cost, 121.50
+Operating Profit, Foreign Exchange Gain/Loss, -15.30
+Operating Profit, Gain/Loss on Sale of Assets, 32.50
+Operating Profit, Unusual Items, 18.70
 Operating Profit, Profit Before Tax, 6584.05
 Other Income, Profit Before Tax, 446.67
+Investment Income, Profit Before Tax, 125.50
+Dividends from Subsidiaries, Profit Before Tax, 85.30
+Share of Profit from Associates, Profit Before Tax, 64.20
 Profit Before Tax, Taxation, 2464.73
+Profit Before Tax, Minority Interest, 156.80
 Profit Before Tax, Net Profit, 4119.31
-Net Profit, Dividends, 2119.34
+Net Profit, Dividends Paid, 2119.34
+Net Profit, Dividends Received, 156.20
+Net Profit, Prior Year Adjustments, 42.30
 Net Profit, Retained Earnings, 1999.98
+Retained Earnings, Capital Expenditure, 850.00
+Retained Earnings, Loans and Advances, 320.50
+Retained Earnings, Short-Term Investments, 450.30
+Retained Earnings, Cash and Cash Equivalents, 179.68
 EPS, 15.42
 DPS, 8.50
 
-All values in the currency and unit you specified above. EPS/DPS always in actual currency per share (not millions).
+All values in the currency and unit you specified above. EPS/DPS always in actual currency per share (not millions). Use negative numbers for reversals/gains (e.g., Reversal of Impairment, FX Gain).
 
 CRITICAL:
 - Every flow on its own separate line — do NOT merge multiple flows onto one line
 - Do NOT mix segment breakdowns (e.g. Products/Services revenue) with P&L flows — use P&L structure only (Total Net Sales → Cost of Sales → Gross Margin)
+- Include ALL P&L items: Investment Income, Dividends from Subsidiaries, Share of Profit from Associates, Impairment Losses, Reversal of Impairment, Write-offs, Foreign Exchange Gain/Loss, Gain/Loss on Sale of Assets, Unusual Items, Minority Interest, Prior Year Adjustments, Dividends Received, Capital Expenditure, Loans and Advances, Short-Term Investments, Cash and Cash Equivalents
+- If any item has zero value, omit it entirely
+- IMPORTANT: For Retained Earnings, calculate surplus: Inflow - (Capital Expenditure + Loans and Advances + Short-Term Investments + Cash and Cash Equivalents). If surplus exists, add "Retained Earnings, Other Reserves, [surplus]" to account for it
 - Return ONLY the data lines above — no commentary, no questions, no extra text of any kind after the last data line
 - The very last line of your response must be exactly: END_OF_DATA`,
 
@@ -1368,19 +1471,38 @@ CURRENCY, [currency symbol]
 UNIT, [Millions or Billions or Thousands]
 Total Revenue, Net Sales, [current], [prior]
 Total Revenue, Other Income, [current], [prior]
+Total Revenue, Investment Income, [current], [prior]
+Total Revenue, Dividends from Subsidiaries, [current], [prior]
+Total Revenue, Share of Profit from Associates, [current], [prior]
 Net Sales, Cost of Sales, [current], [prior]
 Net Sales, Gross Profit, [current], [prior]
 Gross Profit, Selling & Distribution, [current], [prior]
 Gross Profit, Admin Expenses, [current], [prior]
 Gross Profit, Other Operating Expenses, [current], [prior]
+Gross Profit, Impairment Losses, [current], [prior]
+Gross Profit, Reversal of Impairment, [current], [prior]
+Gross Profit, Write-offs, [current], [prior]
 Gross Profit, Operating Profit, [current], [prior]
 Operating Profit, Finance Cost, [current], [prior]
+Operating Profit, Foreign Exchange Gain/Loss, [current], [prior]
+Operating Profit, Gain/Loss on Sale of Assets, [current], [prior]
+Operating Profit, Unusual Items, [current], [prior]
 Operating Profit, Profit Before Tax, [current], [prior]
 Other Income, Profit Before Tax, [current], [prior]
+Investment Income, Profit Before Tax, [current], [prior]
+Dividends from Subsidiaries, Profit Before Tax, [current], [prior]
+Share of Profit from Associates, Profit Before Tax, [current], [prior]
 Profit Before Tax, Taxation, [current], [prior]
+Profit Before Tax, Minority Interest, [current], [prior]
 Profit Before Tax, Net Profit, [current], [prior]
-Net Profit, Dividends, [current], [prior]
+Net Profit, Dividends Paid, [current], [prior]
+Net Profit, Dividends Received, [current], [prior]
+Net Profit, Prior Year Adjustments, [current], [prior]
 Net Profit, Retained Earnings, [current], [prior]
+Retained Earnings, Capital Expenditure, [current], [prior]
+Retained Earnings, Loans and Advances, [current], [prior]
+Retained Earnings, Short-Term Investments, [current], [prior]
+Retained Earnings, Cash and Cash Equivalents, [current], [prior]
 EPS, [current in currency/share], [prior]
 DPS, [current in currency/share], [prior]
 
@@ -1395,6 +1517,9 @@ Rules for EACH report:
 - Verify: CoS + Gross Profit = Net Sales; Dividends + Retained = Net Profit
 - Extra expenses → "Gross Profit, [Expense Name], cur, prior"
 - Extra income → "Total Revenue, [Income Name], cur, prior" AND "[Income Name], Profit Before Tax, cur, prior"
+- Include ALL P&L items: Investment Income, Dividends from Subsidiaries, Share of Profit from Associates, Impairment Losses, Reversal of Impairment, Write-offs, Foreign Exchange Gain/Loss, Gain/Loss on Sale of Assets, Unusual Items, Minority Interest, Prior Year Adjustments, Dividends Received, Capital Expenditure, Loans and Advances, Short-Term Investments, Cash and Cash Equivalents
+- If any item has zero value in BOTH years, omit it entirely
+- IMPORTANT: For Retained Earnings, calculate surplus: Inflow - (Capital Expenditure + Loans and Advances + Short-Term Investments + Cash and Cash Equivalents). If surplus exists, add "Retained Earnings, Other Reserves, [surplus], [prior_surplus]" to account for it
 
 CRITICAL:
 - Return ONLY the chart data separated by markers — no commentary
@@ -1411,19 +1536,38 @@ CURRENCY, [currency symbol e.g. PKR, USD, EUR]
 UNIT, [Millions or Billions or Thousands]
 Total Revenue, Net Sales, 25789.24, 22340.11
 Total Revenue, Other Income, 446.67, 380.20
+Total Revenue, Investment Income, 125.50, 98.40
+Total Revenue, Dividends from Subsidiaries, 85.30, 72.10
+Total Revenue, Share of Profit from Associates, 64.20, 52.80
 Net Sales, Cost of Sales, 11662.35, 10234.56
 Net Sales, Gross Profit, 14126.89, 12105.55
 Gross Profit, Selling & Distribution, 6311.93, 5820.40
 Gross Profit, Admin Expenses, 1028.85, 944.20
 Gross Profit, Other Operating Expenses, 516.44, 490.10
+Gross Profit, Impairment Losses, 45.00, 38.20
+Gross Profit, Reversal of Impairment, -12.50, -8.40
+Gross Profit, Write-offs, 28.40, 32.10
 Gross Profit, Operating Profit, 6258.87, 4850.85
 Operating Profit, Finance Cost, 121.50, 98.30
+Operating Profit, Foreign Exchange Gain/Loss, -15.30, 12.50
+Operating Profit, Gain/Loss on Sale of Assets, 32.50, -18.20
+Operating Profit, Unusual Items, 18.70, 24.30
 Operating Profit, Profit Before Tax, 6584.05, 5133.15
 Other Income, Profit Before Tax, 446.67, 380.20
+Investment Income, Profit Before Tax, 125.50, 98.40
+Dividends from Subsidiaries, Profit Before Tax, 85.30, 72.10
+Share of Profit from Associates, Profit Before Tax, 64.20, 52.80
 Profit Before Tax, Taxation, 2464.73, 1920.50
+Profit Before Tax, Minority Interest, 156.80, 132.40
 Profit Before Tax, Net Profit, 4119.31, 3212.65
-Net Profit, Dividends, 2119.34, 1680.00
+Net Profit, Dividends Paid, 2119.34, 1680.00
+Net Profit, Dividends Received, 156.20, 125.00
+Net Profit, Prior Year Adjustments, 42.30, -28.50
 Net Profit, Retained Earnings, 1999.98, 1532.65
+Retained Earnings, Capital Expenditure, 850.00, 720.50
+Retained Earnings, Loans and Advances, 320.50, 280.30
+Retained Earnings, Short-Term Investments, 450.30, 312.40
+Retained Earnings, Cash and Cash Equivalents, 179.68, 219.75
 EPS, 15.42, 13.37
 DPS, 8.50, 7.00
 
@@ -1434,6 +1578,10 @@ Rules:
 - Extra expenses → "Gross Profit, [Name], cur, prior"
 - Extra income → "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
 - Verify: CoS + Gross Profit = Net Sales; Dividends + Retained Earnings = Net Profit
+- Include ALL P&L items: Investment Income, Dividends from Subsidiaries, Share of Profit from Associates, Impairment Losses, Reversal of Impairment, Write-offs, Foreign Exchange Gain/Loss, Gain/Loss on Sale of Assets, Unusual Items, Minority Interest, Prior Year Adjustments, Dividends Received, Capital Expenditure, Loans and Advances, Short-Term Investments, Cash and Cash Equivalents
+- If any item has zero value in BOTH years, omit it entirely
+- Use negative numbers for reversals/gains (e.g., Reversal of Impairment, FX Gain)
+- IMPORTANT: For Retained Earnings, calculate surplus: Inflow - (Capital Expenditure + Loans and Advances + Short-Term Investments + Cash and Cash Equivalents). If surplus exists, add "Retained Earnings, Other Reserves, [surplus]" to account for it
 
 CRITICAL:
 - Every flow on its own separate line — do NOT merge multiple flows onto one line
@@ -1450,19 +1598,38 @@ CURRENCY, [currency symbol e.g. PKR, USD, EUR, GBP]
 UNIT, [Millions / Billions / Thousands]
 Total Revenue, Net Sales, [cur], [prior]
 Total Revenue, Other Income, [cur], [prior]
+Total Revenue, Investment Income, [cur], [prior]
+Total Revenue, Dividends from Subsidiaries, [cur], [prior]
+Total Revenue, Share of Profit from Associates, [cur], [prior]
 Net Sales, Cost of Sales, [cur], [prior]
 Net Sales, Gross Profit, [cur], [prior]
 Gross Profit, Selling & Distribution, [cur], [prior]
 Gross Profit, Admin Expenses, [cur], [prior]
 Gross Profit, Other Operating Expenses, [cur], [prior]
+Gross Profit, Impairment Losses, [cur], [prior]
+Gross Profit, Reversal of Impairment, [cur], [prior]
+Gross Profit, Write-offs, [cur], [prior]
 Gross Profit, Operating Profit, [cur], [prior]
 Operating Profit, Finance Cost, [cur], [prior]
+Operating Profit, Foreign Exchange Gain/Loss, [cur], [prior]
+Operating Profit, Gain/Loss on Sale of Assets, [cur], [prior]
+Operating Profit, Unusual Items, [cur], [prior]
 Operating Profit, Profit Before Tax, [cur], [prior]
 Other Income, Profit Before Tax, [cur], [prior]
+Investment Income, Profit Before Tax, [cur], [prior]
+Dividends from Subsidiaries, Profit Before Tax, [cur], [prior]
+Share of Profit from Associates, Profit Before Tax, [cur], [prior]
 Profit Before Tax, Taxation, [cur], [prior]
+Profit Before Tax, Minority Interest, [cur], [prior]
 Profit Before Tax, Net Profit, [cur], [prior]
-Net Profit, Dividends, [cur], [prior]
+Net Profit, Dividends Paid, [cur], [prior]
+Net Profit, Dividends Received, [cur], [prior]
+Net Profit, Prior Year Adjustments, [cur], [prior]
 Net Profit, Retained Earnings, [cur], [prior]
+Retained Earnings, Capital Expenditure, [cur], [prior]
+Retained Earnings, Loans and Advances, [cur], [prior]
+Retained Earnings, Short-Term Investments, [cur], [prior]
+Retained Earnings, Cash and Cash Equivalents, [cur], [prior]
 EPS, [current value in currency/share], [prior value in currency/share]
 DPS, [current value in currency/share], [prior value in currency/share]
 
@@ -1473,6 +1640,10 @@ Rules:
 - Extra expenses → "Gross Profit, [Name], cur, prior"
 - Extra income → "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
 - Verify both years: CoS + Gross Profit = Net Sales; Dividends + Retained Earnings = Net Profit
+- Include ALL P&L items: Investment Income, Dividends from Subsidiaries, Share of Profit from Associates, Impairment Losses, Reversal of Impairment, Write-offs, Foreign Exchange Gain/Loss, Gain/Loss on Sale of Assets, Unusual Items, Minority Interest, Prior Year Adjustments, Dividends Received, Capital Expenditure, Loans and Advances, Short-Term Investments, Cash and Cash Equivalents
+- If any item has zero value in BOTH years, omit it entirely
+- Use negative numbers for reversals/gains (e.g., Reversal of Impairment, FX Gain)
+- IMPORTANT: For Retained Earnings, calculate surplus: Inflow - (Capital Expenditure + Loans and Advances + Short-Term Investments + Cash and Cash Equivalents). If surplus exists, add "Retained Earnings, Other Reserves, [surplus]" to account for it
 
 CRITICAL:
 - Every flow on its own separate line — do NOT merge multiple flows onto one line
@@ -1539,6 +1710,43 @@ function togglePanel(){
     if(!isCollapsed&&parseInt(p.style.width||0)<220) p.style.width="360px";
     setTimeout(()=>{if(currentNodes)generate();},280);
   }
+}
+
+// ─── CHART BOUNDARY ─────────────────────────────────────────────────────────
+function toggleChartBoundary(show){
+  const wrap=document.getElementById('wrap');
+  if(show){
+    wrap.classList.add('show-boundary');
+  }else{
+    wrap.classList.remove('show-boundary');
+  }
+  // Save preference
+  try{
+    localStorage.setItem('showChartBoundary', show);
+  }catch(e){}
+}
+
+// Load chart boundary preference on startup
+window.addEventListener('DOMContentLoaded',()=>{
+  const show=localStorage.getItem('showChartBoundary')==='true';
+  const checkbox=document.getElementById('showChartBoundary');
+  if(checkbox){
+    checkbox.checked=show;
+    if(show) toggleChartBoundary(true);
+  }
+});
+
+// ─── SIDEBAR TABS ─────────────────────────────────────────────────────────────
+function switchSidebarTab(tabId){
+  document.querySelectorAll('.sidebar-tab').forEach(tab => {
+    tab.classList.remove('active');
+    if(tab.dataset.tab === tabId) tab.classList.add('active');
+  });
+
+  document.querySelectorAll('.tab-pane').forEach(pane => {
+    pane.classList.remove('active');
+  });
+  document.getElementById('tab-' + tabId).classList.add('active');
 }
 
 // ─── SAMPLE DATA ──────────────────────────────────────────────────────────────
@@ -1690,6 +1898,8 @@ function validateFlows(nodes,links){
     const inLinks =links.filter(l=>l.target===n);
     const outLinks=links.filter(l=>l.source===n);
     if(!inLinks.length||!outLinks.length) return;
+    // Skip Retained Earnings - it's a balance sheet account that accumulates surplus, not a flow node
+    if(n.name.toLowerCase().includes("retained earnings")) return;
     // Skip if any connected link is negative (legitimate financial offset)
     if([...inLinks,...outLinks].some(l=>l.isNegative)) return;
     // Skip if any downstream target also receives from other sources (merger node downstream)
@@ -2328,14 +2538,15 @@ function generate(){
         if(shouldInside){
           // Inside bar: 3 lines centered vertically with white text
           const lineH=10;
-          const tspans=n._t3.querySelectorAll("tspan");
-          const numLines=tspans.length;
+          const pct=nodeYoY.get(n.id);
+          const numLines=pct!=null?3:2;
           const totalTextH=numLines*lineH;
           const marginTop=(barH-totalTextH)/2;
           const currencyY=n.y0+marginTop+lineH;
           const valueY=currencyY+lineH;
           const yoyY=valueY+lineH;
 
+          const tspans=n._t3.querySelectorAll("tspan");
           if(tspans.length>=1){
             tspans[0].setAttribute("x",barCx);
             tspans[0].setAttribute("y",currencyY);
@@ -2486,6 +2697,7 @@ function generate(){
     t3.setAttribute("font-family","Segoe UI,sans-serif");
     t3._isInside=isInside; // store for redrawAll
     t3._wasInsideMode=isInside; // remember initial creation mode
+    t3._barCx=barCx; // store for redraw
 
     if(isInside){
       // Inside bar: 3 lines (currency, value, YoY) centered vertically
@@ -3062,7 +3274,24 @@ function showCtxMenu(e, node, renameFn, resetFn, redrawFn){
   // +/- resize buttons — keep menu open, click repeatedly
   const STEP=20; // px per click
   const doResize=delta=>{
-    const newH=Math.max(6,(node.y1-node.y0)+delta);
+    // Get current chart height from input
+    const chartH=parseInt(document.getElementById("inHeight").value)||520;
+    // Account for margins (top: 32, bottom: 52)
+    const maxBarY=chartH-52; // bottom margin
+    const minBarY=32; // top margin
+
+    const currentH=node.y1-node.y0;
+    let newH=Math.max(6,currentH+delta);
+
+    // Check if expanding would go beyond chart boundaries
+    if(node.y0+newH > maxBarY){
+      newH=maxBarY-node.y0;
+    }
+    // Check minimum height constraint
+    if(newH < 6){
+      newH=6;
+    }
+
     node.y1=node.y0+newH;
     node.ky=node.value>0?newH/node.value:node.ky;
     redrawFn();
