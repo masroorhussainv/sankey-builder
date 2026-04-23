@@ -358,7 +358,6 @@ svg{display:block;}
   <div class="topbar-right">
     <!-- export dropdown -->
     <button class="tbtn active" id="btnYoY" style="display:none;">▲▼ YoY</button>
-    <button class="tbtn" id="btnShare" style="display:none;" onclick="copyShareURL(this)">🔗 Share</button>
     <div class="dd-wrap export-dd" id="exportDd">
       <button class="tbtn" onclick="toggleDd('exportDd')">⬇ Export ▾</button>
       <div class="dd-menu" id="exportDdMenu">
@@ -370,6 +369,9 @@ svg{display:block;}
         </div>
         <div class="dd-item" onclick="exportPDF();toggleDd('exportDd')">
           <strong>Export as PDF</strong><span>Chart + full flow data table</span>
+        </div>
+        <div class="dd-item" id="exportAllPdfItem" style="display:none;" onclick="exportAllChartsPDF();toggleDd('exportDd')">
+          <strong>Export All Charts as PDF</strong><span>All charts in a single PDF</span>
         </div>
         <div class="dd-item" onclick="exportJSON();toggleDd('exportDd')">
           <strong>Export as JSON</strong><span>Save chart data to file — import later or share</span>
@@ -587,9 +589,12 @@ END_OF_DATA"></textarea>
           <h2 id="chartTitle" style="display:flex;align-items:center;flex-wrap:wrap;gap:2px;">—</h2>
           <p id="chartSubtitle" style="display:flex;align-items:center;gap:4px;margin-top:3px;"></p>
         </div>
-        <div class="tot">
-          <div class="v" id="chartTotal">—</div>
-          <div class="l">Total Inflow</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="tbtn" id="btnShareChart" style="display:none;" onclick="copyShareURL(this)">🔗 Share</button>
+          <div class="tot">
+            <div class="v" id="chartTotal">—</div>
+            <div class="l">Total Inflow</div>
+          </div>
         </div>
       </div>
       <div class="warn-box" id="warnBox"></div>
@@ -767,8 +772,8 @@ function fmtVal(v){
 }
 // split formatted value into currency and value parts for 2-line rendering
 function splitFmtVal(formatted){
-  // Match: 3+ letter currency (USD, PKR, EUR) OR currency with symbol (Rs., £, $) followed by space and value
-  const match=formatted.match(/^([A-Z]{3,}|[A-Z][a-z]{1,2}\.?|[^$A-Z0-9\s][$¢£€¥]?)\s+(.+)$/);
+  // Match: 2-4 uppercase letters with optional dot (RS., PKR., USD, EUR) OR currency symbol ($, £, €)
+  const match=formatted.match(/^([A-Z]{2,4}\.?|[$£€₹])\s+(.+)$/);
   if(match) return {currency:match[1], value:match[2]};
   return {currency:"", value:formatted};
 }
@@ -873,6 +878,12 @@ function renderTabs(){
 
   // Show/hide tabs bar
   tabsBar.style.display=chartsData.length>1?"flex":"none";
+
+  // Show/hide "Export All Charts" menu item
+  const exportAllItem=document.getElementById("exportAllPdfItem");
+  if(exportAllItem){
+    exportAllItem.style.display=chartsData.length>1?"flex":"none";
+  }
 }
 
 function switchToChart(index){
@@ -1114,6 +1125,12 @@ function applyPalette(){
       if(!n._t3._isInside){
         const tsV=n._t3.querySelector("tspan");
         if(tsV) tsV.setAttribute("fill",getReadableColor(n.color));
+      }else{
+        // Inside bar: update all 3 line text colors
+        const insideBarColor=getInsideBarTextColor(n.color);
+        if(n._t3._line1) n._t3._line1.setAttribute("fill",insideBarColor);
+        if(n._t3._line2) n._t3._line2.setAttribute("fill",insideBarColor);
+        if(n._t3._line3) n._t3._line3.setAttribute("fill",insideBarColor);
       }
     }
   });
@@ -1344,30 +1361,55 @@ function decodePayload(str){
   try{return JSON.parse(decodeURIComponent(escape(atob(str))));}catch(e){return null;}
 }
 function copyShareURL(btnEl){
-  const data=document.getElementById("inData").value.trim();
-  if(!data){alert("Generate a chart first.");return;}
-  const nodePos=currentNodes?currentNodes.map(n=>Math.round(n.y0)):[];
+  // Get active chart's data only
+  let dataToShare = "";
+  if (chartsData.length > 1) {
+    // Multi-chart mode: use active chart's data
+    const activeChart = chartsData[activeChartIndex];
+    if (!activeChart) { alert("No chart to share."); return; }
+    dataToShare = activeChart.data;
+  } else {
+    // Single chart mode
+    dataToShare = document.getElementById("inData").value.trim();
+  }
+
+  if(!dataToShare){alert("Generate a chart first.");return;}
+
+  // Store full node positions (y0, y1) with names for exact restoration
+  const nodePos=currentNodes?currentNodes.map(n=>({n:n.name,y0:Math.round(n.y0),y1:Math.round(n.y1)})):[];
+
   const payload={
     c:document.getElementById("inCompany").value.trim(),
     y:document.getElementById("inYear").value.trim(),
     s:document.getElementById("inScope").value.trim(),
-    d:data,
+    d:dataToShare,  // Only active chart's data
     p:activePalette,
     cs:document.getElementById("inColSpacing").value||"0",
     h:document.getElementById("inHeight").value||"520",
     cur:getCurrencySymbol(),
     unit:getUnit(),
-    np:nodePos
+    np:nodePos  // Full positions with names
   };
   const encoded=encodePayload(payload);
   if(!encoded){alert("Data too large to encode as URL.");return;}
   const url=`${location.origin}${location.pathname}#chart=${encoded}`;
-  const btn=btnEl||document.getElementById("btnShare");
-  navigator.clipboard.writeText(url).then(()=>{
-    const orig=btn.textContent;
-    btn.textContent="✓ Copied!";btn.style.color="var(--accent)";btn.style.borderColor="var(--accent)";
-    setTimeout(()=>{btn.textContent=orig;btn.style.color="";btn.style.borderColor="";},2500);
-  }).catch(()=>{prompt("Copy this URL:",url);});
+
+  // Show feedback on button
+  const btn=btnEl||document.getElementById("btnShareChart");
+  if(btn){
+    const origText=btn.textContent;
+    const origColor=btn.style.color;
+    btn.textContent="✓ Copied!";
+    btn.style.color="#22c55e";
+    btn.style.borderColor="#22c55e";
+    setTimeout(()=>{
+      btn.textContent=origText;
+      btn.style.color=origColor;
+      btn.style.borderColor="";
+    },2500);
+  }
+
+  navigator.clipboard.writeText(url).catch(()=>prompt("Copy this URL:",url));
 }
 
 // on load, check for shared chart in URL hash
@@ -2536,38 +2578,40 @@ function generate(){
         n._t3.setAttribute("x",barCx);
 
         if(shouldInside){
-          // Inside bar: 3 lines centered vertically with white text
-          const lineH=10;
+          // Update the 3 separate text elements
+          const lineHeight=12;
           const pct=nodeYoY.get(n.id);
           const numLines=pct!=null?3:2;
-          const totalTextH=numLines*lineH;
+          const totalTextH=numLines*lineHeight;
           const marginTop=(barH-totalTextH)/2;
-          const currencyY=n.y0+marginTop+lineH;
-          const valueY=currencyY+lineH;
-          const yoyY=valueY+lineH;
+          const startY=n.y0+marginTop;
 
-          const tspans=n._t3.querySelectorAll("tspan");
-          if(tspans.length>=1){
-            tspans[0].setAttribute("x",barCx);
-            tspans[0].setAttribute("y",currencyY);
-            tspans[0].setAttribute("fill","#fff");
+          if(n._t3._line1){
+            n._t3._line1.setAttribute("x",barCx);
+            n._t3._line1.setAttribute("y",startY+8);
           }
-          if(tspans.length>=2){
-            tspans[1].setAttribute("x",barCx);
-            tspans[1].setAttribute("y",valueY);
-            tspans[1].setAttribute("fill","#fff");
+          if(n._t3._line2){
+            n._t3._line2.setAttribute("x",barCx);
+            n._t3._line2.setAttribute("y",startY+18);
           }
-          if(tspans.length>=3){
-            tspans[2].setAttribute("x",barCx);
-            tspans[2].setAttribute("y",yoyY);
+          if(n._t3._line3){
+            n._t3._line3.setAttribute("x",barCx);
+            n._t3._line3.setAttribute("y",startY+38);
           }
-          n._t3.setAttribute("y",currencyY);
           n._t3._isInside=true;
         }else{
-          // Above bar: 1 line with bar-colored text - ALWAYS REBUILD FOR PROPER CENTERING
+          // Above bar: rebuild t3 content
+          if(n._t3.style.display==="none"){
+            n._t3.style.display="";
+            if(n._t3._line1){n._t3._line1.remove();n._t3._line1=null;}
+            if(n._t3._line2){n._t3._line2.remove();n._t3._line2=null;}
+            if(n._t3._line3){n._t3._line3.remove();n._t3._line3=null;}
+          }
+
           const pct=nodeYoY.get(n.id);
-          n._t3.innerHTML=""; // Clear existing content
+          n._t3.innerHTML="";
           n._t3.setAttribute("y",n.y0-4);
+          n._t3.setAttribute("x",barCx);
 
           const tsVal=document.createElementNS(NS,"tspan");
           tsVal.setAttribute("fill",getReadableColor(n.color));
@@ -2579,10 +2623,16 @@ function generate(){
             const tsSp=document.createElementNS(NS,"tspan");
             tsSp.setAttribute("fill","#ccc");tsSp.textContent=" ";
             n._t3.appendChild(tsSp);
+
+            const tsArrow=document.createElementNS(NS,"tspan");
+            tsArrow.setAttribute("fill",pct>=0?"#16a34a":"#dc2626");
+            tsArrow.textContent=(pct>=0?"▲":"▼");
+            n._t3.appendChild(tsArrow);
+
             const tsYoY=document.createElementNS(NS,"tspan");
-            tsYoY.setAttribute("fill",pct>=0?"#16a34a":"#dc2626");
+            tsYoY.setAttribute("fill",getReadableColor(n.color));
             tsYoY.setAttribute("font-weight","700");
-            tsYoY.textContent=(pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"%";
+            tsYoY.textContent=Math.abs(pct).toFixed(1)+"%";
             n._t3.appendChild(tsYoY);
             n._t3._tsYoY=tsYoY;n._t3._tsSp=tsSp;
           }
@@ -2700,51 +2750,76 @@ function generate(){
     t3._barCx=barCx; // store for redraw
 
     if(isInside){
-      // Inside bar: 3 lines (currency, value, YoY) centered vertically
-      const lineH=10;
+      // Inside bar: 3 separate text elements for 3 lines
+      const lineH=11;
       const numLines=pct!=null?3:2;
       const totalTextH=numLines*lineH;
       const marginTop=(barH-totalTextH)/2;
-      const currencyY=n.y0+marginTop+lineH;
-      const valueY=currencyY+lineH;
-      const yoyY=valueY+lineH;
+      const startY=n.y0+marginTop;
 
       const formatted=fmtVal(n.value);
       const {currency, value}=splitFmtVal(formatted);
 
-      // Line 1: currency symbol (white, smaller)
-      const tsCur=document.createElementNS(NS,"tspan");
-      tsCur.setAttribute("x",barCx);
-      tsCur.setAttribute("y",currencyY);
-      tsCur.setAttribute("fill","#fff");
-      tsCur.setAttribute("font-weight","600");
-      tsCur.setAttribute("font-size","8");
-      tsCur.textContent=currency;
-      t3.appendChild(tsCur);
+      // Line 1: currency - separate text element
+      const tLine1=document.createElementNS(NS,"text");
+      tLine1.setAttribute("x",barCx);
+      tLine1.setAttribute("y",startY+8);
+      tLine1.setAttribute("dy","0");
+      tLine1.setAttribute("text-anchor","middle");
+      tLine1.setAttribute("dominant-baseline","hanging");
+      tLine1.setAttribute("fill",getInsideBarTextColor(n.color));
+      tLine1.setAttribute("font-weight","600");
+      tLine1.setAttribute("font-size","8");
+      tLine1.setAttribute("font-family","Segoe UI,sans-serif");
+      tLine1.style.cursor="grab";
+      tLine1.textContent=currency;
+      svg.appendChild(tLine1);
+      t3._line1=tLine1;
 
-      // Line 2: value (white, bold)
-      const tsVal=document.createElementNS(NS,"tspan");
-      tsVal.setAttribute("x",barCx);
-      tsVal.setAttribute("y",valueY);
-      tsVal.setAttribute("fill","#fff");
-      tsVal.setAttribute("font-weight","700");
-      tsVal.setAttribute("font-size","9.5");
-      tsVal.textContent=value;
-      t3.appendChild(tsVal);
+      // Line 2: value - separate text element
+      const tLine2=document.createElementNS(NS,"text");
+      tLine2.setAttribute("x",barCx);
+      tLine2.setAttribute("y",startY+18);
+      tLine2.setAttribute("text-anchor","middle");
+      tLine2.setAttribute("dominant-baseline","hanging");
+      tLine2.setAttribute("fill",getInsideBarTextColor(n.color));
+      tLine2.setAttribute("font-weight","700");
+      tLine2.setAttribute("font-size","10");
+      tLine2.setAttribute("font-family","Segoe UI,sans-serif");
+      tLine2.style.cursor="grab";
+      tLine2.textContent=value;
+      svg.appendChild(tLine2);
+      t3._line2=tLine2;
 
-      // Line 3: YoY (green/red)
+      // Line 3: YoY - separate text element with colored arrow
       if(pct!=null){
-        const tsYoY=document.createElementNS(NS,"tspan");
-        tsYoY.setAttribute("x",barCx);
-        tsYoY.setAttribute("y",yoyY);
-        tsYoY.setAttribute("fill",pct>=0?"#86efac":"#fca5a5");
-        tsYoY.setAttribute("font-weight","600");
-        tsYoY.setAttribute("font-size","8.5");
-        tsYoY.textContent=(pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"%";
-        t3.appendChild(tsYoY);
-        t3._tsYoY=tsYoY;
+        const tLine3=document.createElementNS(NS,"text");
+        tLine3.setAttribute("x",barCx);
+        tLine3.setAttribute("y",startY+38);
+        tLine3.setAttribute("text-anchor","middle");
+        tLine3.setAttribute("dominant-baseline","hanging");
+        tLine3.setAttribute("fill",getInsideBarTextColor(n.color));
+        tLine3.setAttribute("font-weight","600");
+        tLine3.setAttribute("font-size","8");
+        tLine3.setAttribute("font-family","Segoe UI,sans-serif");
+        tLine3.style.cursor="grab";
+
+        const arrowSpan=document.createElementNS(NS,"tspan");
+        arrowSpan.setAttribute("fill",pct>=0?"#86efac":"#fca5a5");
+        arrowSpan.textContent=(pct>=0?"▲":"▼");
+        tLine3.appendChild(arrowSpan);
+
+        const pctSpan=document.createElementNS(NS,"tspan");
+        pctSpan.textContent=Math.abs(pct).toFixed(1)+"%";
+        tLine3.appendChild(pctSpan);
+
+        svg.appendChild(tLine3);
+        t3._line3=tLine3;
+        t3._tsYoY=tLine3;
       }
-      t3.setAttribute("y",currencyY);
+
+      // Hide t3 since we created separate elements
+      t3.style.display="none";
     }else{
       // Above bar: 1 line, colored text (original behavior)
       t3.setAttribute("y",n.y0-4);
@@ -2760,10 +2835,16 @@ function generate(){
         const tsSp=document.createElementNS(NS,"tspan");
         tsSp.setAttribute("fill","#ccc");tsSp.textContent=" ";
         t3.appendChild(tsSp);
+
+        const tsArrow=document.createElementNS(NS,"tspan");
+        tsArrow.setAttribute("fill",pct>=0?"#16a34a":"#dc2626");
+        tsArrow.textContent=(pct>=0?"▲":"▼");
+        t3.appendChild(tsArrow);
+
         const tsYoY=document.createElementNS(NS,"tspan");
-        tsYoY.setAttribute("fill",pct>=0?"#16a34a":"#dc2626");
+        tsYoY.setAttribute("fill",getReadableColor(n.color));
         tsYoY.setAttribute("font-weight","700");
-        tsYoY.textContent=(pct>=0?"▲":"▼")+Math.abs(pct).toFixed(1)+"%";
+        tsYoY.textContent=Math.abs(pct).toFixed(1)+"%";
         t3.appendChild(tsYoY);
         t3._tsYoY=tsYoY;t3._tsSp=tsSp;
       }
@@ -2918,6 +2999,29 @@ function generate(){
       t3.addEventListener("mouseleave",hideTipL);
     }
 
+    // Inside-bar text labels — same drag + tooltip behaviour
+    if(t3._line1){
+      t3._line1.addEventListener("mousedown",startDragFromLabel);
+      t3._line1.addEventListener("mouseup",endLabelCursor);
+      t3._line1.addEventListener("mouseenter",showTipL);
+      t3._line1.addEventListener("mousemove",moveTipL);
+      t3._line1.addEventListener("mouseleave",hideTipL);
+    }
+    if(t3._line2){
+      t3._line2.addEventListener("mousedown",startDragFromLabel);
+      t3._line2.addEventListener("mouseup",endLabelCursor);
+      t3._line2.addEventListener("mouseenter",showTipL);
+      t3._line2.addEventListener("mousemove",moveTipL);
+      t3._line2.addEventListener("mouseleave",hideTipL);
+    }
+    if(t3._line3){
+      t3._line3.addEventListener("mousedown",startDragFromLabel);
+      t3._line3.addEventListener("mouseup",endLabelCursor);
+      t3._line3.addEventListener("mouseenter",showTipL);
+      t3._line3.addEventListener("mousemove",moveTipL);
+      t3._line3.addEventListener("mouseleave",hideTipL);
+    }
+
     nodeGroup.appendChild(rect);
     nodeGroup.appendChild(t1);
     nodeGroup.appendChild(t2);
@@ -2939,7 +3043,7 @@ function generate(){
 
   document.getElementById("exportDd").style.display="flex";
   document.getElementById("paletteWrap").style.display="flex";
-  document.getElementById("btnShare").style.display="";
+  document.getElementById("btnShareChart").style.display="";
   saveHistory(company,year,scope,currentRawData||raw);
 
   // center SVG horizontally in the wrap container if it overflows
@@ -2951,12 +3055,29 @@ function generate(){
   });
 
   // restore node positions from shared URL if present
-  if(window._pendingNodePos&&window._pendingNodePos.length===nodes.length){
-    nodes.forEach((n,i)=>{
-      const y0=window._pendingNodePos[i];
-      const h=n.y1-n.y0;
-      n.y0=y0;n.y1=y0+h;
-    });
+  if(window._pendingNodePos&&window._pendingNodePos.length>0){
+    // Check if new format (with node names) or old format (array of numbers)
+    const hasNames=window._pendingNodePos[0]&&typeof window._pendingNodePos[0]==='object'&&'n'in window._pendingNodePos[0];
+
+    if(hasNames){
+      // New format: match by node name, restore both y0 and y1
+      nodes.forEach(n=>{
+        const saved=window._pendingNodePos.find(sp=>sp.n===n.name);
+        if(saved){
+          n.y0=saved.y0;
+          n.y1=saved.y1;
+        }
+      });
+    }else{
+      // Old format: array of y0 values, match by index
+      nodes.forEach((n,i)=>{
+        if(i<window._pendingNodePos.length){
+          const y0=window._pendingNodePos[i];
+          const h=n.y1-n.y0;
+          n.y0=y0;n.y1=y0+h;
+        }
+      });
+    }
     redrawAll();
     window._pendingNodePos=null;
   }
@@ -3059,7 +3180,7 @@ function exportChart(chartOnly=false){
     }
     // footer watermark
     const wmY=chartOnly?HDR_H+svgH+18:CARDS_Y+CARD_ROWS*(CARD_H+CARD_GAP)+14;
-    ctx.fillStyle="#bbb";ctx.font="10px 'Segoe UI',sans-serif";ctx.textAlign="right";
+    ctx.fillStyle="#999";ctx.font="12px 'Segoe UI',sans-serif";ctx.textAlign="right";
     ctx.fillText([company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · "),svgW-PAD,wmY);
     ctx.textAlign="left";
     const a=document.createElement("a");a.download=filename;a.href=canvas.toDataURL("image/png");a.click();
@@ -3174,8 +3295,8 @@ async function exportPDF(){
   });
 
   // watermark
-  doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(187,187,187);
-  doc.text([company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · "),pw-14,ph-3,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(120,120,120);
+  doc.text([company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · "),pw-14,ph-4,{align:"right"});
 
   // ── Page 2: Flow Data Table ───────────────────────────────────────────────────
   doc.addPage();
@@ -3223,6 +3344,189 @@ async function exportPDF(){
   setTimeout(()=>{btn.textContent=orig;btn.style.borderColor="";btn.style.color="";},2500);
 }
 
+// ─── EXPORT ALL CHARTS AS SINGLE PDF ───────────────────────────────────────────
+async function exportAllChartsPDF(){
+  if(typeof window.jspdf==="undefined"){alert("PDF library not loaded. Check your internet connection.");return;}
+  if(chartsData.length<=1){alert("Use 'Export as PDF' for single charts.");return;}
+
+  const{jsPDF}=window.jspdf;
+  const cur=getCurrencySymbol(),unit=getUnit();
+  const filename=`All_Charts_${currentCompany||"sankey"}`.replace(/[^a-z0-9 _-]/gi,"_")+".pdf";
+
+  // PDF — landscape A4
+  const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+  const pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight();
+
+  // Store current chart state
+  const originalActiveIndex=activeChartIndex;
+  const originalData=document.getElementById("inData").value;
+
+  // Process each chart
+  for(let chartIdx=0;chartIdx<chartsData.length;chartIdx++){
+    const chart=chartsData[chartIdx];
+
+    // Switch to this chart and generate
+    activeChartIndex=chartIdx;
+    document.getElementById("inData").value=chart.data;
+    await new Promise(resolve=>{
+      // Wait for generation to complete
+      const originalGenerate=generate;
+      generate();
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(()=>requestAnimationFrame(resolve));
+    });
+
+    const svgEl=document.getElementById("svg");
+    const svgW=parseInt(svgEl.getAttribute("width")),svgH=parseInt(svgEl.getAttribute("height"));
+
+    // Render SVG to canvas
+    const SCALE=1.5;
+    const svgClone=svgEl.cloneNode(true);
+    const bg=document.createElementNS("http://www.w3.org/2000/svg","rect");
+    bg.setAttribute("width",svgW);bg.setAttribute("height",svgH);bg.setAttribute("fill","#ffffff");
+    svgClone.insertBefore(bg,svgClone.firstChild);
+    const svgStr=new XMLSerializer().serializeToString(svgClone);
+    const svgBlob=new Blob([svgStr],{type:"image/svg+xml;charset=utf-8"});
+    const svgUrl=URL.createObjectURL(svgBlob);
+
+    const img=await new Promise((res,rej)=>{
+      const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=svgUrl;
+    });
+    URL.revokeObjectURL(svgUrl);
+
+    const canvas=document.createElement("canvas");
+    canvas.width=svgW*SCALE;canvas.height=svgH*SCALE;
+    const ctx=canvas.getContext("2d");ctx.scale(SCALE,SCALE);
+    ctx.fillStyle="#fff";ctx.fillRect(0,0,svgW,svgH);ctx.drawImage(img,0,0,svgW,svgH);
+    const chartImg=canvas.toDataURL("image/png");
+
+    // Add new page for this chart (except first chart uses initial page)
+    if(chartIdx>0) doc.addPage();
+
+    // Get chart metadata from data
+    const parsed=parseData(chart.data);
+    const meta=parsed.meta||{};
+
+    // ── Header bar ────────────────────────────────────────────────────────────
+    doc.setFillColor(255,255,255);doc.rect(0,0,pw,22,"F");
+    doc.setFillColor(240,242,245);doc.rect(0,22,pw,ph-22,"F");
+
+    // title
+    doc.setFont("helvetica","bold");doc.setFontSize(16);doc.setTextColor(26,26,46);
+    doc.text(`${chart.name}`,14,10);
+    if(meta.COMPANY){
+      const cw=doc.getTextWidth(chart.name+" — ");
+      doc.setTextColor(184,134,11);doc.text("— "+meta.COMPANY,14+doc.getTextWidth(chart.name+" "),10);
+    }
+    doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,150,150);
+    const yearText=[meta.PERIOD,meta.SCOPE,`${cur} ${unit}`].filter(Boolean).join(" · ");
+    if(yearText) doc.text(yearText.toUpperCase(),14,16);
+
+    // total inflow right
+    const totalVal=currentNodes?currentNodes.reduce((sum,n)=>sum+Math.max(...n.sourceLinks.map(l=>l.v)),0):0;
+    doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(184,134,11);
+    doc.text(fmtVal(totalVal),pw-14,10,{align:"right"});
+    doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(150,150,150);
+    doc.text("TOTAL INFLOW",pw-14,16,{align:"right"});
+
+    // divider
+    doc.setDrawColor(224,224,224);doc.line(0,22,pw,22);
+
+    // ── Chart image ─────────────────────────────────────────────────────────────
+    const cardEls=document.querySelectorAll("#cards .card");
+    const pdfCards=[...cardEls].map(c=>({
+      lbl:c.querySelector(".card-lbl")?.textContent||"",
+      val:c.querySelector(".card-val")?.textContent||"",
+      color:getComputedStyle(c).getPropertyValue("--card-accent").trim()||"#888",
+      prev:c.querySelector(".card-prev")?.textContent||"",
+      dsc:c.querySelector(".card-dsc")?.textContent||""
+    }));
+    const STATS_H=22;
+    const STAT_ROWS=Math.ceil(pdfCards.length/4);
+    const maxW=pw-10, maxH=ph-32-STAT_ROWS*STATS_H-6;
+    const ratio=Math.min(maxW/svgW,maxH/svgH);
+    const iW=svgW*ratio,iH=svgH*ratio;
+    const ix=(pw-iW)/2,iy=24;
+    doc.addImage(chartImg,"PNG",ix,iy,iW,iH);
+
+    // ── Stats cards ─────────────────────────────────────────────────────────────
+    const statsY=iy+iH+4;
+    const statW=(pw-28)/Math.min(pdfCards.length,4);
+    pdfCards.forEach((c,i)=>{
+      const col=i%4, row=Math.floor(i/4);
+      const sx=14+col*statW, sy=statsY+row*(STATS_H+2);
+      doc.setFillColor(255,255,255);doc.roundedRect(sx,sy,statW-2,STATS_H-2,1,1,"F");
+      doc.setDrawColor(235,235,235);doc.roundedRect(sx,sy,statW-2,STATS_H-2,1,1,"S");
+      const rgb=hexToRgb(c.color)||[88,88,88];
+      doc.setFillColor(...rgb);doc.rect(sx,sy,1.5,STATS_H-2,"F");
+      doc.setFont("helvetica","bold");doc.setFontSize(6.5);doc.setTextColor(...rgb);
+      doc.text(c.lbl.toUpperCase(),sx+4,sy+4.5);
+      doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...rgb);
+      doc.text((c.val||"").replace(/▲/g,"+").replace(/▼/g,"-"),sx+4,sy+11);
+      if(c.prev){doc.setFont("helvetica","normal");doc.setFontSize(6);doc.setTextColor(160,160,160);doc.text(c.prev.replace(/▲/g,"+").replace(/▼/g,"-"),sx+4,sy+16);}
+      doc.setFont("helvetica","normal");doc.setFontSize(6);doc.setTextColor(190,190,190);
+      doc.text((c.dsc||"").slice(0,32),sx+4,sy+20);
+    });
+
+    // watermark
+    doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(120,120,120);
+    const wmText=[meta.COMPANY,meta.PERIOD,meta.SCOPE,`${cur} ${unit}`].filter(Boolean).join(" · ");
+    doc.text(wmText,pw-14,ph-4,{align:"right"});
+
+    // ── Page 2: Flow Data Table ─────────────────────────────────────────────────
+    doc.addPage();
+    doc.setFillColor(255,255,255);doc.rect(0,0,pw,ph,"F");
+
+    doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(26,26,46);
+    doc.text(`${chart.name} — Flow Data`,14,12);
+    doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,150,150);
+    doc.text([meta.COMPANY,meta.PERIOD,meta.SCOPE,`${cur} ${unit}`].filter(Boolean).join(" · "),14,18);
+    doc.setDrawColor(224,224,224);doc.line(14,21,pw-14,21);
+
+    // table headers
+    const hasYoY=parsed.hasYoY;
+    const cols=hasYoY
+      ?[{h:"Source",w:55},{h:"Target",w:55},{h:`${meta.PERIOD||"Current"}`,w:35},{h:"Prior Year",w:35},{h:"Change",w:25}]
+      :[{h:"Source",w:65},{h:"Target",w:65},{h:`Value (${cur} ${unit})`,w:50}];
+    let tx=14,ty=27;
+    doc.setFillColor(248,249,250);doc.rect(14,ty-4,pw-28,8,"F");
+    doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(100,100,100);
+    cols.forEach(c=>{doc.text(c.h,tx,ty);tx+=c.w;});
+
+    ty+=6;doc.setFont("helvetica","normal");doc.setFontSize(8);
+    parsed.links.forEach((l,i)=>{
+      if(ty>ph-14){doc.addPage();ty=20;doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(100,100,100);tx=14;cols.forEach(c=>{doc.text(c.h,tx,ty);tx+=c.w;});ty+=6;doc.setFont("helvetica","normal");}
+      if(i%2===0){doc.setFillColor(248,249,250);doc.rect(14,ty-4,pw-28,6,"F");}
+      doc.setTextColor(26,26,46);tx=14;
+      const srcName=parsed.nodeNames[l.s]||`Source ${l.s}`;
+      const tgtName=parsed.nodeNames[l.t]||`Target ${l.t}`;
+      doc.text(srcName,tx,ty);tx+=cols[0].w;
+      doc.text(tgtName,tx,ty);tx+=cols[1].w;
+      doc.text(fmtVal(l.v),tx,ty);tx+=cols[2].w;
+      if(hasYoY){
+        doc.text(l.prior!=null?fmtVal(l.prior):"—",tx,ty);tx+=cols[3].w;
+        if(l.prior!=null&&l.prior>0){
+          const pct=(l.v-l.prior)/l.prior*100;
+          doc.setTextColor(pct>=0?22:220,pct>=0?197:38,pct>=0?90:38);
+          doc.text((pct>=0?"+":"-")+Math.abs(pct).toFixed(1)+"%",tx,ty);
+          doc.setTextColor(26,26,46);
+        }else{doc.text("—",tx,ty);}
+      }
+      ty+=6;
+    });
+  }
+
+  // Restore original chart state
+  activeChartIndex=originalActiveIndex;
+  document.getElementById("inData").value=originalData;
+  generate();
+
+  doc.save(filename);
+  const btn=document.querySelector("#exportDd .tbtn"),orig=btn.textContent;
+  btn.textContent="✓ All Charts Saved!";btn.style.borderColor="#2d9e6b";btn.style.color="#2d9e6b";
+  setTimeout(()=>{btn.textContent=orig;btn.style.borderColor="";btn.style.color="";},2500);
+}
+
 function hexToRgb(hex){
   const m=(hex||"").replace(/^var\(.*\)$/,"#888").match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
   return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:null;
@@ -3243,6 +3547,16 @@ function getReadableColor(hex){
     return `#${dr.toString(16).padStart(2,"0")}${dg.toString(16).padStart(2,"0")}${db.toString(16).padStart(2,"0")}`;
   }
   return hex;
+}
+// returns white or dark text color for text inside bars
+// if bar is dark (luminance < 0.5), use white text
+// if bar is light (luminance >= 0.5), use dark text
+function getInsideBarTextColor(hex){
+  const rgb=hexToRgb(hex);
+  if(!rgb) return "#fff";
+  const [r,g,b]=rgb.map(c=>{const s=c/255;return s<=0.03928?s/12.92:Math.pow((s+0.055)/1.055,2.4);});
+  const L=0.2126*r+0.7152*g+0.0722*b;
+  return L<0.5?"#fff":"#1a1a2e";
 }
 function roundRect(ctx,x,y,w,h,r){
   ctx.beginPath();ctx.moveTo(x+r,y);
