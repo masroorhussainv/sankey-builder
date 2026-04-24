@@ -1008,7 +1008,8 @@ function parseData(raw){
   // handle collapsed output: if lines got merged with spaces, split at
   // boundaries where a number is immediately followed by a word that starts
   // a new "X, Y, number" pattern (e.g. "...4119.31 Net Profit, Dividends...")
-  const normalized=cleaned.replace(/(\d)\s+(COMPANY|PERIOD|SCOPE|CURRENCY|UNIT|EPS|DPS|[A-Z][a-zA-Z])/g,(_,num,word)=>`${num}\n${word}`);
+  // Exclude common abbreviations like FY, Q1-Q4, H1-H2 to avoid breaking metadata
+  const normalized=cleaned.replace(/(\d)\s+(?!FY|Q[1-4]|H[1-2])(COMPANY|PERIOD|SCOPE|CURRENCY|UNIT|EPS|DPS|[A-Z][a-zA-Z])/g,(_,num,word)=>`${num}\n${word}`);
 
   const lines=normalized.split("\n").map(l=>l.trim()).filter(l=>l&&l!="#"&&!l.startsWith("==="));
   const nodeIndex=new Map();
