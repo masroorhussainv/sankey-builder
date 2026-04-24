@@ -1873,6 +1873,18 @@ function generate(){
 
   // defs
   const defs=document.createElementNS(NS,"defs");svgEl.appendChild(defs);
+
+  // subtle shadow for node bars
+  const shadowFilter=document.createElementNS(NS,"filter");
+  shadowFilter.setAttribute("id","barShadow");
+  shadowFilter.setAttribute("x","-20%");shadowFilter.setAttribute("y","-10%");
+  shadowFilter.setAttribute("width","140%");shadowFilter.setAttribute("height","120%");
+  const feShadow=document.createElementNS(NS,"feDropShadow");
+  feShadow.setAttribute("dx","1");feShadow.setAttribute("dy","1");
+  feShadow.setAttribute("stdDeviation","1");feShadow.setAttribute("flood-opacity","0.2");
+  shadowFilter.appendChild(feShadow);
+  defs.appendChild(shadowFilter);
+
   links.forEach((l,i)=>{
     const g=document.createElementNS(NS,"linearGradient");
     g.setAttribute("id",`gr${i}`);g.setAttribute("x1","0%");g.setAttribute("x2","100%");
@@ -2159,7 +2171,8 @@ function generate(){
     const rect=document.createElementNS(NS,"rect");
     rect.setAttribute("x",n.x0);rect.setAttribute("y",n.y0);
     rect.setAttribute("width",NODE_W);rect.setAttribute("height",Math.max(n.y1-n.y0,2));
-    rect.setAttribute("fill",n.color);rect.setAttribute("rx","2");rect.style.cursor="grab";
+    rect.setAttribute("fill",n.color);rect.setAttribute("rx","2");rect.setAttribute("filter","url(#barShadow)");
+    rect.style.cursor="grab";
     n._rect=rect;
 
     // t1 — node name beside bar
