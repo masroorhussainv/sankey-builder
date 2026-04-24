@@ -2886,6 +2886,117 @@ async function exportPDF(){
   setTimeout(()=>{btn.textContent=orig;btn.style.borderColor="";btn.style.color="";},2500);
 }
 
+// ─── EXPORT CHART AS PDF (NO DATA TABLE) ───────────────────────────────────────────
+async function exportChartPDF(){
+  if(typeof window.jspdf==="undefined"){alert("PDF library not loaded. Check your internet connection.");return;}
+  const{jsPDF}=window.jspdf;
+  const svgEl=document.getElementById("svg");
+  const company=currentCompany,year=currentYear,scope=currentScope;
+  const cur=getCurrencySymbol(),unit=getUnit();
+  const svgW=parseInt(svgEl.getAttribute("width")),svgH=parseInt(svgEl.getAttribute("height"));
+  const filename=`${company}${year?" - "+year:""} - Chart.pdf`.replace(/[^a-z0-9 _-]/gi,"_");
+
+  // render SVG to canvas first
+  const SCALE=1.5;
+  const svgClone=svgEl.cloneNode(true);
+  const bg=document.createElementNS("http://www.w3.org/2000/svg","rect");
+  bg.setAttribute("width",svgW);bg.setAttribute("height",svgH);bg.setAttribute("fill","#ffffff");
+  svgClone.insertBefore(bg,svgClone.firstChild);
+  const svgStr=new XMLSerializer().serializeToString(svgClone);
+  const svgBlob=new Blob([svgStr],{type:"image/svg+xml;charset=utf-8"});
+  const svgUrl=URL.createObjectURL(svgBlob);
+
+  const img=await new Promise((res,rej)=>{
+    const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=svgUrl;
+  });
+  URL.revokeObjectURL(svgUrl);
+
+  const canvas=document.createElement("canvas");
+  canvas.width=svgW*SCALE;canvas.height=svgH*SCALE;
+  const ctx=canvas.getContext("2d");ctx.scale(SCALE,SCALE);
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,svgW,svgH);ctx.drawImage(img,0,0,svgW,svgH);
+  const chartImg=canvas.toDataURL("image/png");
+
+  // PDF — landscape A4
+  const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+  const pw=doc.internal.pageSize.getWidth(),ph=doc.internal.pageSize.getHeight();
+
+  // header bar
+  doc.setFillColor(255,255,255);doc.rect(0,0,pw,22,"F");
+  doc.setFillColor(240,242,245);doc.rect(0,22,pw,ph-22,"F");
+
+  // title
+  doc.setFont("helvetica","bold");doc.setFontSize(16);doc.setTextColor(26,26,46);
+  doc.text(company,14,10);
+  if(year){
+    const cw=doc.getTextWidth(company+" — ");
+    doc.setTextColor(184,134,11);doc.text("— "+year,14+doc.getTextWidth(company+" "),10);
+  }
+  doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,150,150);
+  doc.text([scope,`${cur} ${unit}`].filter(Boolean).join(" · ").toUpperCase(),14,16);
+
+  // total inflow right
+  const totalVal=document.getElementById("chartTotal").textContent;
+  doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(184,134,11);
+  doc.text(totalVal,pw-14,10,{align:"right"});
+  doc.setFont("helvetica","normal");doc.setFontSize(7);doc.setTextColor(150,150,150);
+  doc.text("TOTAL INFLOW",pw-14,16,{align:"right"});
+
+  // divider
+  doc.setDrawColor(224,224,224);doc.line(0,22,pw,22);
+
+  // chart image — fit leaving room for stats at bottom
+  const cardEls2=document.querySelectorAll("#cards .card");
+  const pdfCards=[...cardEls2].map(c=>({
+    lbl:c.querySelector(".card-lbl")?.textContent||"",
+    val:c.querySelector(".card-val")?.textContent||"",
+    color:getComputedStyle(c).getPropertyValue("--card-accent").trim()||"#888",
+    prev:c.querySelector(".card-prev")?.textContent||"",
+    dsc:c.querySelector(".card-dsc")?.textContent||""
+  }));
+  const STATS_H=22;
+  const STAT_ROWS=Math.ceil(pdfCards.length/4);
+  const maxW=pw-10, maxH=ph-32-STAT_ROWS*STATS_H-6;
+  const ratio=Math.min(maxW/svgW,maxH/svgH);
+  const iW=svgW*ratio,iH=svgH*ratio;
+  const ix=(pw-iW)/2,iy=24;
+  doc.addImage(chartImg,"PNG",ix,iy,iW,iH);
+
+  // Stats cards
+  const statsY=iy+iH+4;
+  const statW=(pw-28)/Math.min(pdfCards.length,4);
+  pdfCards.forEach((c,i)=>{
+    const col=i%4, row=Math.floor(i/4);
+    const sx=14+col*statW, sy=statsY+row*(STATS_H+2);
+    // bg
+    doc.setFillColor(255,255,255);doc.roundedRect(sx,sy,statW-2,STATS_H-2,1,1,"F");
+    doc.setDrawColor(235,235,235);doc.roundedRect(sx,sy,statW-2,STATS_H-2,1,1,"S");
+    // accent bar
+    const rgb=hexToRgb(c.color)||[88,88,88];
+    doc.setFillColor(...rgb);doc.rect(sx,sy,1.5,STATS_H-2,"F");
+    // label
+    doc.setFont("helvetica","bold");doc.setFontSize(6.5);doc.setTextColor(...rgb);
+    doc.text(c.lbl.toUpperCase(),sx+4,sy+4.5);
+    // value
+    doc.setFont("helvetica","bold");doc.setFontSize(9);doc.setTextColor(...rgb);
+    doc.text((c.val||"").replace(/▲/g,"+").replace(/▼/g,"-"),sx+4,sy+11);
+    // prev
+    if(c.prev){doc.setFont("helvetica","normal");doc.setFontSize(6);doc.setTextColor(160,160,160);doc.text(c.prev.replace(/▲/g,"+").replace(/▼/g,"-"),sx+4,sy+16);}
+    // dsc
+    doc.setFont("helvetica","normal");doc.setFontSize(6);doc.setTextColor(190,190,190);
+    doc.text((c.dsc||"").slice(0,32),sx+4,sy+20);
+  });
+
+  // watermark
+  doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(120,120,120);
+  doc.text([company,year,scope,`${cur} ${unit}`].filter(Boolean).join(" · "),pw-14,ph-4,{align:"right"});
+
+  doc.save(filename);
+  const btn=document.querySelector("#exportDd .tbtn"),orig=btn.textContent;
+  btn.textContent="✓ PDF Saved!";btn.style.borderColor="#2d9e6b";btn.style.color="#2d9e6b";
+  setTimeout(()=>{btn.textContent=orig;btn.style.borderColor="";btn.style.color="";},2500);
+}
+
 // ─── EXPORT ALL CHARTS AS SINGLE PDF ───────────────────────────────────────────
 async function exportAllChartsPDF(){
   if(typeof window.jspdf==="undefined"){alert("PDF library not loaded. Check your internet connection.");return;}
