@@ -2187,7 +2187,7 @@ function generate(){
     const rect=document.createElementNS(NS,"rect");
     rect.setAttribute("x",n.x0);rect.setAttribute("y",n.y0);
     rect.setAttribute("width",NODE_W);rect.setAttribute("height",Math.max(n.y1-n.y0,2));
-    rect.setAttribute("fill",n.color);rect.setAttribute("rx","2");rect.setAttribute("filter","url(#barShadow)");
+    rect.setAttribute("fill",n.color);rect.setAttribute("rx","0");rect.setAttribute("filter","url(#barShadow)");
     rect.style.cursor="grab";
     n._rect=rect;
 
