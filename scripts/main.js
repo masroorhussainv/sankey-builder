@@ -2094,7 +2094,7 @@ function generate(){
           }
           if(n._t3._line3){
             n._t3._line3.setAttribute("x",barCx);
-            n._t3._line3.setAttribute("y",startY+38);
+            n._t3._line3.setAttribute("y",startY+32);
           }
           n._t3._isInside=true;
         }else{
