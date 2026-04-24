@@ -1033,6 +1033,8 @@ function parseData(raw){
   const META_KEYS=["EPS","DPS"];
   const META_TEXT=["COMPANY","PERIOD","SCOPE","CURRENCY","UNIT"];
   for(const line of lines){
+    // Skip chart marker lines
+    if(line.startsWith("===")) continue;
     const parts=parseCSVLine(line);
     const key=parts[0].trim().toUpperCase();
     // text metadata: COMPANY, PERIOD, SCOPE
