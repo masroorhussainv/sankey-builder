@@ -1,69 +1,3 @@
-// ─── PALETTES ─────────────────────────────────────────────────────────────────
-const PALETTES={
-  "Vivid":         ["#d4a853","#14b8a6","#3b82f6","#a78bfa","#22c55e","#f43f5e","#fb923c","#6366f1","#8b949e","#fbbf24","#e11d48","#0ea5e9","#84cc16","#f97316","#ec4899","#10b981","#ef4444","#60a5fa","#a3e635","#c084fc"],
-  "Corporate":     ["#0a2342","#1b4f8a","#2874c4","#4a9fd4","#7ec8e3","#0d5c63","#1a8a76","#2eba9a","#5dd6bc","#98e8d8","#6b2d6b","#9a4ea0","#c47dc9","#1a5276","#2471a3","#5dade2","#a9cce3","#1e3a2f","#2e7d52","#52c27a"],
-  "Mono: Slate":   ["#0f172a","#1e293b","#334155","#475569","#64748b","#94a3b8","#0f1f2e","#1a3344","#274d66","#366b8a","#4a8aad","#6ba3c0"],
-  "Mono: Forest":  ["#052e16","#14532d","#166534","#15803d","#16a34a","#22c55e","#064e3b","#065f46","#047857","#059669","#10b981","#34d399"],
-  "Mono: Ocean":   ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#012a4a","#013a63","#01497c","#014f86","#2c7da0","#468faf"],
-  "Mono: Crimson": ["#3b0000","#7b0000","#a50000","#c62828","#e53935","#ef5350","#4a0010","#7b0020","#ad1457","#c2185b","#d81b60","#e91e63"],
-  "Mono: Amber":   ["#451a03","#78350f","#92400e","#b45309","#d97706","#f59e0b","#3d1a00","#6b2d00","#9a4200","#c25600","#e06b00","#f08000"],
-  "Mono: Violet":  ["#1a0533","#2d0a5f","#4a0e8f","#6b21a8","#7c3aed","#8b5cf6","#12004f","#200080","#3600c0","#4c00ff","#6419f5","#7c3aed"],
-  "Warm":          ["#c1121f","#e85d04","#f48c06","#faa307","#ffba08","#d62828","#f77f00","#fcbf49","#9b2226","#ae2012","#bb3e03","#ca6702","#ee9b00","#780000","#a44200","#e9c46a","#f4a261","#e76f51","#ef233c","#d90429"],
-  "Pastel":        ["#457b9d","#1d3557","#e63946","#06d6a0","#118ab2","#073b4c","#ef476f","#84a98c","#52796f","#354f52","#8fb8d1","#6a9ab0","#c9cba3","#e26d5c","#723d46","#472d30","#a8dadc","#6a4c93","#1982c4","#8ac926"],
-  "Green–Gold":    ["#606c38","#283618","#dda15e","#bc6c25","#588157","#3a5a40","#a3b18a","#b5838d","#6d6875","#e9c46a","#f4a261","#264653","#2a9d8f","#57cc99","#386641","#6a994e","#a7c957","#bc4749","#dad7cd","#9c7b5e"],
-  "Ocean":         ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#005f73","#0a9396","#94d2bd","#ee9b00","#ca6702","#bb3e03","#ae2012","#9b2226","#001219","#01497c","#014f86","#2c7da0","#468faf"],
-  "Sunset":        ["#ff6b6b","#ff8e53","#ff9f43","#ffd32a","#0be881","#0fbcf9","#f53b57","#3c40c4","#ffd42a","#ffdd59","#ff5e57","#ff3f34","#ffa502","#ff6348","#ff4757","#2ed573","#1e90ff","#eccc68","#a29bfe"],
-  "Berry":         ["#6c3483","#884ea0","#a569bd","#c39bd3","#4a235a","#7d3c98","#9b59b6","#af7ac5","#512e5f","#76448a","#8e44ad","#a569bd","#b784c7","#1a5276","#1f618d","#2874a6","#3498db","#5dade2","#c8a2c8","#d2b4de"],
-  "Earth":         ["#7b3f00","#a0522d","#b8860b","#cd853f","#d2691e","#8b4513","#a52a2a","#800000","#556b2f","#6b8e23","#808000","#2e8b57","#3cb371","#20b2aa","#008080","#4682b4","#708090","#696969","#808080","#8fbc8f"],
-  "Neon":          ["#cc00ff","#00cccc","#ff6600","#cc9900","#00cc00","#ff0066","#6600cc","#cc3300","#00cc99","#cc0099","#3399cc","#cc6633","#99cc00","#9900cc","#cc9900","#0099cc","#cc0033","#66cc00","#cc0099","#0033cc"],
-  "PSX Classic":   ["#006633","#009933","#00cc44","#e6b800","#ee9900","#cc0000","#990000","#003366","#0066cc","#3399ff","#66b2e6","#7fe0cc","#ccdd88","#eedd66","#eebb66","#ee8866","#dd5555","#993333","#336699","#5588bb"],
-  "Warm Neutrals": ["#c9b99a","#b5967a","#9c7b5e","#7c5c42","#5e3d28","#a0856a","#876650","#6b4e38","#4d3624","#c4a882","#b89468","#a07850","#8a6238","#d4b880","#c8a860","#bc9840","#7b3f00","#a0522d","#b8860b","#cd853f"],
-  "Finance Blue":  ["#003366","#004d99","#0066cc","#0080ff","#3399ff","#66b2ff","#99ccff","#002244","#1a3d6b","#005fa3","#0073c6","#1a8fe6","#4da6ff","#80c0ff","#b3d9ff","#001122","#002255","#004488","#0055aa","#023e8a"],
-  "Tropical":      ["#ff595e","#ffca3a","#6a4c93","#1982c4","#8ac926","#ff595e","#ff924c","#ff2d55","#4cc9f0","#4361ee","#3a0ca3","#7209b7","#f72585","#06d6a0","#118ab2","#073b4c","#ef476f","#ffd166","#073b4c","#1d3557"],
-  "Muted Pro":     ["#4a4e69","#9a8c98","#c9ada7","#22223b","#6d6875","#b5838d","#e5989b","#ffb4a2","#355070","#6d597a","#b56576","#e56b6f","#eaac8b","#2d6a4f","#40916c","#52b788","#74c69d","#95d5b2","#f2e9e4","#ffcdb2"],
-  "Sakura":        ["#ff85a1","#ff5c8d","#e8457e","#c72b6e","#f2a7b8","#e87d97","#d4567a","#b8365e","#ffb3c1","#fb6f92","#e05780","#c9184a","#a4133c","#800f2f","#590d22","#ff4d6d","#f7c5d0","#ffdde1","#ffb7c5","#ff5c8d"],
-  "Autumn":        ["#d62828","#f77f00","#fcbf49","#003049","#e85d04","#dc2f02","#9d0208","#6a040f","#370617","#f48c06","#faa307","#e85d04","#dc2f02","#606c38","#283618","#dda15e","#bc6c25","#a7c957"],
-  "Nordic":        ["#2e3440","#3b4252","#434c5e","#4c566a","#8fbcbb","#5e81ac","#81a1c1","#bf616a","#d08770","#ebcb8b","#a3be8c","#b48ead","#2e3440","#4c566a","#88c0d0","#3b4252","#434c5e","#5e81ac","#81a1c1","#8fbcbb"],
-  "Jewel":         ["#9b2335","#c0392b","#e74c3c","#d35400","#e67e22","#f39c12","#f1c40f","#27ae60","#1abc9c","#2980b9","#8e44ad","#2c3e50","#16a085","#1a5276","#6c3483","#7b241c","#78281f","#1b2631","#145a32","#154360"],
-  "Retro":         ["#264653","#2a9d8f","#e9c46a","#f4a261","#e76f51","#606c38","#dda15e","#bc6c25","#457b9d","#1d3557","#e63946","#6d6875","#b5838d","#e5989b","#a8dadc","#ffb4a2","#ffcdb2","#f1faee","#457b9d","#52796f"],
-};
-let activePalette="Vivid";
-const getPalette=()=>PALETTES[activePalette];
-
-// ─── CURRENCY / UNIT ──────────────────────────────────────────────────────────
-function getCurrencySymbol(){
-  const sel=document.getElementById("inCurrency").value;
-  if(sel==="custom") return document.getElementById("inCustomCurrency").value.trim()||"$";
-  return sel;
-}
-function getUnit(){
-  return document.getElementById("inUnit").value;
-}
-function fmtVal(v){
-  const cur=getCurrencySymbol(), unit=getUnit();
-  if(unit==="Billions"){
-    // values are in billions
-    if(v>=1000) return `${cur} ${(v/1000).toFixed(2)}T`;
-    return `${cur} ${v.toFixed(2)}B`;
-  }
-  if(unit==="Thousands"){
-    // values are already in thousands — abbreviate for readability
-    if(v>=1000000) return `${cur} ${(v/1000000).toFixed(2)}B`;   // millions of thousands = billions
-    if(v>=1000)    return `${cur} ${(v/1000).toFixed(2)}M`;       // thousands of thousands = millions
-    return `${cur} ${v.toLocaleString(undefined,{maximumFractionDigits:0})}K`;
-  }
-  // Millions (default)
-  if(v>=1000) return `${cur} ${(v/1000).toFixed(2)}B`;
-  if(v>=1)    return `${cur} ${v.toLocaleString(undefined,{maximumFractionDigits:2})}M`;
-  return `${cur} ${(v*1000000).toLocaleString(undefined,{maximumFractionDigits:0})}`;
-}
-// split formatted value into currency and value parts for 2-line rendering
-function splitFmtVal(formatted){
-  // Match: 2-4 uppercase letters with optional dot (RS., PKR., USD, EUR) OR currency symbol ($, £, €)
-  const match=formatted.match(/^([A-Z]{2,4}\.?|[$£€₹])\s+(.+)$/);
-  if(match) return {currency:match[1], value:match[2]};
-  return {currency:"", value:formatted};
-}
 
 // ─── MULTI-CHART SUPPORT ────────────────────────────────────────────────────────
 function parseMultipleCharts(raw){
@@ -300,21 +234,6 @@ function applyCurrencyMeta(cur, unit){
   }
 }
 
-// ─── APP THEME ────────────────────────────────────────────────────────────────
-const APP_THEMES = [
-  {name:"Gold",      accent:"#b8860b", dark:"#9a6f09"},
-  {name:"Slate",     accent:"#475569", dark:"#334155"},
-  {name:"Indigo",    accent:"#4f46e5", dark:"#3730a3"},
-  {name:"Teal",      accent:"#0d9488", dark:"#0f766e"},
-  {name:"Rose",      accent:"#e11d48", dark:"#be123c"},
-  {name:"Violet",    accent:"#7c3aed", dark:"#6d28d9"},
-  {name:"Sky",       accent:"#0284c7", dark:"#0369a1"},
-  {name:"Emerald",   accent:"#059669", dark:"#047857"},
-  {name:"Orange",    accent:"#ea580c", dark:"#c2410c"},
-  {name:"Charcoal",  accent:"#374151", dark:"#1f2937"},
-];
-
-let activeTheme = APP_THEMES.find(t=>t.name==="Emerald");
 
 function setTheme(theme){
   activeTheme = theme;
@@ -1446,10 +1365,6 @@ function computeLinkOffsets(nodes){
   });
 }
 
-function ribbonPath(l){
-  const x0=l.source.x1,x1=l.target.x0,mx=(x0+x1)/2;
-  return`M ${x0} ${l.sy0} C ${mx} ${l.sy0}, ${mx} ${l.ty0}, ${x1} ${l.ty0} L ${x1} ${l.ty1} C ${mx} ${l.ty1}, ${mx} ${l.sy1}, ${x0} ${l.sy1} Z`;
-}
 
 // ─── INSIGHT CARDS ────────────────────────────────────────────────────────────
 function buildCards(nodes, links, meta={}){
@@ -3125,45 +3040,6 @@ async function exportAllChartsPDF(){
   setTimeout(()=>{btn.textContent=orig;btn.style.borderColor="";btn.style.color="";},2500);
 }
 
-function hexToRgb(hex){
-  const m=(hex||"").replace(/^var\(.*\)$/,"#888").match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
-  return m?[parseInt(m[1],16),parseInt(m[2],16),parseInt(m[3],16)]:null;
-}
-// returns a readable text color for a given bar hex color
-// if the color is very light (luminance > 0.65), darken it significantly for text
-function getReadableColor(hex){
-  const rgb=hexToRgb(hex);
-  if(!rgb) return hex;
-  const [r,g,b]=rgb.map(c=>{const s=c/255;return s<=0.03928?s/12.92:Math.pow((s+0.055)/1.055,2.4);});
-  const L=0.2126*r+0.7152*g+0.0722*b; // relative luminance
-  if(L>0.45){
-    // too light for text — darken by blending with black
-    const factor=0.45;
-    const dr=Math.round(rgb[0]*factor);
-    const dg=Math.round(rgb[1]*factor);
-    const db=Math.round(rgb[2]*factor);
-    return `#${dr.toString(16).padStart(2,"0")}${dg.toString(16).padStart(2,"0")}${db.toString(16).padStart(2,"0")}`;
-  }
-  return hex;
-}
-// returns white or dark text color for text inside bars
-// if bar is dark (luminance < 0.5), use white text
-// if bar is light (luminance >= 0.5), use dark text
-function getInsideBarTextColor(hex){
-  const rgb=hexToRgb(hex);
-  if(!rgb) return "#fff";
-  const [r,g,b]=rgb.map(c=>{const s=c/255;return s<=0.03928?s/12.92:Math.pow((s+0.055)/1.055,2.4);});
-  const L=0.2126*r+0.7152*g+0.0722*b;
-  return L<0.5?"#fff":"#1a1a2e";
-}
-function roundRect(ctx,x,y,w,h,r){
-  ctx.beginPath();ctx.moveTo(x+r,y);
-  ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
-  ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
-  ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
-  ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);
-  ctx.closePath();
-}
 
 // ─── ORIENTATION HANDLING ─────────────────────────────────────────────────────
 // ─── NODE CONTEXT MENU ────────────────────────────────────────────────────────
