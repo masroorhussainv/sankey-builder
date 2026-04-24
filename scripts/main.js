@@ -2173,6 +2173,12 @@ function generate(){
     if(nd._t3) nd._t3.style.cursor="grab";
     dragging=null;
     document.body.style.userSelect="";
+    // Save positions after drag ends
+    if(currentNodes){
+      const chartKey=chartsData[activeChartIndex]?.id||"current";
+      const positions=currentNodes.map(n=>({name:n.name,y0:n.y0,y1:n.y1}));
+      chartPositions.set(chartKey,positions);
+    }
   };
   // mousemove/mouseup on document so drag works even when mouse leaves SVG bounds
   document.addEventListener("mousemove", window._svgMove);
@@ -2440,6 +2446,10 @@ function generate(){
         let y2=MARGIN.top+(IH-totalH)/2;
         col.forEach(nd=>{nd.y0=y2;nd.y1=y2+nd.value*n.ky;nd.ky=n.ky;y2=nd.y1+NODE_PAD;});
         window.redrawAll();
+        // Save positions after reset
+        const chartKey=chartsData[activeChartIndex]?.id||"current";
+        const positions=currentNodes.map(n=>({name:n.name,y0:n.y0,y1:n.y1}));
+        chartPositions.set(chartKey,positions);
       };
       showCtxMenu(e,n,renameFn,resetFn,redrawAll);
     };
