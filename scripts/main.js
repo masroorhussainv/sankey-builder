@@ -1010,7 +1010,7 @@ function parseData(raw){
   // a new "X, Y, number" pattern (e.g. "...4119.31 Net Profit, Dividends...")
   const normalized=cleaned.replace(/(\d)\s+(COMPANY|PERIOD|SCOPE|CURRENCY|UNIT|EPS|DPS|[A-Z][a-zA-Z])/g,(_,num,word)=>`${num}\n${word}`);
 
-  const lines=normalized.split("\n").map(l=>l.trim()).filter(l=>l&&!l.startsWith("#"));
+  const lines=normalized.split("\n").map(l=>l.trim()).filter(l=>l&&l!="#"&&!l.startsWith("==="));
   const nodeIndex=new Map();
   const links=[];
   let hasYoY=false;
