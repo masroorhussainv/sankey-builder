@@ -19,7 +19,7 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .topbar h1 span{color:var(--accent);}
 .topbar-sub{font-size:11px;color:#bbb;}
 .topbar-right{margin-left:auto;display:flex;align-items:center;gap:6px;flex-wrap:nowrap;}
-.tbtn{background:none;border:1px solid #ddd;border-radius:6px;padding:5px 11px;font-size:12px;cursor:pointer;color:#555;transition:all .15s;white-space:nowrap;}
+.tbtn{background:none;border:none;border-radius:6px;padding:5px 11px;font-size:12px;cursor:pointer;color:#555;transition:all .15s;white-space:nowrap;}
 .tbtn:hover{border-color:var(--accent);color:var(--accent);}
 .tbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
 
@@ -37,7 +37,7 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .palette-wrap{display:none;align-items:center;gap:5px;}
 .swatch{display:flex;gap:3px;flex:0 0 auto;}
 .swatch div{width:10px;height:10px;border-radius:2px;}
-.pal-sel{border:1px solid #ddd;border-radius:6px;padding:4px 7px;font-size:12px;color:#555;background:#fff;cursor:pointer;outline:none;flex:1;}
+.pal-sel{border:none;border-radius:6px;padding:4px 7px;font-size:12px;color:#555;background:#fff;cursor:pointer;outline:none;flex:1;}
 
 /* export dd */
 .export-dd{display:none;}
@@ -48,12 +48,12 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 /* panel — side panel on desktop, slide-up overlay on mobile */
 .panel{width:360px;min-width:220px;max-width:600px;flex-shrink:0;background:#fff;border-right:none;display:flex;flex-direction:column;overflow:hidden;transition:opacity .25s;}
 .panel.collapsed{width:0!important;min-width:0!important;opacity:0;pointer-events:none;}
-.panel-inner{padding:10px 12px;display:flex;flex-direction:column;gap:6px;flex:1;overflow-y:auto;min-width:200px;}
+.panel-inner{padding:8px 10px;display:flex;flex-direction:column;gap:4px;flex:1;overflow-y:auto;min-width:200px;}
 .field textarea{min-height:120px;line-height:1.6;}
 
 /* Sidebar Tabs */
 .sidebar-tabs{display:flex;gap:4px;padding:0 0 10px 0;border-bottom:1px solid #eee;margin-bottom:10px;}
-.sidebar-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 8px;background:none;border:none;border-radius:6px;cursor:pointer;transition:all .2s;font-size:10px;color:#888;font-weight:600;gap:4px;}
+.sidebar-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 6px;background:none;border:none;border-radius:6px;cursor:pointer;transition:all .2s;font-size:10px;color:#888;font-weight:600;gap:3px;}
 .sidebar-tab:hover{background:#f5f5f5;color:#666;}
 .sidebar-tab.active{background:var(--accent);color:#fff;}
 .sidebar-tab .tab-icon{font-size:16px;}
@@ -99,21 +99,22 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 /* currency field highlight when missing */
 .field-warn select,.field-warn input{border-color:#f59e0b!important;background:#fffbf0!important;}
 
-.field label{display:block;font-size:10px;font-weight:600;color:#666;letter-spacing:.07em;text-transform:uppercase;margin-bottom:4px;}
-.field input,.field textarea,.field select{width:100%;border:1px solid #ddd;border-radius:6px;padding:5px 8px;font-size:12px;font-family:'Segoe UI',monospace;color:#1a1a2e;background:#fafafa;outline:none;transition:border-color .15s;resize:vertical;}
+.field label{display:block;font-size:9px;font-weight:600;color:#666;letter-spacing:.07em;text-transform:uppercase;margin-bottom:3px;}
+.field input,.field textarea,.field select{width:100%;border:none;border-radius:6px;padding:4px 6px;font-size:12px;font-family:'Segoe UI',monospace;color:#1a1a2e;background:#fafafa;outline:none;transition:border-color .15s;resize:vertical;}
 .field input:focus,.field textarea:focus,.field select:focus{border-color:var(--accent);background:#fff;}
-.field-row{display:flex;gap:8px;}
+.field-row{display:flex;gap:8px;margin-bottom:4px;}
 .field-row .field{flex:1;}
+.field{margin-bottom:4px;}
 
 .hint{background:#fffbf0;border:1px solid #f0e0b0;border-radius:6px;padding:8px 10px;font-size:11px;color:#7a5c00;line-height:1.7;}
 .hint code{background:#f5e6c0;padding:1px 4px;border-radius:3px;font-family:monospace;}
 
-.section-title{font-size:10px;font-weight:700;color:#aaa;letter-spacing:.1em;text-transform:uppercase;padding:2px 0 1px;border-bottom:1px solid #f0f0f0;}
+.section-title{font-size:9px;font-weight:700;color:#aaa;letter-spacing:.1em;text-transform:uppercase;padding:1px 0 1px;border-bottom:1px solid #f0f0f0;margin-top:8px;}
 
 .shortcut-hint{font-size:10px;color:#bbb;text-align:right;margin-top:-4px;}
 .btn-gen{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;}
 .btn-gen:hover{background:var(--accent-dark);}
-.btn-sec{background:none;border:1px solid #ddd;border-radius:6px;padding:6px 9px;font-size:11px;cursor:pointer;color:#888;transition:all .15s;}
+.btn-sec{background:none;border:none;border-radius:6px;padding:6px 9px;font-size:11px;cursor:pointer;color:#888;transition:all .15s;}
 .btn-sec:hover{border-color:var(--accent);color:var(--accent);}
 
 .error-box{background:#fff0f0;border:1px solid #ffcccc;border-radius:6px;padding:8px 10px;font-size:11px;color:#c00;line-height:1.6;display:none;}
@@ -139,12 +140,12 @@ body{background:#f0f2f5;font-family:'Segoe UI',sans-serif;color:#1a1a2e;height:1
 .chart-header{padding:16px 24px 6px;display:flex;justify-content:space-between;align-items:flex-end;flex-shrink:0;width:100%;max-width:1400px;}
 .chart-header h2{font-size:20px;font-weight:700;color:#1a1a2e;}
 .chart-header h2 span{color:var(--accent);}
-.chart-header p{font-size:11px;color:#999;margin-top:3px;letter-spacing:.06em;text-transform:uppercase;}
+.chart-header p{font-size:11px;color:#666;margin-top:3px;letter-spacing:.06em;text-transform:uppercase;}
 .tot .v{font-size:18px;color:var(--accent);text-align:right;font-weight:600;}
-.tot .l{font-size:10px;color:#999;text-align:right;text-transform:uppercase;letter-spacing:.1em;margin-top:2px;}
+.tot .l{font-size:10px;color:#666;text-align:right;text-transform:uppercase;letter-spacing:.1em;margin-top:2px;}
 
 #wrap{padding:0 14px 8px;background:#fff;border-radius:8px;border:1px solid #e8e8e8;flex-shrink:0;width:100%;max-width:1400px;overflow-x:auto;min-width:0;}
-#wrap.show-boundary{border:1px solid #ddd;box-shadow:0 0 0 1px rgba(0,0,0,0.04);}
+#wrap.show-boundary{border:none;box-shadow:0 0 0 1px rgba(0,0,0,0.04);}
 svg{display:block;}
 
 .warn-box{width:100%;max-width:1400px;background:#fffbf0;border:1px solid #f0e0b0;border-radius:6px;padding:7px 12px;font-size:11px;color:#7a5c00;line-height:1.7;display:none;flex-shrink:0;margin-bottom:4px;}
@@ -180,13 +181,13 @@ svg{display:block;}
 .card-change.down{background:#fef2f2;color:#dc2626;}
 .card-change.neutral{background:#f8fafc;color:#64748b;}
 .card-prev{font-size:10px;color:#bbb;line-height:1.2;}
-.card-prev span{color:#999;font-weight:500;}
+.card-prev span{color:#fff;font-weight:500;}
 .card-dsc{font-size:9.5px;color:#ccc;line-height:1.3;margin-top:3px;border-top:1px solid #f5f5f5;padding-top:4px;}
 
 .placeholder{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#bbb;gap:10px;padding:40px;text-align:center;}
 .placeholder p{font-size:13px;line-height:1.6;max-width:280px;}
 
-#tip{position:fixed;background:#fff;border:1px solid #ddd;border-radius:6px;padding:8px 12px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .12s;z-index:9999;line-height:1.7;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
+#tip{position:fixed;background:#fff;border:none;border-radius:6px;padding:8px 12px;font-size:12px;pointer-events:none;opacity:0;transition:opacity .12s;z-index:9999;line-height:1.7;box-shadow:0 4px 12px rgba(0,0,0,0.1);}
 #tip.on{opacity:1;}
 
 /* node context menu */
@@ -302,9 +303,9 @@ svg{display:block;}
 }
 .chart-tab{
   background:#f8f9fa;border:1px solid #e0e0e0;border-radius:6px;
-  padding:6px 12px;font-size:12px;cursor:pointer;white-space:nowrap;
+  padding:6px 10px;font-size:12px;cursor:pointer;white-space:nowrap;
   display:flex;align-items:center;gap:6px;transition:all 0.15s;user-select:none;
-  cursor:grab;
+  cursor:grab;min-height:40px;
 }
 .chart-tab:active{
   cursor:grabbing;
@@ -322,9 +323,16 @@ svg{display:block;}
 .chart-tab.active{
   background:var(--accent);color:#fff;border-color:var(--accent);
 }
+.chart-tab-content{
+  display:flex;flex-direction:column;gap:1px;min-width:0;flex:1;
+}
 .chart-tab-name{
-  font-weight:600;max-width:150px;overflow:hidden;text-overflow:ellipsis;
-  cursor:inherit;
+  font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;
+  cursor:inherit;font-size:12px;line-height:1.2;
+}
+.chart-tab-subtitle{
+  font-size:10px;font-weight:400;opacity:0.8;
+  overflow:hidden;text-overflow:ellipsis;max-width:120px;line-height:1.2;
 }
 .chart-tab-close{
   width:16px;height:16px;border-radius:3px;background:rgba(0,0,0,0.1);
@@ -341,7 +349,7 @@ svg{display:block;}
   display:flex;gap:6px;flex-shrink:0;
 }
 .tab-btn{
-  background:#fff;border:1px solid #ddd;border-radius:6px;
+  background:#fff;border:none;border-radius:6px;
   padding:6px 10px;font-size:16px;cursor:pointer;color:#555;
   transition:all 0.15s;flex-shrink:0;line-height:1;
 }
@@ -431,49 +439,30 @@ svg{display:block;}
       <div class="tab-content">
         <!-- DATA TAB -->
         <div class="tab-pane active" id="tab-data">
-      <div class="section-title">Chart Details</div>
-      <div class="section-title">Chart Details</div>
       <div class="field-row">
         <div class="field">
-          <label>Currency</label>
-          <select id="inCurrency">
-            <option value="PKR">PKR</option>
-            <option value="USD">USD</option>
-            <option value="EUR">EUR</option>
-            <option value="GBP">GBP</option>
-            <option value="SAR">SAR</option>
-            <option value="AED">AED</option>
-            <option value="INR">INR</option>
-            <option value="JPY">JPY</option>
-            <option value="CNY">CNY</option>
-            <option value="custom">Custom…</option>
-          </select>
+          <label>Company</label>
+          <input type="text" id="inCompany" placeholder="Auto-filled"/>
         </div>
-        <div class="field">
-          <label>Unit</label>
-          <select id="inUnit">
-            <option value="Millions">Millions</option>
-            <option value="Billions">Billions</option>
-            <option value="Thousands">Thousands</option>
-          </select>
-        </div>
-      </div>
-      <div class="field" id="customCurrencyField" style="display:none;">
-        <label>Custom Currency</label>
-        <input type="text" id="inCustomCurrency" placeholder="e.g. BDT" maxlength="6"/>
-      </div>
-      <div class="field">
-        <label>Company Name</label>
-        <input type="text" id="inCompany" placeholder="Auto-filled from data"/>
-      </div>
-      <div class="field-row">
         <div class="field">
           <label>Period</label>
           <input type="text" id="inYear" placeholder="Auto-filled"/>
         </div>
+      </div>
+      <div class="field-row">
         <div class="field">
           <label>Scope</label>
           <input type="text" id="inScope" placeholder="Auto-filled"/>
+        </div>
+        <div class="field">
+          <label>Currency</label>
+          <input type="text" id="inCurrency" placeholder="Auto-filled"/>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Unit</label>
+          <input type="text" id="inUnit" placeholder="Auto-filled"/>
         </div>
       </div>
 
@@ -481,10 +470,10 @@ svg{display:block;}
       <div class="field">
         <label>Height</label>
         <div style="display:flex;align-items:center;gap:8px;">
-          <input type="range" id="inHeight" min="300" max="1000" value="580" step="20"
+          <input type="range" id="inHeight" min="500" max="1200" value="600" step="20"
             style="flex:1;accent-color:var(--accent);cursor:pointer;"
-            oninput="document.getElementById('inHeightVal').textContent=this.value+'px';if(currentNodes)generate();"/>
-          <span id="inHeightVal" style="font-size:11px;color:var(--accent);min-width:38px;">580px</span>
+            oninput="console.log('[Height] Slider changed to:',this.value);document.getElementById('inHeightVal').textContent=this.value+'px';if(currentNodes)generate();"/>
+          <span id="inHeightVal" style="font-size:11px;color:var(--accent);min-width:38px;">600px</span>
         </div>
       </div>
       <div class="field">
@@ -505,11 +494,36 @@ svg{display:block;}
           <span id="inNodeWidthVal" style="font-size:11px;color:var(--accent);min-width:38px;">40px</span>
         </div>
       </div>
+      <div class="field">
+        <label>Label Size</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="range" id="inLabelSize" min="8" max="18" value="10" step="1"
+            style="flex:1;accent-color:var(--accent);cursor:pointer;"
+            oninput="document.getElementById('inLabelSizeVal').textContent=this.value+'px';if(currentNodes)generate();"/>
+          <span id="inLabelSizeVal" style="font-size:11px;color:var(--accent);min-width:38px;">10px</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Value Label Size</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="range" id="inValueLabelSize" min="8" max="16" value="10" step="1"
+            style="flex:1;accent-color:var(--accent);cursor:pointer;"
+            oninput="document.getElementById('inValueLabelSizeVal').textContent=this.value+'px';if(currentNodes)generate();"/>
+          <span id="inValueLabelSizeVal" style="font-size:11px;color:var(--accent);min-width:38px;">10px</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Short Labels</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="checkbox" id="inShortNames" style="width:auto;cursor:pointer;" checked
+            onchange="console.log('[Toggle] Short names:', this.checked);if(typeof currentNodes!=='undefined')window.redrawAll();">
+          <span style="font-size:11px;color:#666;">Use abbreviated names</span>
+        </div>
+      </div>
 
       <div class="section-title">Flow Data</div>
-      <div class="hint" style="font-size:10px;">📋 Copy prompt → paste into NotebookLM → paste result below</div>
       <div class="field">
-        <textarea id="inData" spellcheck="false" placeholder="Paste extracted data here. Use 📋 Prompt button above to get the extraction prompt for NotebookLM.
+        <textarea id="inData" spellcheck="false" placeholder="Paste extracted data here...
 END_OF_DATA"></textarea>
       </div>
 
@@ -605,6 +619,19 @@ END_OF_DATA"></textarea>
       </div>
       <div id="wrap"><svg id="svg"></svg></div>
       <div class="cards" id="cards"></div>
+    </div>
+
+    <!-- Mini Map -->
+    <div id="miniMapContainer" style="position:absolute;bottom:12px;right:12px;z-index:100;">
+      <!-- Toggle icon (shown when mini map is disabled) -->
+      <button id="miniMapToggle" onclick="toggleMiniMap()" style="display:none;position:absolute;bottom:0;right:0;width:24px;height:24px;background:rgba(255,255,255,0.95);border:none;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.15);cursor:pointer;font-size:16px;padding:0;color:#666;transition:all 0.15s;z-index:101;line-height:24px;" title="Show mini map">◱</button>
+
+      <div id="miniMap" style="display:none;position:absolute;bottom:0;right:0;width:120px;height:60px;background:rgba(255,255,255,0.95);border:none;border-radius:4px;box-shadow:0 2px 8px rgba(0,0,0,0.15);overflow:hidden;cursor:pointer;padding:2px;">
+        <!-- Toggle button (shown when mini map is enabled) -->
+        <button id="miniMapClose" onclick="event.stopPropagation();toggleMiniMap()" style="position:absolute;top:2px;right:2px;width:14px;height:14px;background:#ef4444;border:none;border-radius:3px;cursor:pointer;font-size:10px;padding:0;color:#fff;line-height:12px;transition:all 0.15s;z-index:101;opacity:0.8;" title="Hide mini map">✕</button>
+        <svg id="miniMapSvg" style="width:100%;height:100%;"></svg>
+        <div id="miniMapViewport" style="position:absolute;border:2px solid var(--accent);background:rgba(37,158,74,0.1);pointer-events:none;transition:all 0.15s;"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -702,7 +729,7 @@ END_OF_DATA"></textarea>
 .help-body strong{display:block;font-size:12px;font-weight:700;color:#1a1a2e;margin-bottom:2px;}
 .help-body p{color:#555;font-size:11.5px;line-height:1.55;}
 .help-body code{font-family:monospace;font-size:10.5px;background:#f0f0f0;padding:1px 4px;border-radius:3px;}
-.help-body kbd{background:#f0f0f0;border:1px solid #ddd;border-radius:3px;padding:1px 5px;font-size:10.5px;font-family:monospace;}
+.help-body kbd{background:#f0f0f0;border:none;border-radius:3px;padding:1px 5px;font-size:10.5px;font-family:monospace;}
 .help-body a{color:var(--accent);text-decoration:none;}
 .help-body a:hover{text-decoration:underline;}
 </style>
@@ -712,38 +739,35 @@ END_OF_DATA"></textarea>
 const PALETTES={
   "Vivid":         ["#d4a853","#14b8a6","#3b82f6","#a78bfa","#22c55e","#f43f5e","#fb923c","#6366f1","#8b949e","#fbbf24","#e11d48","#0ea5e9","#84cc16","#f97316","#ec4899","#10b981","#ef4444","#60a5fa","#a3e635","#c084fc"],
   "Corporate":     ["#0a2342","#1b4f8a","#2874c4","#4a9fd4","#7ec8e3","#0d5c63","#1a8a76","#2eba9a","#5dd6bc","#98e8d8","#6b2d6b","#9a4ea0","#c47dc9","#1a5276","#2471a3","#5dade2","#a9cce3","#1e3a2f","#2e7d52","#52c27a"],
-  "Mono: Slate":   ["#0f172a","#1e293b","#334155","#475569","#64748b","#94a3b8","#cbd5e1","#e2e8f0","#f1f5f9","#f8fafc","#0f1f2e","#1a3344","#274d66","#366b8a","#4a8aad","#6ba3c0","#93bdd2","#b8d4e3","#d6e8f0","#eef5fa"],
-  "Mono: Forest":  ["#052e16","#14532d","#166534","#15803d","#16a34a","#22c55e","#4ade80","#86efac","#bbf7d0","#dcfce7","#064e3b","#065f46","#047857","#059669","#10b981","#34d399","#6ee7b7","#a7f3d0","#d1fae5","#ecfdf5"],
-  "Mono: Ocean":   ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#90e0ef","#ade8f4","#caf0f8","#e0f7ff","#012a4a","#013a63","#01497c","#014f86","#2c7da0","#468faf","#61a5c2","#89c2d9","#a9d6e5","#d0efff"],
-  "Mono: Crimson": ["#3b0000","#7b0000","#a50000","#c62828","#e53935","#ef5350","#f44336","#ef9a9a","#ffcdd2","#ffebee","#4a0010","#7b0020","#ad1457","#c2185b","#d81b60","#e91e63","#f48fb1","#f8bbd0","#fce4ec","#fff0f5"],
-  "Mono: Amber":   ["#451a03","#78350f","#92400e","#b45309","#d97706","#f59e0b","#fbbf24","#fcd34d","#fde68a","#fef3c7","#3d1a00","#6b2d00","#9a4200","#c25600","#e06b00","#f08000","#f5a623","#f9c74f","#fde083","#fef4c8"],
-  "Mono: Violet":  ["#1a0533","#2d0a5f","#4a0e8f","#6b21a8","#7c3aed","#8b5cf6","#a78bfa","#c4b5fd","#ddd6fe","#ede9fe","#12004f","#200080","#3600c0","#4c00ff","#6419f5","#7c3aed","#9d74f0","#b8a0f5","#d5c8fa","#ece8fd"],
+  "Mono: Slate":   ["#0f172a","#1e293b","#334155","#475569","#64748b","#94a3b8","#0f1f2e","#1a3344","#274d66","#366b8a","#4a8aad","#6ba3c0"],
+  "Mono: Forest":  ["#052e16","#14532d","#166534","#15803d","#16a34a","#22c55e","#064e3b","#065f46","#047857","#059669","#10b981","#34d399"],
+  "Mono: Ocean":   ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#012a4a","#013a63","#01497c","#014f86","#2c7da0","#468faf"],
+  "Mono: Crimson": ["#3b0000","#7b0000","#a50000","#c62828","#e53935","#ef5350","#4a0010","#7b0020","#ad1457","#c2185b","#d81b60","#e91e63"],
+  "Mono: Amber":   ["#451a03","#78350f","#92400e","#b45309","#d97706","#f59e0b","#3d1a00","#6b2d00","#9a4200","#c25600","#e06b00","#f08000"],
+  "Mono: Violet":  ["#1a0533","#2d0a5f","#4a0e8f","#6b21a8","#7c3aed","#8b5cf6","#12004f","#200080","#3600c0","#4c00ff","#6419f5","#7c3aed"],
   "Warm":          ["#c1121f","#e85d04","#f48c06","#faa307","#ffba08","#d62828","#f77f00","#fcbf49","#9b2226","#ae2012","#bb3e03","#ca6702","#ee9b00","#780000","#a44200","#e9c46a","#f4a261","#e76f51","#ef233c","#d90429"],
-  "Pastel":        ["#a8dadc","#457b9d","#1d3557","#e63946","#06d6a0","#118ab2","#073b4c","#ffd166","#ef476f","#84a98c","#52796f","#354f52","#b7d5ea","#8fb8d1","#6a9ab0","#c9cba3","#ffe1a8","#e26d5c","#723d46","#472d30"],
-  "Green–Gold":    ["#606c38","#283618","#dda15e","#bc6c25","#588157","#3a5a40","#a3b18a","#dad7cd","#b5838d","#6d6875","#e9c46a","#f4a261","#264653","#2a9d8f","#57cc99","#80ed99","#386641","#6a994e","#a7c957","#bc4749"],
-  "Ocean":         ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#90e0ef","#ade8f4","#caf0f8","#005f73","#0a9396","#94d2bd","#e9d8a6","#ee9b00","#ca6702","#bb3e03","#ae2012","#9b2226","#001219","#006400"],
-  "Sunset":        ["#ff6b6b","#ff8e53","#ff9f43","#ffd32a","#0be881","#0fbcf9","#f53b57","#3c40c4","#ffd42a","#ffdd59","#ff5e57","#ff3f34","#ff9f43","#ffa502","#ff6348","#ff4757","#2ed573","#1e90ff","#eccc68","#a29bfe"],
-  "Berry":         ["#6c3483","#884ea0","#a569bd","#c39bd3","#d2b4de","#4a235a","#7d3c98","#9b59b6","#af7ac5","#c8a2c8","#512e5f","#76448a","#8e44ad","#a569bd","#b784c7","#1a5276","#1f618d","#2874a6","#3498db","#5dade2"],
-  "Earth":         ["#7b3f00","#a0522d","#b8860b","#cd853f","#d2691e","#8b4513","#a52a2a","#800000","#556b2f","#6b8e23","#808000","#8fbc8f","#2e8b57","#3cb371","#20b2aa","#008080","#4682b4","#708090","#696969","#808080"],
-  "Neon":          ["#ff00ff","#00ffff","#ff6600","#ffff00","#00ff00","#ff0066","#6600ff","#ff3300","#00ff99","#ff0099","#33ccff","#ff6633","#99ff00","#cc00ff","#ff9900","#00ccff","#ff0033","#66ff00","#ff00cc","#0033ff"],
-  "PSX Classic":   ["#006633","#009933","#00cc44","#ffcc00","#ff9900","#cc0000","#990000","#003366","#0066cc","#3399ff","#66ccff","#99ffcc","#ccff99","#ffff66","#ffcc66","#ff9966","#ff6666","#cc3333","#336699","#6699cc"],
-  "Warm Neutrals": ["#c9b99a","#b5967a","#9c7b5e","#7c5c42","#5e3d28","#d6c4a8","#e8dcc8","#f5f0e8","#a0856a","#876650","#6b4e38","#4d3624","#c4a882","#b89468","#a07850","#8a6238","#e0c8a0","#d4b880","#c8a860","#bc9840"],
-  "Finance Blue":  ["#003366","#004d99","#0066cc","#0080ff","#3399ff","#66b2ff","#99ccff","#cce5ff","#002244","#1a3d6b","#005fa3","#0073c6","#1a8fe6","#4da6ff","#80c0ff","#b3d9ff","#001122","#002255","#004488","#0055aa"],
-  "Tropical":      ["#ff595e","#ffca3a","#6a4c93","#1982c4","#8ac926","#ff595e","#ff924c","#ff2d55","#4cc9f0","#4361ee","#3a0ca3","#7209b7","#f72585","#06d6a0","#118ab2","#073b4c","#ffd166","#ef476f","#06d6a0","#118ab2"],
-  "Muted Pro":     ["#4a4e69","#9a8c98","#c9ada7","#f2e9e4","#22223b","#6d6875","#b5838d","#e5989b","#ffb4a2","#ffcdb2","#355070","#6d597a","#b56576","#e56b6f","#eaac8b","#2d6a4f","#40916c","#52b788","#74c69d","#95d5b2"],
-  "Sakura":        ["#ffb7c5","#ff85a1","#ff5c8d","#e8457e","#c72b6e","#f7c5d0","#f2a7b8","#e87d97","#d4567a","#b8365e","#ffdde1","#ffb3c1","#ff8fab","#fb6f92","#e05780","#c9184a","#a4133c","#800f2f","#590d22","#ff4d6d"],
-  "Autumn":        ["#d62828","#f77f00","#fcbf49","#eae2b7","#003049","#e85d04","#dc2f02","#9d0208","#6a040f","#370617","#f48c06","#faa307","#ffba08","#e85d04","#dc2f02","#606c38","#283618","#dda15e","#bc6c25","#a7c957"],
-  "Nordic":        ["#2e3440","#3b4252","#434c5e","#4c566a","#d8dee9","#e5e9f0","#eceff4","#8fbcbb","#88c0d0","#81a1c1","#5e81ac","#bf616a","#d08770","#ebcb8b","#a3be8c","#b48ead","#bf616a","#2e3440","#4c566a","#88c0d0"],
+  "Pastel":        ["#457b9d","#1d3557","#e63946","#06d6a0","#118ab2","#073b4c","#ef476f","#84a98c","#52796f","#354f52","#8fb8d1","#6a9ab0","#c9cba3","#e26d5c","#723d46","#472d30","#a8dadc","#6a4c93","#1982c4","#8ac926"],
+  "Green–Gold":    ["#606c38","#283618","#dda15e","#bc6c25","#588157","#3a5a40","#a3b18a","#b5838d","#6d6875","#e9c46a","#f4a261","#264653","#2a9d8f","#57cc99","#386641","#6a994e","#a7c957","#bc4749","#dad7cd","#9c7b5e"],
+  "Ocean":         ["#03045e","#023e8a","#0077b6","#0096c7","#00b4d8","#48cae4","#005f73","#0a9396","#94d2bd","#ee9b00","#ca6702","#bb3e03","#ae2012","#9b2226","#001219","#01497c","#014f86","#2c7da0","#468faf"],
+  "Sunset":        ["#ff6b6b","#ff8e53","#ff9f43","#ffd32a","#0be881","#0fbcf9","#f53b57","#3c40c4","#ffd42a","#ffdd59","#ff5e57","#ff3f34","#ffa502","#ff6348","#ff4757","#2ed573","#1e90ff","#eccc68","#a29bfe"],
+  "Berry":         ["#6c3483","#884ea0","#a569bd","#c39bd3","#4a235a","#7d3c98","#9b59b6","#af7ac5","#512e5f","#76448a","#8e44ad","#a569bd","#b784c7","#1a5276","#1f618d","#2874a6","#3498db","#5dade2","#c8a2c8","#d2b4de"],
+  "Earth":         ["#7b3f00","#a0522d","#b8860b","#cd853f","#d2691e","#8b4513","#a52a2a","#800000","#556b2f","#6b8e23","#808000","#2e8b57","#3cb371","#20b2aa","#008080","#4682b4","#708090","#696969","#808080","#8fbc8f"],
+  "Neon":          ["#cc00ff","#00cccc","#ff6600","#cc9900","#00cc00","#ff0066","#6600cc","#cc3300","#00cc99","#cc0099","#3399cc","#cc6633","#99cc00","#9900cc","#cc9900","#0099cc","#cc0033","#66cc00","#cc0099","#0033cc"],
+  "PSX Classic":   ["#006633","#009933","#00cc44","#e6b800","#ee9900","#cc0000","#990000","#003366","#0066cc","#3399ff","#66b2e6","#7fe0cc","#ccdd88","#eedd66","#eebb66","#ee8866","#dd5555","#993333","#336699","#5588bb"],
+  "Warm Neutrals": ["#c9b99a","#b5967a","#9c7b5e","#7c5c42","#5e3d28","#a0856a","#876650","#6b4e38","#4d3624","#c4a882","#b89468","#a07850","#8a6238","#d4b880","#c8a860","#bc9840","#7b3f00","#a0522d","#b8860b","#cd853f"],
+  "Finance Blue":  ["#003366","#004d99","#0066cc","#0080ff","#3399ff","#66b2ff","#99ccff","#002244","#1a3d6b","#005fa3","#0073c6","#1a8fe6","#4da6ff","#80c0ff","#b3d9ff","#001122","#002255","#004488","#0055aa","#023e8a"],
+  "Tropical":      ["#ff595e","#ffca3a","#6a4c93","#1982c4","#8ac926","#ff595e","#ff924c","#ff2d55","#4cc9f0","#4361ee","#3a0ca3","#7209b7","#f72585","#06d6a0","#118ab2","#073b4c","#ef476f","#ffd166","#073b4c","#1d3557"],
+  "Muted Pro":     ["#4a4e69","#9a8c98","#c9ada7","#22223b","#6d6875","#b5838d","#e5989b","#ffb4a2","#355070","#6d597a","#b56576","#e56b6f","#eaac8b","#2d6a4f","#40916c","#52b788","#74c69d","#95d5b2","#f2e9e4","#ffcdb2"],
+  "Sakura":        ["#ff85a1","#ff5c8d","#e8457e","#c72b6e","#f2a7b8","#e87d97","#d4567a","#b8365e","#ffb3c1","#fb6f92","#e05780","#c9184a","#a4133c","#800f2f","#590d22","#ff4d6d","#f7c5d0","#ffdde1","#ffb7c5","#ff5c8d"],
+  "Autumn":        ["#d62828","#f77f00","#fcbf49","#003049","#e85d04","#dc2f02","#9d0208","#6a040f","#370617","#f48c06","#faa307","#e85d04","#dc2f02","#606c38","#283618","#dda15e","#bc6c25","#a7c957"],
+  "Nordic":        ["#2e3440","#3b4252","#434c5e","#4c566a","#8fbcbb","#5e81ac","#81a1c1","#bf616a","#d08770","#ebcb8b","#a3be8c","#b48ead","#2e3440","#4c566a","#88c0d0","#3b4252","#434c5e","#5e81ac","#81a1c1","#8fbcbb"],
   "Jewel":         ["#9b2335","#c0392b","#e74c3c","#d35400","#e67e22","#f39c12","#f1c40f","#27ae60","#1abc9c","#2980b9","#8e44ad","#2c3e50","#16a085","#1a5276","#6c3483","#7b241c","#78281f","#1b2631","#145a32","#154360"],
-  "Retro":         ["#264653","#2a9d8f","#e9c46a","#f4a261","#e76f51","#606c38","#dda15e","#bc6c25","#a8dadc","#457b9d","#1d3557","#e63946","#f1faee","#a8dadc","#457b9d","#6d6875","#b5838d","#e5989b","#ffb4a2","#ffcdb2"],
+  "Retro":         ["#264653","#2a9d8f","#e9c46a","#f4a261","#e76f51","#606c38","#dda15e","#bc6c25","#457b9d","#1d3557","#e63946","#6d6875","#b5838d","#e5989b","#a8dadc","#ffb4a2","#ffcdb2","#f1faee","#457b9d","#52796f"],
 };
 let activePalette="Vivid";
 const getPalette=()=>PALETTES[activePalette];
 
 // ─── CURRENCY / UNIT ──────────────────────────────────────────────────────────
-document.getElementById("inCurrency").addEventListener("change",function(){
-  document.getElementById("customCurrencyField").style.display=this.value==="custom"?"block":"none";
-});
 function getCurrencySymbol(){
   const sel=document.getElementById("inCurrency").value;
   if(sel==="custom") return document.getElementById("inCustomCurrency").value.trim()||"$";
@@ -787,7 +811,8 @@ function parseMultipleCharts(raw){
   if(!chartMarkerRegex.test(raw)){
     // No chart markers, treat entire input as single chart
     const chartId="Chart 1";
-    return[{id:chartId,name:chartId,data:raw}];
+    const meta=extractMetadata(raw);
+    return[{id:chartId,name:chartId,data:raw,meta:meta}];
   }
 
   // Split by chart markers
@@ -799,10 +824,28 @@ function parseMultipleCharts(raw){
     const chartName=parts[i].trim()||`Chart ${charts.length+1}`;
     const chartData=parts[i+1].trim();
     const chartId=`Chart ${charts.length+1}`;
-    charts.push({id:chartId,name:chartName,data:chartData});
+    const meta=extractMetadata(chartData);
+    charts.push({id:chartId,name:chartName,data:chartData,meta:meta});
   }
 
-  return charts.length>0?charts:[{id:"Chart 1",name:"Chart 1",data:raw}];
+  return charts.length>0?charts:[{id:"Chart 1",name:"Chart 1",data:raw,meta:extractMetadata(raw)}];
+}
+
+// Extract metadata from chart data for tab display
+function extractMetadata(data){
+  let company="", period="", scope="";
+  const lines=data.split('\n');
+  for(const line of lines){
+    if(line.match(/^COMPANY,/i)){
+      company=line.split(',')[1]?.trim()||"";
+    }else if(line.match(/^PERIOD,/i)){
+      period=line.split(',')[1]?.trim()||"";
+    }else if(line.match(/^SCOPE,/i)){
+      scope=line.split(',')[1]?.trim()||"";
+    }
+    if(company&&period&&scope) break;
+  }
+  return{company,period,scope};
 }
 
 let chartsData=[]; // Array of chart objects
@@ -819,8 +862,15 @@ function renderTabs(){
     tab.className=`chart-tab${index===activeChartIndex?" active":""}`;
     tab.dataset.index=index;
     tab.draggable=true;
+    // Use metadata for two-line display, fallback to chart name
+    const meta=chart.meta||extractMetadata(chart.data);
+    const subtitle=[meta.period,meta.scope].filter(Boolean).join(" - ");
+    const displayName=meta.company||chart.name;
     tab.innerHTML=`
-      <span class="chart-tab-name">${chart.name}</span>
+      <div class="chart-tab-content">
+        <span class="chart-tab-name">${displayName}</span>
+        ${subtitle?`<span class="chart-tab-subtitle">${subtitle}</span>`:""}
+      </div>
       <span class="chart-tab-close" data-index="${index}">✕</span>
     `;
 
@@ -963,36 +1013,27 @@ function updateChartData(data){
   }
 
   // Single chart or update current chart
+  const meta=extractMetadata(data);
   if(chartsData.length===0){
     const newId="Chart 1";
-    chartsData.push({id:newId,name:newId,data:data});
+    chartsData.push({id:newId,name:newId,data:data,meta:meta});
     activeChartIndex=0;
   }else{
     chartsData[activeChartIndex].data=data;
+    chartsData[activeChartIndex].meta=meta;
   }
   renderTabs();
 }
 
-// apply currency from parsed meta — known currencies map to select; others go to custom
-const KNOWN_CURRENCIES=["PKR","USD","EUR","GBP","SAR","AED","INR","JPY","CNY"];
+// apply currency from parsed meta
 function applyCurrencyMeta(cur, unit){
-  const curSel=document.getElementById("inCurrency");
-  const unitSel=document.getElementById("inUnit");
+  const curInput=document.getElementById("inCurrency");
+  const unitInput=document.getElementById("inUnit");
   if(cur){
-    const upper=cur.trim().toUpperCase();
-    if(KNOWN_CURRENCIES.includes(upper)){
-      curSel.value=upper;
-      document.getElementById("customCurrencyField").style.display="none";
-    } else {
-      curSel.value="custom";
-      document.getElementById("inCustomCurrency").value=upper;
-      document.getElementById("customCurrencyField").style.display="block";
-    }
+    curInput.value=cur.trim().toUpperCase();
   }
   if(unit){
-    const u=unit.trim();
-    const map={"millions":"Millions","billion":"Billions","billions":"Billions","thousands":"Thousands","thousand":"Thousands","million":"Millions"};
-    unitSel.value=map[u.toLowerCase()]||"Millions";
+    unitInput.value=unit.trim();
   }
 }
 
@@ -1022,6 +1063,8 @@ function setTheme(theme){
 }
 
 window.addEventListener("DOMContentLoaded",()=>{
+  const heightInput = document.getElementById("inHeight");
+  console.log('[Page Load] Initial height input value:', heightInput.value, 'text:', document.getElementById("inHeightVal").textContent);
   // collapse panel by default on mobile
   if(window.innerWidth<=700){
     const p=document.getElementById("panel");
@@ -1120,11 +1163,16 @@ function applyPalette(){
       n.color=pal[n.id%pal.length];
     }
     if(n._rect) n._rect.setAttribute("fill",n.color);
+    if(n._t1) n._t1.setAttribute("fill",n.color);
     if(n._t3){
       // only update color if label is above bar (not inside)
       if(!n._t3._isInside){
+        const readableColor=getReadableColor(n.color);
+        // Update value tspan (first child)
         const tsV=n._t3.querySelector("tspan");
-        if(tsV) tsV.setAttribute("fill",getReadableColor(n.color));
+        if(tsV) tsV.setAttribute("fill",readableColor);
+        // Update YoY percentage tspan (stored as _tsYoY)
+        if(n._t3._tsYoY) n._t3._tsYoY.setAttribute("fill",readableColor);
       }else{
         // Inside bar: update all 3 line text colors
         const insideBarColor=getInsideBarTextColor(n.color);
@@ -1306,7 +1354,7 @@ function exportJSON(){
     data:document.getElementById("inData").value,
     palette:activePalette,
     colSpacing:document.getElementById("inColSpacing").value||"0",
-    chartHeight:document.getElementById("inHeight").value||"520",
+    chartHeight:document.getElementById("inHeight").value||"600",
     ts:Date.now()
   };
   const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
@@ -1385,7 +1433,7 @@ function copyShareURL(btnEl){
     d:dataToShare,  // Only active chart's data
     p:activePalette,
     cs:document.getElementById("inColSpacing").value||"0",
-    h:document.getElementById("inHeight").value||"520",
+    h:document.getElementById("inHeight").value||"600",
     cur:getCurrencySymbol(),
     unit:getUnit(),
     np:nodePos  // Full positions with names
@@ -1444,254 +1492,158 @@ function copyShareURL(btnEl){
 // ─── PROMPTS ──────────────────────────────────────────────────────────────────
 function copyPrompt(type){
   const texts={
-    csv:`Extract financial flow data from this annual report. Return ONLY comma-separated lines — metadata first, then flows, no explanation:
+    csv:`Extract P&L flows. Return comma-separated lines, node names in DOUBLE QUOTES:
 
-COMPANY, [full company name as in report]
-PERIOD, [e.g. FY 2025, H1 2025, Q3 FY2025, 9M 2025]
-SCOPE, [Consolidated or Unconsolidated or Standalone]
-CURRENCY, [currency symbol e.g. PKR, USD, EUR, GBP]
-UNIT, [Millions or Billions or Thousands]
-Total Revenue, Net Sales, 25789.24
-Total Revenue, Other Income, 446.67
-Total Revenue, Investment Income, 125.50
-Total Revenue, Dividends from Subsidiaries, 85.30
-Total Revenue, Share of Profit from Associates, 64.20
-Net Sales, Cost of Sales, 11662.35
-Net Sales, Gross Profit, 14126.89
-Gross Profit, Selling & Distribution, 6311.93
-Gross Profit, Admin Expenses, 1028.85
-Gross Profit, Other Operating Expenses, 516.44
-Gross Profit, Impairment Losses, 45.00
-Gross Profit, Reversal of Impairment, -12.50
-Gross Profit, Write-offs, 28.40
-Gross Profit, Operating Profit, 6258.87
-Operating Profit, Finance Cost, 121.50
-Operating Profit, Foreign Exchange Gain/Loss, -15.30
-Operating Profit, Gain/Loss on Sale of Assets, 32.50
-Operating Profit, Unusual Items, 18.70
-Operating Profit, Profit Before Tax, 6584.05
-Other Income, Profit Before Tax, 446.67
-Investment Income, Profit Before Tax, 125.50
-Dividends from Subsidiaries, Profit Before Tax, 85.30
-Share of Profit from Associates, Profit Before Tax, 64.20
-Profit Before Tax, Taxation, 2464.73
-Profit Before Tax, Minority Interest, 156.80
-Profit Before Tax, Net Profit, 4119.31
-Net Profit, Dividends Paid, 2119.34
-Net Profit, Dividends Received, 156.20
-Net Profit, Prior Year Adjustments, 42.30
-Net Profit, Retained Earnings, 1999.98
-Retained Earnings, Capital Expenditure, 850.00
-Retained Earnings, Loans and Advances, 320.50
-Retained Earnings, Short-Term Investments, 450.30
-Retained Earnings, Cash and Cash Equivalents, 179.68
+COMPANY, [name]
+PERIOD, [FY 2025]
+SCOPE, [Consolidated/Unconsolidated]
+CURRENCY, [PKR/USD]
+UNIT, [Millions]
+"Net Sales", "Total Revenue|Total Rev", 25789.24
+"Total Revenue|Total Rev", "Cost of Sales|COGS", 11662.35
+"Total Revenue|Total Rev", "Gross Profit|GP", 14126.89
+"Gross Profit|GP", "Selling and Distribution|Selling & Dist", 6312.00
+"Gross Profit|GP", "Admin Expenses|Admin Exp", 1029.00
+"Gross Profit|GP", "Other Operating Expenses|Other Op Exp", 104.00
+"Gross Profit|GP", "Operating Profit|Op Profit", 6584.05
+"Operating Profit|Op Profit", "Profit Before Tax|PBT", 6584.05
+"Other Income", "Profit Before Tax|PBT", 446.67
+"Investment Income|Inv. Income", "Profit Before Tax|PBT", 125.50
+"Dividends from Subsidiaries|Div. Subsid", "Profit Before Tax|PBT", 85.30
+"Share of Profit from Associates|Assoc. Profit", "Profit Before Tax|PBT", 64.20
+"Foreign Exchange Gain/Loss|FX Gain/Loss", "Profit Before Tax|PBT", -15.30
+"Gain/Loss on Sale of Assets|Asset Sale Gain/Loss", "Profit Before Tax|PBT", 32.50
+"Profit Before Tax|PBT", "Taxation", 2464.73
+"Profit Before Tax|PBT", "Net Profit", 4119.31
+"Net Profit", "Dividends Paid|Dividends", 2119.34
+"Net Profit", "Retained Earnings|Retained", 1999.98
+"Retained Earnings|Retained", "Capital Expenditure|CapEx", 850.00
+"Retained Earnings|Retained", "Loans and Advances|Loans", 320.50
+"Retained Earnings|Retained", "Short-Term Investments|ST Inv.", 450.30
+"Retained Earnings|Retained", "Cash and Cash Equivalents|Cash", 179.68
 EPS, 15.42
 DPS, 8.50
 
-All values in the currency and unit you specified above. EPS/DPS always in actual currency per share (not millions). Use negative numbers for reversals/gains (e.g., Reversal of Impairment, FX Gain).
+Format: "Source","Target",value. ALL nodes quoted. Every flow on own line.
+SHORT NAMES: Use "Full Name|Short Name" format for concise labels. Short names must be understandable (8-15 chars). Use abbreviations: GP=Gross Profit, PBT=Profit Before Tax, COGS=Cost of Sales, Op=Operating, Exp=Expenses, Rev=Revenue, CapEx=Capital Expenditure, ST=Short-Term.
 
-CRITICAL:
-- Every flow on its own separate line — do NOT merge multiple flows onto one line
-- Do NOT mix segment breakdowns (e.g. Products/Services revenue) with P&L flows — use P&L structure only (Total Net Sales → Cost of Sales → Gross Margin)
-- Include ALL P&L items: Investment Income, Dividends from Subsidiaries, Share of Profit from Associates, Impairment Losses, Reversal of Impairment, Write-offs, Foreign Exchange Gain/Loss, Gain/Loss on Sale of Assets, Unusual Items, Minority Interest, Prior Year Adjustments, Dividends Received, Capital Expenditure, Loans and Advances, Short-Term Investments, Cash and Cash Equivalents
-- If any item has zero value, omit it entirely
-- IMPORTANT: For Retained Earnings, calculate surplus: Inflow - (Capital Expenditure + Loans and Advances + Short-Term Investments + Cash and Cash Equivalents). If surplus exists, add "Retained Earnings, Other Reserves, [surplus]" to account for it
-- Return ONLY the data lines above — no commentary, no questions, no extra text of any kind after the last data line
-- The very last line of your response must be exactly: END_OF_DATA`,
+ABOVE EXAMPLES for structure reference ONLY. Extract ALL items from ACTUAL report.
 
-    multichart:`Extract ONE financial flow chart from EACH annual report uploaded in this NotebookLM. If multiple annual reports are uploaded (e.g., 2023, 2024, 2025), extract one chart from each report automatically.
+MANDATORY BALANCE: Every node MUST balance (inflows=outflows). If any node doesn't balance, you MISSED items - find them and include. Missing items cause extraction FAILURE. Last line: END_OF_DATA`,
 
-Separate each chart with: === CHART: [Company Name - Period] ===
+    multichart:`Extract ONE chart from EACH uploaded annual report. Separate with: === CHART: [Company - Period] ===
 
-For EACH report, extract the DETAILED P&L (Profit & Loss) with all intermediate line items in this exact format:
+ALL node names in DOUBLE QUOTES.
 
-=== CHART: [Company Name - Period, e.g. "Acme Corp - FY 2025"] ===
-COMPANY, [full company name]
-PERIOD, [fiscal period from report]
-SCOPE, [Consolidated or Unconsolidated or Standalone]
-CURRENCY, [currency symbol]
-UNIT, [Millions or Billions or Thousands]
-Total Revenue, Net Sales, [current], [prior]
-Total Revenue, Other Income, [current], [prior]
-Total Revenue, Investment Income, [current], [prior]
-Total Revenue, Dividends from Subsidiaries, [current], [prior]
-Total Revenue, Share of Profit from Associates, [current], [prior]
-Net Sales, Cost of Sales, [current], [prior]
-Net Sales, Gross Profit, [current], [prior]
-Gross Profit, Selling & Distribution, [current], [prior]
-Gross Profit, Admin Expenses, [current], [prior]
-Gross Profit, Other Operating Expenses, [current], [prior]
-Gross Profit, Impairment Losses, [current], [prior]
-Gross Profit, Reversal of Impairment, [current], [prior]
-Gross Profit, Write-offs, [current], [prior]
-Gross Profit, Operating Profit, [current], [prior]
-Operating Profit, Finance Cost, [current], [prior]
-Operating Profit, Foreign Exchange Gain/Loss, [current], [prior]
-Operating Profit, Gain/Loss on Sale of Assets, [current], [prior]
-Operating Profit, Unusual Items, [current], [prior]
-Operating Profit, Profit Before Tax, [current], [prior]
-Other Income, Profit Before Tax, [current], [prior]
-Investment Income, Profit Before Tax, [current], [prior]
-Dividends from Subsidiaries, Profit Before Tax, [current], [prior]
-Share of Profit from Associates, Profit Before Tax, [current], [prior]
-Profit Before Tax, Taxation, [current], [prior]
-Profit Before Tax, Minority Interest, [current], [prior]
-Profit Before Tax, Net Profit, [current], [prior]
-Net Profit, Dividends Paid, [current], [prior]
-Net Profit, Dividends Received, [current], [prior]
-Net Profit, Prior Year Adjustments, [current], [prior]
-Net Profit, Retained Earnings, [current], [prior]
-Retained Earnings, Capital Expenditure, [current], [prior]
-Retained Earnings, Loans and Advances, [current], [prior]
-Retained Earnings, Short-Term Investments, [current], [prior]
-Retained Earnings, Cash and Cash Equivalents, [current], [prior]
-EPS, [current in currency/share], [prior]
-DPS, [current in currency/share], [prior]
+=== CHART: [Company Name - Period] ===
+COMPANY, [name]
+PERIOD, [FY 2025]
+SCOPE, [Consolidated/Unconsolidated/Standalone]
+CURRENCY, [PKR/USD/EUR]
+UNIT, [Millions/Billions/Thousands]
+"Net Sales", "Total Revenue|Total Rev", [cur], [prior]
+"Total Revenue|Total Rev", "Cost of Sales|COGS", [cur], [prior]
+"Total Revenue|Total Rev", "Gross Profit|GP", [cur], [prior]
+"Gross Profit|GP", "Selling and Distribution|Selling & Dist", [cur], [prior]
+"Gross Profit|GP", "Admin Expenses|Admin Exp", [cur], [prior]
+"Gross Profit|GP", "Other Operating Expenses|Other Op Exp", [cur], [prior]
+"Gross Profit|GP", "Operating Profit|Op Profit", [cur], [prior]
+"Operating Profit|Op Profit", "Profit Before Tax|PBT", [cur], [prior]
+"Other Income", "Profit Before Tax|PBT", [cur], [prior]
+"Investment Income|Inv. Income", "Profit Before Tax|PBT", [cur], [prior]
+"Dividends from Subsidiaries|Div. Subsid", "Profit Before Tax|PBT", [cur], [prior]
+"Share of Profit from Associates|Assoc. Profit", "Profit Before Tax|PBT", [cur], [prior]
+"Foreign Exchange Gain/Loss|FX Gain/Loss", "Profit Before Tax|PBT", [cur], [prior]
+"Gain/Loss on Sale of Assets|Asset Sale Gain/Loss", "Profit Before Tax|PBT", [cur], [prior]
+"Profit Before Tax|PBT", "Taxation", [cur], [prior]
+"Profit Before Tax|PBT", "Net Profit", [cur], [prior]
+"Net Profit", "Dividends Paid|Dividends", [cur], [prior]
+"Net Profit", "Retained Earnings|Retained", [cur], [prior]
+"Retained Earnings|Retained", "Capital Expenditure|CapEx", [cur], [prior]
+"Retained Earnings|Retained", "Loans and Advances|Loans", [cur], [prior]
+"Retained Earnings|Retained", "Short-Term Investments|ST Inv.", [cur], [prior]
+"Retained Earnings|Retained", "Cash and Cash Equivalents|Cash", [cur], [prior]
+EPS, [cur], [prior]
+DPS, [cur], [prior]
 
-=== CHART: [Company Name - Different Period, e.g. "Acme Corp - FY 2024"] ===
-[same detailed P&L structure for the next report]
-[continue for ALL uploaded annual reports]
+[Repeat for ALL reports]
 
-Rules for EACH report:
-- Extract the detailed P&L statement (not Value Added Statement)
-- Every flow on its own separate line
-- If prior year missing, leave 4th column empty: "A, B, 123,"
-- Verify: CoS + Gross Profit = Net Sales; Dividends + Retained = Net Profit
-- Extra expenses → "Gross Profit, [Expense Name], cur, prior"
-- Extra income → "Total Revenue, [Income Name], cur, prior" AND "[Income Name], Profit Before Tax, cur, prior"
-- Include ALL P&L items: Investment Income, Dividends from Subsidiaries, Share of Profit from Associates, Impairment Losses, Reversal of Impairment, Write-offs, Foreign Exchange Gain/Loss, Gain/Loss on Sale of Assets, Unusual Items, Minority Interest, Prior Year Adjustments, Dividends Received, Capital Expenditure, Loans and Advances, Short-Term Investments, Cash and Cash Equivalents
-- If any item has zero value in BOTH years, omit it entirely
-- IMPORTANT: For Retained Earnings, calculate surplus: Inflow - (Capital Expenditure + Loans and Advances + Short-Term Investments + Cash and Cash Equivalents). If surplus exists, add "Retained Earnings, Other Reserves, [surplus], [prior_surplus]" to account for it
+Rules:
+- Every node in "Quotes". Commas in names allowed.
+- Each flow on own line. Prior year empty ok: "Source","Target",123,
+- SHORT NAMES: Use "Full Name|Short Name" for concise labels (8-15 chars). Use abbreviations: GP, PBT, COGS, Op=Operating, Exp=Expenses, Rev=Revenue, CapEx, ST=Short-Term.
+- ABOVE EXAMPLES for structure reference only. Extract ALL items from ACTUAL report.
+- Follow P&L flow: Net Sales→Total Revenue→Cost of Sales+Gross Profit, Gross Profit→Op Expenses+Operating Profit, Operating Profit→Finance Costs(if any)→PBT, Other income→PBT, PBT→Taxation+Net Profit
+- MANDATORY BALANCE: Every node MUST balance (inflows=outflows). If unbalanced, you MISSED items - find and include. Missing items = extraction FAILURE. Last line: END_OF_DATA`,
 
-CRITICAL:
-- Return ONLY the chart data separated by markers — no commentary
-- Extract detailed P&L with ALL intermediate nodes (Cost of Sales, Gross Profit, Operating Expenses, Operating Profit, etc.)
-- One chart per uploaded report, separated by === CHART: markers
-- The very last line must be exactly: END_OF_DATA`,
+    comparative:`Extract P&L flows (comparative). Return comma-separated lines, nodes in DOUBLE QUOTES:
 
-    comparative:`Extract financial flow data from this annual report (comparative P&L). Return ONLY comma-separated lines — metadata first, then flows:
-
-COMPANY, [full company name]
-PERIOD, [e.g. FY 2025]
-SCOPE, [Consolidated or Unconsolidated]
-CURRENCY, [currency symbol e.g. PKR, USD, EUR]
-UNIT, [Millions or Billions or Thousands]
-Total Revenue, Net Sales, 25789.24, 22340.11
-Total Revenue, Other Income, 446.67, 380.20
-Total Revenue, Investment Income, 125.50, 98.40
-Total Revenue, Dividends from Subsidiaries, 85.30, 72.10
-Total Revenue, Share of Profit from Associates, 64.20, 52.80
-Net Sales, Cost of Sales, 11662.35, 10234.56
-Net Sales, Gross Profit, 14126.89, 12105.55
-Gross Profit, Selling & Distribution, 6311.93, 5820.40
-Gross Profit, Admin Expenses, 1028.85, 944.20
-Gross Profit, Other Operating Expenses, 516.44, 490.10
-Gross Profit, Impairment Losses, 45.00, 38.20
-Gross Profit, Reversal of Impairment, -12.50, -8.40
-Gross Profit, Write-offs, 28.40, 32.10
-Gross Profit, Operating Profit, 6258.87, 4850.85
-Operating Profit, Finance Cost, 121.50, 98.30
-Operating Profit, Foreign Exchange Gain/Loss, -15.30, 12.50
-Operating Profit, Gain/Loss on Sale of Assets, 32.50, -18.20
-Operating Profit, Unusual Items, 18.70, 24.30
-Operating Profit, Profit Before Tax, 6584.05, 5133.15
-Other Income, Profit Before Tax, 446.67, 380.20
-Investment Income, Profit Before Tax, 125.50, 98.40
-Dividends from Subsidiaries, Profit Before Tax, 85.30, 72.10
-Share of Profit from Associates, Profit Before Tax, 64.20, 52.80
-Profit Before Tax, Taxation, 2464.73, 1920.50
-Profit Before Tax, Minority Interest, 156.80, 132.40
-Profit Before Tax, Net Profit, 4119.31, 3212.65
-Net Profit, Dividends Paid, 2119.34, 1680.00
-Net Profit, Dividends Received, 156.20, 125.00
-Net Profit, Prior Year Adjustments, 42.30, -28.50
-Net Profit, Retained Earnings, 1999.98, 1532.65
-Retained Earnings, Capital Expenditure, 850.00, 720.50
-Retained Earnings, Loans and Advances, 320.50, 280.30
-Retained Earnings, Short-Term Investments, 450.30, 312.40
-Retained Earnings, Cash and Cash Equivalents, 179.68, 219.75
+COMPANY, [name]
+PERIOD, [FY 2025]
+SCOPE, [Consolidated/Unconsolidated]
+CURRENCY, [PKR/USD]
+UNIT, [Millions]
+"Net Sales", "Total Revenue|Total Rev", 25789.24, 22340.11
+"Total Revenue|Total Rev", "Cost of Sales|COGS", 11662.35, 10234.55
+"Total Revenue|Total Rev", "Gross Profit|GP", 14126.89, 12105.55
+"Gross Profit|GP", "Selling and Distribution|Selling & Dist", 6312.00, 5820.00
+"Gross Profit|GP", "Admin Expenses|Admin Exp", 1029.00, 944.00
+"Gross Profit|GP", "Operating Profit|Op Profit", 6584.05, 5133.15
+"Operating Profit|Op Profit", "Profit Before Tax|PBT", 6584.05, 5133.15
+"Profit Before Tax|PBT", "Taxation", 2464.73, 1920.50
+"Profit Before Tax|PBT", "Net Profit", 4119.31, 3212.65
+"Net Profit", "Dividends Paid|Dividends", 2119.34, 1680.00
+"Net Profit", "Retained Earnings|Retained", 1999.98, 1532.65
+"Retained Earnings|Retained", "Capital Expenditure|CapEx", 850.00, 720.50
+"Retained Earnings|Retained", "Cash and Cash Equivalents|Cash", 179.68, 219.75
 EPS, 15.42, 13.37
 DPS, 8.50, 7.00
 
-Rules:
-- Flow values in the currency/unit specified. EPS/DPS in actual currency per share (not millions)
-- If prior year value missing for a line, leave 4th column empty: "A, B, 123,"
-- Do NOT compute % changes — the app does this
-- Extra expenses → "Gross Profit, [Name], cur, prior"
-- Extra income → "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
-- Verify: CoS + Gross Profit = Net Sales; Dividends + Retained Earnings = Net Profit
-- Include ALL P&L items: Investment Income, Dividends from Subsidiaries, Share of Profit from Associates, Impairment Losses, Reversal of Impairment, Write-offs, Foreign Exchange Gain/Loss, Gain/Loss on Sale of Assets, Unusual Items, Minority Interest, Prior Year Adjustments, Dividends Received, Capital Expenditure, Loans and Advances, Short-Term Investments, Cash and Cash Equivalents
-- If any item has zero value in BOTH years, omit it entirely
-- Use negative numbers for reversals/gains (e.g., Reversal of Impairment, FX Gain)
-- IMPORTANT: For Retained Earnings, calculate surplus: Inflow - (Capital Expenditure + Loans and Advances + Short-Term Investments + Cash and Cash Equivalents). If surplus exists, add "Retained Earnings, Other Reserves, [surplus]" to account for it
+Format: "Source","Target",cur,prior. ALL nodes quoted. Each flow own line.
+SHORT NAMES: Use "Full Name|Short Name" for concise labels (8-15 chars). Use abbreviations: GP, PBT, COGS, Op=Operating, Exp=Expenses, Rev=Revenue, CapEx.
 
-CRITICAL:
-- Every flow on its own separate line — do NOT merge multiple flows onto one line
-- Do NOT mix segment breakdowns (e.g. Products/Services revenue) with P&L flows — use P&L only
-- Return ONLY the data lines — no commentary, no questions, no extra text after the last data line
-- The very last line of your response must be exactly: END_OF_DATA`,
+ABOVE EXAMPLES for structure reference ONLY. Extract ALL items from ACTUAL report.
 
-    detailed:`Extract financial flow data from this annual report for a Sankey chart. Return comma-separated lines — metadata first, then flows, no explanation:
+MANDATORY BALANCE: Every node MUST balance (inflows=outflows). If unbalanced, you MISSED items - find and include. Missing items = extraction FAILURE. Last line: END_OF_DATA`,
 
-COMPANY, [full company name]
-PERIOD, [fiscal period — e.g. FY 2025, H1 FY2025, Q3 2025, 9M FY2025]
-SCOPE, [Consolidated / Unconsolidated / Standalone]
-CURRENCY, [currency symbol e.g. PKR, USD, EUR, GBP]
-UNIT, [Millions / Billions / Thousands]
-Total Revenue, Net Sales, [cur], [prior]
-Total Revenue, Other Income, [cur], [prior]
-Total Revenue, Investment Income, [cur], [prior]
-Total Revenue, Dividends from Subsidiaries, [cur], [prior]
-Total Revenue, Share of Profit from Associates, [cur], [prior]
-Net Sales, Cost of Sales, [cur], [prior]
-Net Sales, Gross Profit, [cur], [prior]
-Gross Profit, Selling & Distribution, [cur], [prior]
-Gross Profit, Admin Expenses, [cur], [prior]
-Gross Profit, Other Operating Expenses, [cur], [prior]
-Gross Profit, Impairment Losses, [cur], [prior]
-Gross Profit, Reversal of Impairment, [cur], [prior]
-Gross Profit, Write-offs, [cur], [prior]
-Gross Profit, Operating Profit, [cur], [prior]
-Operating Profit, Finance Cost, [cur], [prior]
-Operating Profit, Foreign Exchange Gain/Loss, [cur], [prior]
-Operating Profit, Gain/Loss on Sale of Assets, [cur], [prior]
-Operating Profit, Unusual Items, [cur], [prior]
-Operating Profit, Profit Before Tax, [cur], [prior]
-Other Income, Profit Before Tax, [cur], [prior]
-Investment Income, Profit Before Tax, [cur], [prior]
-Dividends from Subsidiaries, Profit Before Tax, [cur], [prior]
-Share of Profit from Associates, Profit Before Tax, [cur], [prior]
-Profit Before Tax, Taxation, [cur], [prior]
-Profit Before Tax, Minority Interest, [cur], [prior]
-Profit Before Tax, Net Profit, [cur], [prior]
-Net Profit, Dividends Paid, [cur], [prior]
-Net Profit, Dividends Received, [cur], [prior]
-Net Profit, Prior Year Adjustments, [cur], [prior]
-Net Profit, Retained Earnings, [cur], [prior]
-Retained Earnings, Capital Expenditure, [cur], [prior]
-Retained Earnings, Loans and Advances, [cur], [prior]
-Retained Earnings, Short-Term Investments, [cur], [prior]
-Retained Earnings, Cash and Cash Equivalents, [cur], [prior]
-EPS, [current value in currency/share], [prior value in currency/share]
-DPS, [current value in currency/share], [prior value in currency/share]
+    detailed:`Extract P&L flows. Return comma-separated lines, nodes in DOUBLE QUOTES:
 
-Rules:
-- Flow values in the currency and unit specified in CURRENCY/UNIT lines above. EPS/DPS in actual currency per share from EPS note (not millions)
-- If prior year absent, use 3 columns only; if a specific prior is missing leave blank: "A,B,123,"
-- Do NOT compute % changes
-- Extra expenses → "Gross Profit, [Name], cur, prior"
-- Extra income → "Total Revenue, [Name], cur, prior" AND "[Name], Profit Before Tax, cur, prior"
-- Verify both years: CoS + Gross Profit = Net Sales; Dividends + Retained Earnings = Net Profit
-- Include ALL P&L items: Investment Income, Dividends from Subsidiaries, Share of Profit from Associates, Impairment Losses, Reversal of Impairment, Write-offs, Foreign Exchange Gain/Loss, Gain/Loss on Sale of Assets, Unusual Items, Minority Interest, Prior Year Adjustments, Dividends Received, Capital Expenditure, Loans and Advances, Short-Term Investments, Cash and Cash Equivalents
-- If any item has zero value in BOTH years, omit it entirely
-- Use negative numbers for reversals/gains (e.g., Reversal of Impairment, FX Gain)
-- IMPORTANT: For Retained Earnings, calculate surplus: Inflow - (Capital Expenditure + Loans and Advances + Short-Term Investments + Cash and Cash Equivalents). If surplus exists, add "Retained Earnings, Other Reserves, [surplus]" to account for it
+COMPANY, [name]
+PERIOD, [FY 2025]
+SCOPE, [Consolidated/Unconsolidated]
+CURRENCY, [PKR/USD]
+UNIT, [Millions]
+"Net Sales", "Total Revenue|Total Rev", [cur], [prior]
+"Total Revenue|Total Rev", "Cost of Sales|COGS", [cur], [prior]
+"Total Revenue|Total Rev", "Gross Profit|GP", [cur], [prior]
+"Gross Profit|GP", "Selling and Distribution|Selling & Dist", [cur], [prior]
+"Gross Profit|GP", "Admin Expenses|Admin Exp", [cur], [prior]
+"Gross Profit|GP", "Other Operating Expenses|Other Op Exp", [cur], [prior]
+"Gross Profit|GP", "Operating Profit|Op Profit", [cur], [prior]
+"Operating Profit|Op Profit", "Profit Before Tax|PBT", [cur], [prior]
+"Other Income", "Profit Before Tax|PBT", [cur], [prior]
+"Investment Income|Inv. Income", "Profit Before Tax|PBT", [cur], [prior]
+"Dividends from Subsidiaries|Div. Subsid", "Profit Before Tax|PBT", [cur], [prior]
+"Share of Profit from Associates|Assoc. Profit", "Profit Before Tax|PBT", [cur], [prior]
+"Foreign Exchange Gain/Loss|FX Gain/Loss", "Profit Before Tax|PBT", [cur], [prior]
+"Gain/Loss on Sale of Assets|Asset Sale Gain/Loss", "Profit Before Tax|PBT", [cur], [prior]
+"Profit Before Tax|PBT", "Taxation", [cur], [prior]
+"Profit Before Tax|PBT", "Net Profit", [cur], [prior]
+"Net Profit", "Dividends Paid|Dividends", [cur], [prior]
+"Net Profit", "Retained Earnings|Retained", [cur], [prior]
+"Retained Earnings|Retained", "Capital Expenditure|CapEx", [cur], [prior]
+"Retained Earnings|Retained", "Loans and Advances|Loans", [cur], [prior]
+"Retained Earnings|Retained", "Short-Term Investments|ST Inv.", [cur], [prior]
+"Retained Earnings|Retained", "Cash and Cash Equivalents|Cash", [cur], [prior]
+EPS, [cur], [prior]
+DPS, [cur], [prior]
 
-CRITICAL:
-- Every flow on its own separate line — do NOT merge multiple flows onto one line
-- Do NOT mix segment breakdowns (e.g. Products/Services) with P&L flows — use P&L structure only
-- Return ONLY the data lines — no commentary, no questions, no extra text after the last data line
-- The very last line of your response must be exactly: END_OF_DATA`
+Format: "Source","Target",cur,prior. ALL nodes quoted. Each flow own line.
+SHORT NAMES: Use "Full Name|Short Name" for concise labels (8-15 chars). Use abbreviations: GP, PBT, COGS, Op=Operating, Exp=Expenses, Rev=Revenue, CapEx, ST=Short-Term.
+
+ABOVE EXAMPLES for structure reference ONLY. Extract ALL items from ACTUAL report.
+
+MANDATORY BALANCE: Every node MUST balance (inflows=outflows). If unbalanced, you MISSED items - find and include. Missing items = extraction FAILURE. Last line: END_OF_DATA`
   };
   navigator.clipboard.writeText(texts[type]).then(()=>{
     const btn=document.querySelector("#promptDd .tbtn");
@@ -1803,17 +1755,14 @@ PERIOD, FY 2025
 SCOPE, Unconsolidated
 CURRENCY, PKR
 UNIT, Millions
-Total Revenue, Net Sales, 25789, 22340
-Total Revenue, Other Income, 447, 380
-Net Sales, Cost of Sales, 11662, 10234
-Net Sales, Gross Profit, 14127, 12106
-Gross Profit, Selling & Distribution, 6312, 5820
+Net Sales, Total Revenue, 25789, 22340
+Total Revenue, Cost of Sales, 11662, 10234
+Total Revenue, Gross Profit, 14127, 12106
+Gross Profit, Selling and Distribution, 6312, 5820
 Gross Profit, Admin Expenses, 1029, 944
-Gross Profit, Other Op. Expenses, 516, 490
-Gross Profit, Operating Profit, 6259, 4851
-Operating Profit, Finance Cost, 122, 98
+Gross Profit, Other Operating Expenses, 104, 0
+Gross Profit, Operating Profit, 6584, 5133
 Operating Profit, Profit Before Tax, 6584, 5133
-Other Income, Profit Before Tax, 447, 380
 Profit Before Tax, Taxation, 2465, 1921
 Profit Before Tax, Net Profit, 4119, 3213
 Net Profit, Dividends, 2119, 1680
@@ -1827,26 +1776,48 @@ PERIOD, FY 2025
 SCOPE, Consolidated
 CURRENCY, PKR
 UNIT, Millions
-Total Revenue, Net Sales, 18456, 16234
-Total Revenue, Other Income, 234, 198
-Net Sales, Cost of Sales, 8234, 7892
-Net Sales, Gross Profit, 10222, 8342
-Gross Profit, Selling & Distribution, 4123, 3890
-Gross Profit, Admin Expenses, 876, 823
-Gross Profit, Other Op. Expenses, 234, 198
-Gross Profit, Operating Profit, 4989, 3431
-Operating Profit, Finance Cost, 156, 134
-Operating Profit, Profit Before Tax, 4833, 3297
-Other Income, Profit Before Tax, 234, 198
-Profit Before Tax, Taxation, 1456, 987
-Profit Before Tax, Net Profit, 3377, 2309
-Net Profit, Dividends, 1234, 1089
-Net Profit, Retained Earnings, 2143, 1220
+"Net Sales", "Total Revenue", 18456, 16234
+"Total Revenue", "Cost of Sales", 8234, 7892
+"Total Revenue", "Gross Profit", 10222, 8342
+"Gross Profit", "Selling and Distribution", 3560, 3120
+"Gross Profit", "Admin Expenses", 1245, 1120
+"Gross Profit", "Other Operating Expenses", 428, 571
+"Gross Profit", "Operating Profit", 4989, 3431
+"Operating Profit", "Profit Before Tax", 4833, 3297
+"Foreign Exchange Gain/Loss", "Profit Before Tax", -156, -134
+"Profit Before Tax", "Taxation", 1456, 987
+"Profit Before Tax", "Net Profit", 3377, 2309
+"Net Profit", "Dividends Paid", 1234, 1089
+"Net Profit", "Retained Earnings", 2143, 1220
+"Retained Earnings", "Capital Expenditure", 850, 720
+"Retained Earnings", "Loans and Advances", 320, 280
+"Retained Earnings", "Short-Term Investments", 450, 312
+"Retained Earnings", "Cash and Cash Equivalents", 179, 220
 EPS, 12.45, 8.52
 DPS, 6.25, 5.50`;
 }
 
 // ─── PARSE ────────────────────────────────────────────────────────────────────
+// Parse CSV line handling quoted fields (e.g. "Gross Profit", "Selling, Distribution", 1234)
+function parseCSVLine(line){
+  const parts=[];
+  let current="";
+  let inQuotes=false;
+  for(let i=0;i<line.length;i++){
+    const ch=line[i];
+    if(ch==='"'){
+      inQuotes=!inQuotes;
+    }else if(ch===','&&!inQuotes){
+      parts.push(current.trim());
+      current="";
+    }else{
+      current+=ch;
+    }
+  }
+  parts.push(current.trim());
+  return parts;
+}
+
 function parseData(raw){
   // truncate at END_OF_DATA sentinel — ignore everything after it
   const sentinelIdx=raw.toUpperCase().indexOf("END_OF_DATA");
@@ -1862,15 +1833,25 @@ function parseData(raw){
   const links=[];
   let hasYoY=false;
   const meta={}; // EPS, DPS etc.
+  const nodeShortNames=new Map(); // Store short names separately
   const getNode=name=>{
     name=name.trim();
-    if(!nodeIndex.has(name))nodeIndex.set(name,nodeIndex.size);
-    return nodeIndex.get(name);
+    // Remove surrounding quotes if present
+    if(name.startsWith('"')&&name.endsWith('"')) name=name.slice(1,-1);
+    // Extract short name if present in "Full Name|Short Name" format
+    const shortName=name.includes('|')?name.split('|')[1].trim():null;
+    const fullName=name.includes('|')?name.split('|')[0].trim():name;
+    // Store short name if present
+    if(shortName) nodeShortNames.set(fullName, shortName);
+    // Use full name for deduplication
+    const key=fullName;
+    if(!nodeIndex.has(key))nodeIndex.set(key,nodeIndex.size);
+    return nodeIndex.get(key);
   };
   const META_KEYS=["EPS","DPS"];
   const META_TEXT=["COMPANY","PERIOD","SCOPE","CURRENCY","UNIT"];
   for(const line of lines){
-    const parts=line.split(",");
+    const parts=parseCSVLine(line);
     const key=parts[0].trim().toUpperCase();
     // text metadata: COMPANY, PERIOD, SCOPE
     if(META_TEXT.includes(key)){
@@ -1899,9 +1880,17 @@ function parseData(raw){
     const secondNum=parseFloat(secondLast.replace(/[^0-9.-]/g,""));
     const lastIsNum=lastPart===""||(!isNaN(lastNum)&&lastPart.replace(/[^0-9.-]/g,"")===lastPart.replace(/\s/g,""));
     const secondIsNum=!isNaN(secondNum)&&secondLast.replace(/[^0-9.-]/g,"")===secondLast.replace(/\s/g,"");
+    const secondIsEmpty=secondLast==="";
 
     let curIdx, priorIdx=null;
-    if(secondIsNum&&lastIsNum&&parts.length>=4){
+    if(secondIsEmpty&&lastIsNum&&parts.length>=4){
+      // Handle empty current value with prior: "Source, Target, , prior"
+      // Treat as 4-column format with current=0
+      curIdx=parts.length-2;
+      priorIdx=parts.length-1;
+      // Insert a "0" for the empty current value
+      parts[curIdx]="0";
+    } else if(secondIsNum&&lastIsNum&&parts.length>=4){
       // 4-column format: ..., value, prior
       curIdx=parts.length-2;
       priorIdx=parts.length-1;
@@ -1916,11 +1905,12 @@ function parseData(raw){
     const tgtName=parts.slice(1,curIdx).join(",").trim();
     if(!srcName||!tgtName) throw new Error(`Bad line: "${line}" — need Source, Target`);
 
-    const s=getNode(srcName),t=getNode(tgtName);
-    if(s===t) throw new Error(`Source equals target: "${line}"`);
     const vRaw=parseFloat(parts[curIdx].replace(/[^0-9.-]/g,""));
     if(isNaN(vRaw)) throw new Error(`Invalid value on line: "${line}"`);
-    if(vRaw===0) continue;
+    if(vRaw===0) continue; // Skip zero-value flows BEFORE creating nodes
+
+    const s=getNode(srcName),t=getNode(tgtName);
+    if(s===t) throw new Error(`Source equals target: "${line}"`);
     const v=Math.abs(vRaw);
     const isNegative=vRaw<0;
     let prior=null;
@@ -1930,7 +1920,8 @@ function parseData(raw){
     }
     links.push({s,t,v,prior,isNegative});
   }
-  return{nodeNames:[...nodeIndex.keys()],links,hasYoY,meta};
+  console.log('[parseData] shortNames map size:', nodeShortNames.size, 'entries:', [...nodeShortNames.entries()]);
+  return{nodeNames:[...nodeIndex.keys()],links,hasYoY,meta,shortNames:nodeShortNames};
 }
 
 // ─── VALIDATION ───────────────────────────────────────────────────────────────
@@ -1959,8 +1950,18 @@ function validateFlows(nodes,links){
 }
 
 // ─── LAYOUT ───────────────────────────────────────────────────────────────────
-function buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,colSpacing=150){
-  const nodes=nodeNames.map((name,id)=>({id,name,sourceLinks:[],targetLinks:[],value:0,col:0}));
+function buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,colSpacing=150,shortNames=null){
+  console.log('[buildLayout] shortNames received:', shortNames);
+  const nodes=nodeNames.map((name,id)=>({
+    id,
+    name,
+    shortName:shortNames?.get(name)||null,
+    sourceLinks:[],
+    targetLinks:[],
+    value:0,
+    col:0
+  }));
+  console.log('[buildLayout] Sample nodes:', nodes.slice(0, 3).map(n => ({name: n.name, shortName: n.shortName})));
   const links=rawLinks.map((l,i)=>({...l,index:i,source:nodes[l.s],target:nodes[l.t]}));
   links.forEach(l=>{l.source.sourceLinks.push(l);l.target.targetLinks.push(l);});
   nodes.forEach(n=>{n.value=Math.max(n.sourceLinks.reduce((a,l)=>a+l.v,0),n.targetLinks.reduce((a,l)=>a+l.v,0));});
@@ -1982,42 +1983,115 @@ function buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,colSpacing=
   const byCol={};
   nodes.forEach(n=>{(byCol[n.col]=byCol[n.col]||[]).push(n);});
 
+  // Calculate per-column spacing - relaxed spacing for all columns
+  const colSpacingMap={};
+  Object.keys(byCol).forEach(colIdx=>{
+    const col=byCol[colIdx];
+    const nodeCount=col.length;
+    // Aggressive spacing for small columns, progressive for larger
+    // 1-3 nodes get much larger base spacing
+    const relaxationMultiplier=nodeCount<=3
+      ?2.8+(nodeCount*0.35)  // 1 node: 3.15x, 2 nodes: 3.5x, 3 nodes: 3.85x
+      :4.0+(nodeCount*0.15); // 4+ nodes: progressive from 4.6x (more aggressive)
+    colSpacingMap[colIdx]=Math.floor(NODE_PAD*relaxationMultiplier);
+  });
+
   let globalKy=Infinity;
   Object.values(byCol).forEach(col=>{
+    const colIdx=col[0]?.col||0;
+    const spacing=colSpacingMap[colIdx]||NODE_PAD;
     const total=col.reduce((a,n)=>a+n.value,0);
-    const ky=(IH-NODE_PAD*(col.length-1))/total;
+    const ky=(IH-spacing*(col.length-1))/total;
     if(ky<globalKy)globalKy=ky;
   });
+
+  // ── Pass 1: Initial placement by value (largest at top) ────────────────────────
   Object.values(byCol).forEach(col=>{
+    const colIdx=col[0]?.col||0;
+    const spacing=colSpacingMap[colIdx]||NODE_PAD;
     col.sort((a,b)=>b.value-a.value);
-    const totalH=col.reduce((a,n)=>a+n.value*globalKy,0)+NODE_PAD*(col.length-1);
+    const totalH=col.reduce((a,n)=>a+n.value*globalKy,0)+spacing*(col.length-1);
     let y=MARGIN.top+(IH-totalH)/2;
-    col.forEach(n=>{n.y0=y;n.h=n.value*globalKy;n.y1=y+n.h;n.ky=globalKy;y=n.y1+NODE_PAD;});
+    col.forEach(n=>{n.y0=y;n.h=n.value*globalKy;n.y1=y+n.h;n.ky=globalKy;y=n.y1+spacing;});
   });
+
+  // ── Pass 2: Smart reordering based on weighted source positions ─────────────────
+  // For columns 2+, reorder nodes to align with their source nodes, reducing crossings
+  for(let colIdx=1;colIdx<numCols;colIdx++){
+    const col=byCol[colIdx];
+    if(!col||col.length<=1) continue;
+
+    // Calculate target Y for each node based on weighted average of source positions
+    const nodeTargets=col.map(node=>{
+      if(node.targetLinks.length===0){
+        return {node,targetY:node.y0,weight:0};
+      }
+      let totalWeight=0;
+      let weightedSum=0;
+      node.targetLinks.forEach(l=>{
+        const srcMidY=(l.source.y0+l.source.y1)/2;
+        weightedSum+=srcMidY*l.v;
+        totalWeight+=l.v;
+      });
+      return {
+        node,
+        targetY:totalWeight>0?weightedSum/totalWeight:node.y0,
+        weight:totalWeight
+      };
+    });
+
+    // Sort by target Y position (nodes with sources should align with them)
+    nodeTargets.sort((a,b)=>a.targetY-b.targetY);
+
+    // Reassign Y positions in sorted order, maintaining spacing
+    const spacing=colSpacingMap[colIdx]||NODE_PAD;
+    const totalH=col.reduce((a,n)=>a+n.value*globalKy,0)+spacing*(col.length-1);
+    let newY=MARGIN.top+(IH-totalH)/2;
+    nodeTargets.forEach(({node})=>{
+      node.y0=newY;
+      node.h=node.value*globalKy;
+      node.y1=newY+node.h;
+      newY=node.y1+spacing;
+    });
+  }
 
   // store initial y0 for clamping — prevent nodes from straying too far from initial layout
   nodes.forEach(n=>{n.initY0=n.y0;n.initY1=n.y1;});
+
+  // Use per-column MIN_GAP for resolveCol
+  function getColMinGap(col){
+    if(!col||col.length===0) return NODE_PAD;
+    const colIdx=col[0]?.col||0;
+    return colSpacingMap[colIdx]||NODE_PAD;
+  }
 
   const MIN_GAP=NODE_PAD; // guaranteed minimum pixels between any two node bars
 
   function resolveCol(col){
     if(col.length===0) return;
     const s=[...col].sort((a,b)=>a.y0-b.y0);
+    const minGap=getColMinGap(col);
     const totalNodeH=s.reduce((sum,n)=>sum+(n.y1-n.y0),0);
-    const totalNeeded=totalNodeH+(s.length-1)*MIN_GAP;
+    const totalNeeded=totalNodeH+(s.length-1)*minGap;
     const avail=IH;
 
     if(totalNeeded<=avail){
-      // enough space — forward pass enforcing MIN_GAP, then backward pass to keep in bounds
-      let y=MARGIN.top;
+      // enough space — CENTER nodes vertically instead of pushing down
+      const totalH=totalNodeH+(s.length-1)*minGap;
+      const startY=MARGIN.top+(avail-totalH)/2;
+
+      // First pass: enforce minimum gaps from top
+      let y=startY;
       s.forEach(n=>{
         if(n.y0<y){n.y1+=y-n.y0;n.y0=y;}
-        y=n.y1+MIN_GAP;
+        y=n.y1+minGap;
       });
-      y=MARGIN.top+IH;
+
+      // Second pass: pull back from bottom if needed
+      y=startY+totalH;
       [...s].reverse().forEach(n=>{
         if(n.y1>y){const sh=n.y1-y;n.y0-=sh;n.y1-=sh;}
-        y=n.y0-MIN_GAP;
+        y=n.y0-minGap;
       });
     } else {
       // not enough space — distribute proportionally with minimum gap squeezed as needed
@@ -2034,33 +2108,62 @@ function buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,colSpacing=
     });
   }
 
-  // gentler relaxation — fewer iterations, lower alpha, clamp drift
+  // gentler relaxation — column-aware iterations and alpha
   for(let it=0;it<30;it++){
     const a=0.15*Math.pow(0.9,it);
     for(let c=1;c<numCols;c++){
-      (byCol[c]||[]).forEach(n=>{
+      const col=byCol[c]||[];
+      // Progressive force reduction: more nodes = less force
+      const colForce=col.length>=1?0.35:1.0;
+      col.forEach(n=>{
         if(!n.targetLinks.length)return;
         const ws=n.targetLinks.reduce((s2,l)=>s2+((l.source.y0+l.source.y1)/2)*l.v,0);
         const vs=n.targetLinks.reduce((s2,l)=>s2+l.v,0);
-        const dy=(ws/vs-(n.y0+n.y1)/2)*a;
+        const dy=(ws/vs-(n.y0+n.y1)/2)*a*colForce;
         n.y0+=dy;n.y1+=dy;
       });
-      resolveCol(byCol[c]||[]);
+      resolveCol(col);
     }
     for(let c=numCols-2;c>=0;c--){
-      (byCol[c]||[]).forEach(n=>{
+      const col=byCol[c]||[];
+      // Progressive force reduction: more nodes = less force
+      const colForce=col.length>=1?0.35:1.0;
+      col.forEach(n=>{
         if(!n.sourceLinks.length)return;
         const ws=n.sourceLinks.reduce((s2,l)=>s2+((l.target.y0+l.target.y1)/2)*l.v,0);
         const vs=n.sourceLinks.reduce((s2,l)=>s2+l.v,0);
-        const dy=(ws/vs-(n.y0+n.y1)/2)*a;
+        const dy=(ws/vs-(n.y0+n.y1)/2)*a*colForce;
         n.y0+=dy;n.y1+=dy;
       });
-      resolveCol(byCol[c]||[]);
+      resolveCol(col);
     }
   }
 
   // final pass — enforce minimum gap one last time after all relaxation is done
   Object.values(byCol).forEach(col=>resolveCol(col));
+
+  // ── Scale nodes to use available height proportionally ───────────────────────
+  // When height increases, nodes should grow to fill the space, not just add empty padding
+  const minY=Math.min(...nodes.map(n=>n.y0));
+  const maxY=Math.max(...nodes.map(n=>n.y1));
+  const currentContentH=maxY-minY;
+  // Target: use up to 85% of available height (leave some breathing room)
+  const targetH=IH*0.85;
+  if(currentContentH>0&&currentContentH<targetH){
+    const scaleFactor=targetH/currentContentH;
+    // Scale all node heights and positions from the center
+    const midY=(minY+maxY)/2;
+    nodes.forEach(n=>{
+      const h=n.y1-n.y0;
+      const center=n.y0+h/2;
+      const newH=h*scaleFactor;
+      const dist=center-midY;
+      const newCenter=midY+dist*scaleFactor;
+      n.y0=newCenter-newH/2;
+      n.y1=newCenter+newH/2;
+    });
+  }
+
   return{nodes,links,byCol,numCols,colOrder,colX};
 }
 
@@ -2231,7 +2334,7 @@ function renderChartHeader(company, year, scope){
   const titleEl=document.getElementById("chartTitle");
   titleEl.innerHTML=
     renderMetaChip("company", company, "font-size:inherit;font-weight:700;color:#1a1a2e;")+
-    (year?`<span style="color:#999;margin:0 4px;font-weight:400;">—</span>`+
+    (year?`<span style="color:#fff;margin:0 4px;font-weight:400;">—</span>`+
       renderMetaChip("year", year, `font-size:inherit;font-weight:700;color:var(--accent);`): "");
 }
 
@@ -2269,9 +2372,9 @@ function startMetaEdit(chipEl, field){
     const cur=getCurrencySymbol(),unit=getUnit();
     const sc=document.getElementById("inScope").value.trim();
     document.getElementById("chartSubtitle").innerHTML=
-      renderMetaChip("scope",sc,"font-size:11px;color:#999;letter-spacing:.06em;text-transform:uppercase;")+
+      renderMetaChip("scope",sc,"font-size:11px;color:#666;letter-spacing:.06em;text-transform:uppercase;")+
       (sc?`<span style="color:#ccc;font-size:10px;margin:0 3px;">·</span>`:"")+
-      `<span style="font-size:11px;color:#999;letter-spacing:.06em;text-transform:uppercase;">${cur} ${unit}</span>`;
+      `<span style="font-size:11px;color:#666;letter-spacing:.06em;text-transform:uppercase;">${cur} ${unit}</span>`;
     // update watermark
     const wmEl=document.getElementById("svg").querySelector("text:last-child");
     if(wmEl) wmEl.textContent=[currentCompany,currentYear,currentScope,`${cur} ${unit}`].filter(Boolean).join(" · ");
@@ -2283,8 +2386,155 @@ function startMetaEdit(chipEl, field){
   });
 }
 
+// ─── MINI MAP ───────────────────────────────────────────────────────────────────
+let miniMapEnabled=true; // track mini map enabled state
+
+function toggleMiniMap(){
+  miniMapEnabled=!miniMapEnabled;
+  const miniMap=document.getElementById("miniMap");
+  const toggle=document.getElementById("miniMapToggle");
+  const close=document.getElementById("miniMapClose");
+
+  if(miniMapEnabled){
+    // Show mini map, move toggle to top-right corner
+    miniMap.style.display="block";
+    toggle.style.display="none";
+    close.style.display="block";
+  }else{
+    // Hide mini map, show toggle button in its place
+    miniMap.style.display="none";
+    toggle.style.display="block";
+    close.style.display="none";
+  }
+}
+function updateMiniMap(){
+  const wrap=document.getElementById("wrap");
+  const svg=document.getElementById("svg");
+  const miniMap=document.getElementById("miniMap");
+  const miniMapSvg=document.getElementById("miniMapSvg");
+  const toggle=document.getElementById("miniMapToggle");
+
+  if(!wrap||!svg||!miniMap||!miniMapSvg) return;
+
+  // only show mini map if chart overflows horizontally AND is enabled
+  if(wrap.scrollWidth<=wrap.clientWidth || !miniMapEnabled){
+    miniMap.style.display="none";
+    if(wrap.scrollWidth>wrap.clientWidth && !miniMapEnabled){
+      toggle.style.display="block";
+    }else{
+      toggle.style.display="none";
+    }
+    return;
+  }
+
+  // mini map is enabled and chart overflows
+  miniMap.style.display="block";
+  toggle.style.display="none";
+
+  // clear previous content
+  while(miniMapSvg.firstChild){
+    miniMapSvg.removeChild(miniMapSvg.firstChild);
+  }
+
+  // get chart dimensions
+  const chartRect=svg.getBoundingClientRect();
+  const chartWidth=parseFloat(svg.getAttribute("width"));
+  const chartHeight=parseFloat(svg.getAttribute("height"));
+
+  // mini map scale
+  const miniWidth=120;
+  const miniHeight=60;
+  const scaleX=miniWidth/chartWidth;
+  const scaleY=miniHeight/chartHeight;
+  const scale=Math.min(scaleX,scaleY);
+
+  // create simplified mini map (just colored rectangles for nodes)
+  const NS="http://www.w3.org/2000/svg";
+  const miniGroup=document.createElementNS(NS,"g");
+  miniMapSvg.appendChild(miniGroup);
+
+  // scale and center
+  const offsetX=(miniWidth-chartWidth*scale)/2;
+  const offsetY=(miniHeight-chartHeight*scale)/2;
+  miniGroup.setAttribute("transform",`translate(${offsetX},${offsetY}) scale(${scale})`);
+
+  if(currentNodes){
+    currentNodes.forEach(n=>{
+      const rect=document.createElementNS(NS,"rect");
+      rect.setAttribute("x",n.x0);
+      rect.setAttribute("y",n.y0);
+      rect.setAttribute("width",n.x1-n.x0);
+      rect.setAttribute("height",n.y1-n.y0);
+      rect.setAttribute("fill",n.color);
+      rect.setAttribute("opacity","0.6");
+      rect.setAttribute("stroke","none");
+      miniGroup.appendChild(rect);
+    });
+  }
+
+  updateMiniMapViewport();
+}
+
+function updateMiniMapViewport(){
+  const wrap=document.getElementById("wrap");
+  const miniMap=document.getElementById("miniMap");
+  const viewport=document.getElementById("miniMapViewport");
+  const svg=document.getElementById("svg");
+
+  if(!wrap||!miniMap||!viewport||!svg||wrap.scrollWidth<=wrap.clientWidth) return;
+
+  // get visible area
+  const chartWidth=parseFloat(svg.getAttribute("width"));
+  const chartHeight=parseFloat(svg.getAttribute("height"));
+
+  // mini map scale
+  const miniWidth=120;
+  const miniHeight=60;
+  const scaleX=miniWidth/chartWidth;
+  const scaleY=miniHeight/chartHeight;
+  const scale=Math.min(scaleX,scaleY);
+
+  const offsetX=(miniWidth-chartWidth*scale)/2;
+  const offsetY=(miniHeight-chartHeight*scale)/2;
+
+  // viewport rectangle in mini map coordinates
+  const viewX=wrap.scrollLeft*scale+offsetX;
+  const viewY=0; // no vertical scrolling
+  const viewW=wrap.clientWidth*scale;
+  const viewH=chartHeight*scale;
+
+  viewport.style.left=viewX+"px";
+  viewport.style.top=viewY+"px";
+  viewport.style.width=viewW+"px";
+  viewport.style.height=viewH+"px";
+}
+
+function scrollToMiniMapPosition(e){
+  const wrap=document.getElementById("wrap");
+  const miniMap=document.getElementById("miniMap");
+  const svg=document.getElementById("svg");
+
+  if(!wrap||!miniMap||!svg) return;
+
+  const rect=miniMap.getBoundingClientRect();
+  const chartWidth=parseFloat(svg.getAttribute("width"));
+
+  // mini map scale
+  const scaleX=180/chartWidth;
+  const scaleY=100/parseFloat(svg.getAttribute("height"));
+  const scale=Math.min(scaleX,scaleY);
+  const offsetX=(180-chartWidth*scale)/2;
+
+  // calculate click position relative to mini map content
+  const clickX=e.clientX-rect.left;
+  const scrollX=(clickX-offsetX)/scale-wrap.clientWidth/2;
+
+  wrap.scrollLeft=Math.max(0,Math.min(scrollX,wrap.scrollWidth-wrap.clientWidth));
+}
+
 // ─── GENERATE ─────────────────────────────────────────────────────────────────
 let currentNodes=null,currentLinks=null,currentLinkPaths=[],currentLinkBadges=[],dragging=null;
+let previousHeight=600; // Track height changes to skip position restore
 let currentCompany="",currentYear="",currentScope="",currentHasYoY=false,currentW=0,currentH=0;
 let currentRawLinks=null,currentNodeNames=null;
 let currentRawData=null; // Store full raw data for multi-chart sessions
@@ -2313,7 +2563,7 @@ function generate(){
   let parsed;
   try{parsed=parseData(chartsData[activeChartIndex].data);}
   catch(e){errBox.textContent=e.message;errBox.classList.add("on");return;}
-  const{nodeNames,links:rawLinks,hasYoY,meta}=parsed;
+  const{nodeNames,links:rawLinks,hasYoY,meta,shortNames}=parsed;
 
   // auto-fill currency/unit from meta
   const hasCurrencyMeta=meta.CURRENCY||meta.UNIT;
@@ -2351,13 +2601,18 @@ function generate(){
 
   const unit=getUnit(),cur=getCurrencySymbol();
   document.getElementById("chartSubtitle").innerHTML=
-    renderMetaChip("scope",scope,"font-size:11px;color:#999;letter-spacing:.06em;text-transform:uppercase;")+
+    renderMetaChip("scope",scope,"font-size:11px;color:#666;letter-spacing:.06em;text-transform:uppercase;")+
     (scope?`<span style="color:#ccc;font-size:10px;">·</span>`:"")+
-    `<span style="font-size:11px;color:#999;letter-spacing:.06em;text-transform:uppercase;">${cur} ${unit}</span>`;
+    `<span style="font-size:11px;color:#666;letter-spacing:.06em;text-transform:uppercase;">${cur} ${unit}</span>`;
 
-  const H=parseInt(document.getElementById("inHeight").value)||520;
+  const H=parseInt(document.getElementById("inHeight").value)||600;
+  console.log('[Generate] Using height H =', H, 'from input value:', document.getElementById("inHeight").value);
+  const heightChanged = Math.abs(H - previousHeight) > 10; // More than 10px difference
+  previousHeight = H; // Store for next comparison
   currentH=H;
   const NODE_W=parseInt(document.getElementById("inNodeWidth").value)||40, NODE_PAD=16;
+  const LABEL_SIZE=parseInt(document.getElementById("inLabelSize").value)||12;
+  const VALUE_LABEL_SIZE=parseInt(document.getElementById("inValueLabelSize").value)||10;
   const isMobile=window.innerWidth<=700;
   const marginLR=isMobile?60:160;
   const MARGIN={top:32, right:marginLR, bottom:52, left:marginLR};
@@ -2368,11 +2623,12 @@ function generate(){
   const IW=W-MARGIN.left-MARGIN.right, IH=H-MARGIN.top-MARGIN.bottom;
   const colSpacing=parseInt(document.getElementById("inColSpacing").value)||150;
 
-  const{nodes,links,byCol,numCols,colOrder,colX}=buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,colSpacing);
+  const{nodes,links,byCol,numCols,colOrder,colX}=buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,colSpacing,shortNames);
 
   // Save/restore node positions to prevent jerky movement when switching charts
+  // NOTE: Don't restore positions if height has changed - layout needs to recalibrate
   const chartKey=chartsData[activeChartIndex]?.id||"current";
-  if(chartPositions.has(chartKey)){
+  if(!heightChanged && chartPositions.has(chartKey)){
     // Restore saved positions - use node names to match since indices can change
     const savedPositions=chartPositions.get(chartKey);
     nodes.forEach(n=>{
@@ -2467,7 +2723,9 @@ function generate(){
       let html=`<strong style="color:#1a1a2e">${l.source.name}</strong> <span style="color:#aaa">→</span> <strong style="color:#1a1a2e">${l.target.name}</strong><br><span style="color:var(--accent);font-weight:600">${l.isNegative?"(−)":""}${fmtVal(l.v)}</span>`;
       if(yoyPct!=null){
         const sign=yoyPct>=0?"▲":"▼",col=yoyPct>=0?"#22c55e":"#ef4444";
-        html+=` <span style="color:${col};font-weight:600">${sign}${Math.abs(yoyPct).toFixed(1)}%</span>`;
+        const absPct=Math.abs(yoyPct);
+        const yoyText=absPct>=150?(absPct/100).toFixed(1)+"x":absPct.toFixed(1)+"%";
+        html+=` <span style="color:${col};font-weight:600">${sign}${yoyText}</span>`;
         if(l.prior!=null) html+=`<br><span style="color:#aaa;font-size:11px;">Prior: ${fmtVal(l.prior)}</span>`;
       }
       tip.innerHTML=html;tip.classList.add("on");
@@ -2518,7 +2776,7 @@ function generate(){
   const wm=document.createElementNS(NS,"text");
   wm.setAttribute("x",svgW-MARGIN.right);wm.setAttribute("y",H-18);
   wm.setAttribute("text-anchor","end");
-  wm.setAttribute("font-size","10");
+  wm.setAttribute("font-size","13");
   wm.setAttribute("font-family","Segoe UI,sans-serif");wm.setAttribute("pointer-events","none");
   function buildWatermark(co,yr,sc,cu){
     wm.textContent="";
@@ -2551,14 +2809,48 @@ function generate(){
       n.targetLinks.forEach(l=>{l.ty0=ty;l.th=l.v*tgtKy;l.ty1=ty+l.th;ty+=l.th;});
     });
   }
-  function redrawAll(){
+  window.redrawAll=function redrawAll(){
+    console.log('[redrawAll] CALLED - currentNodes:', typeof currentNodes !== 'undefined' ? 'exists' : 'NULL');
+    const useShortNames=document.getElementById("inShortNames").checked;
+    console.log('[redrawAll] useShortNames:', useShortNames);
     recomputeLinks();
     links.forEach((l,i)=>currentLinkPaths[i].setAttribute("d",ribbonPath(l)));
     nodes.forEach(n=>{
       n._rect.setAttribute("y",n.y0);n._rect.setAttribute("height",Math.max(n.y1-n.y0,2));
+
+      // Update label text based on short names toggle
+      const displayName=useShortNames&&n.shortName?n.shortName:n.name;
+      console.log('[redrawAll] Node:', n.name, 'shortName:', n.shortName, 'displayName:', displayName);
+      const words=displayName.split(" ");
+      const maxChars=22;
+      const lines=[];let cur2="";
+      words.forEach(w=>{
+        if((cur2+" "+w).trim().length>maxChars&&cur2){lines.push(cur2.trim());cur2=w;}
+        else cur2=(cur2+" "+w).trim();
+      });
+      if(cur2) lines.push(cur2);
+
+      // Update tspan content
       const tspans=[...n._t1.querySelectorAll("tspan")];
+
+      // Update or create ts pans with new text
+      lines.forEach((line,li)=>{
+        if(li<tspans.length){
+          tspans[li].textContent=line;
+        }else{
+          const ts=document.createElementNS(NS,"tspan");
+          ts.setAttribute("x",n._t1.getAttribute("x"));
+          ts.textContent=line;
+          n._t1.appendChild(ts);
+        }
+      });
+      // Remove extra ts pans if we have fewer lines now
+      for(let i=lines.length;i<tspans.length;i++){
+        tspans[i].remove();
+      }
+
       const lineH=14;
-      const numLines=tspans.length||1;
+      const numLines=lines.length||1;
       const totalTextH=numLines*lineH;
       const cy2=(n.y0+n.y1)/2;
       const rawTop=cy2-totalTextH/2;
@@ -2632,7 +2924,9 @@ function generate(){
             const tsYoY=document.createElementNS(NS,"tspan");
             tsYoY.setAttribute("fill",getReadableColor(n.color));
             tsYoY.setAttribute("font-weight","700");
-            tsYoY.textContent=Math.abs(pct).toFixed(1)+"%";
+            // Use multiplier for >=150% instead of percentage
+            const absPct=Math.abs(pct);
+            tsYoY.textContent=absPct>=150?(absPct/100).toFixed(1)+"x":absPct.toFixed(1)+"%";
             n._t3.appendChild(tsYoY);
             n._t3._tsYoY=tsYoY;n._t3._tsSp=tsSp;
           }
@@ -2662,7 +2956,7 @@ function generate(){
     let newY0=dragging.startY0+(e.clientY-dragging.startMouseY);
     newY0=Math.max(MARGIN.top,Math.min(MARGIN.top+IH-h,newY0));
     n.y0=newY0;n.y1=newY0+h;
-    redrawAll();
+    window.redrawAll();
   };
   window._svgUp=()=>{
     if(!dragging) return;
@@ -2694,13 +2988,15 @@ function generate(){
     // anchor: center in bar ideally, but cap so text stays within bar bounds
     const t1=document.createElementNS(NS,"text");
     t1.setAttribute("text-anchor",anchor);
-    t1.setAttribute("font-size","12.5");t1.setAttribute("fill","#1a1a2e");
+    t1.setAttribute("font-size",(LABEL_SIZE+0.5).toString());t1.setAttribute("fill",n.color);
     t1.setAttribute("font-weight","600");
     t1.setAttribute("font-family","Segoe UI,sans-serif");
     t1.setAttribute("pointer-events","all");
     t1.style.cursor="grab";
     n._t1=t1;
-    const words=n.name.split(" ");
+    const useShortNames=document.getElementById("inShortNames").checked;
+    const displayName=useShortNames&&n.shortName?n.shortName:n.name;
+    const words=displayName.split(" ");
     const maxChars=22;
     const lines=[];let cur2="";
     words.forEach(w=>{
@@ -2729,7 +3025,7 @@ function generate(){
     const t2BaseY = t1BaseY + lines.length*lineH + 2;
     const t2=document.createElementNS(NS,"text");
     t2.setAttribute("x",tx);t2.setAttribute("y",t2BaseY);t2.setAttribute("text-anchor",anchor);
-    t2.setAttribute("font-size","10");t2.setAttribute("fill","none");
+    t2.setAttribute("font-size",(LABEL_SIZE-2).toString());t2.setAttribute("fill","none");
     t2.setAttribute("font-family","Segoe UI,sans-serif");
     t2.setAttribute("pointer-events","all");t2.style.cursor="grab";
     n._t2=t2;
@@ -2769,7 +3065,7 @@ function generate(){
       tLine1.setAttribute("dominant-baseline","hanging");
       tLine1.setAttribute("fill",getInsideBarTextColor(n.color));
       tLine1.setAttribute("font-weight","600");
-      tLine1.setAttribute("font-size","8");
+      tLine1.setAttribute("font-size",VALUE_LABEL_SIZE.toString());
       tLine1.setAttribute("font-family","Segoe UI,sans-serif");
       tLine1.style.cursor="grab";
       tLine1.textContent=currency;
@@ -2784,7 +3080,7 @@ function generate(){
       tLine2.setAttribute("dominant-baseline","hanging");
       tLine2.setAttribute("fill",getInsideBarTextColor(n.color));
       tLine2.setAttribute("font-weight","700");
-      tLine2.setAttribute("font-size","10");
+      tLine2.setAttribute("font-size",VALUE_LABEL_SIZE.toString());
       tLine2.setAttribute("font-family","Segoe UI,sans-serif");
       tLine2.style.cursor="grab";
       tLine2.textContent=value;
@@ -2795,12 +3091,12 @@ function generate(){
       if(pct!=null){
         const tLine3=document.createElementNS(NS,"text");
         tLine3.setAttribute("x",barCx);
-        tLine3.setAttribute("y",startY+38);
+        tLine3.setAttribute("y",startY+32);
         tLine3.setAttribute("text-anchor","middle");
         tLine3.setAttribute("dominant-baseline","hanging");
         tLine3.setAttribute("fill",getInsideBarTextColor(n.color));
         tLine3.setAttribute("font-weight","600");
-        tLine3.setAttribute("font-size","8");
+        tLine3.setAttribute("font-size",VALUE_LABEL_SIZE.toString());
         tLine3.setAttribute("font-family","Segoe UI,sans-serif");
         tLine3.style.cursor="grab";
 
@@ -2810,7 +3106,14 @@ function generate(){
         tLine3.appendChild(arrowSpan);
 
         const pctSpan=document.createElementNS(NS,"tspan");
-        pctSpan.textContent=Math.abs(pct).toFixed(1)+"%";
+        pctSpan.setAttribute("fill",getInsideBarTextColor(n.color));
+        // Use multiplier for >=150% instead of percentage
+        const absPct=Math.abs(pct);
+        if(absPct>=150){
+          pctSpan.textContent=(absPct/100).toFixed(1)+"x";
+        }else{
+          pctSpan.textContent=absPct.toFixed(1)+"%";
+        }
         tLine3.appendChild(pctSpan);
 
         svg.appendChild(tLine3);
@@ -2823,7 +3126,7 @@ function generate(){
     }else{
       // Above bar: 1 line, colored text (original behavior)
       t3.setAttribute("y",n.y0-4);
-      t3.setAttribute("font-size","9.5");
+      t3.setAttribute("font-size",VALUE_LABEL_SIZE.toString());
 
       const tsVal=document.createElementNS(NS,"tspan");
       tsVal.setAttribute("fill",getReadableColor(n.color));
@@ -2844,7 +3147,9 @@ function generate(){
         const tsYoY=document.createElementNS(NS,"tspan");
         tsYoY.setAttribute("fill",getReadableColor(n.color));
         tsYoY.setAttribute("font-weight","700");
-        tsYoY.textContent=Math.abs(pct).toFixed(1)+"%";
+        // Use multiplier for >=150% instead of percentage
+        const absPct=Math.abs(pct);
+        tsYoY.textContent=absPct>=150?(absPct/100).toFixed(1)+"x":absPct.toFixed(1)+"%";
         t3.appendChild(tsYoY);
         t3._tsYoY=tsYoY;t3._tsSp=tsSp;
       }
@@ -2871,7 +3176,9 @@ function generate(){
           let flowHtml=`<div style="font-size:11px;">• ${l.source.name}: <span style="color:var(--accent);font-weight:600">${fmtVal(l.v)}</span>`;
           if(yoyPct!=null){
             const sign=yoyPct>=0?"▲":"▼",col=yoyPct>=0?"#22c55e":"#ef4444";
-            flowHtml+=` <span style="color:${col};font-weight:600">${sign}${Math.abs(yoyPct).toFixed(1)}%</span>`;
+            const absPct=Math.abs(yoyPct);
+            const yoyText=absPct>=150?(absPct/100).toFixed(1)+"x":absPct.toFixed(1)+"%";
+            flowHtml+=` <span style="color:${col};font-weight:600">${sign}${yoyText}</span>`;
           }
           flowHtml+='</div>';
           html+=flowHtml;
@@ -2886,7 +3193,9 @@ function generate(){
           let flowHtml=`<div style="font-size:11px;">• ${l.target.name}: <span style="color:var(--accent);font-weight:600">${fmtVal(l.v)}</span>`;
           if(yoyPct!=null){
             const sign=yoyPct>=0?"▲":"▼",col=yoyPct>=0?"#22c55e":"#ef4444";
-            flowHtml+=` <span style="color:${col};font-weight:600">${sign}${Math.abs(yoyPct).toFixed(1)}%</span>`;
+            const absPct=Math.abs(yoyPct);
+            const yoyText=absPct>=150?(absPct/100).toFixed(1)+"x":absPct.toFixed(1)+"%";
+            flowHtml+=` <span style="color:${col};font-weight:600">${sign}${yoyText}</span>`;
           }
           flowHtml+='</div>';
           html+=flowHtml;
@@ -2897,7 +3206,9 @@ function generate(){
       if(nodeYoY.has(n.id)){
         const p=nodeYoY.get(n.id);
         const col=p>=0?"#22c55e":"#ef4444";
-        html+=`<div style="margin-top:4px;font-size:11px;"><span style="color:${col};font-weight:600">Net ${p>=0?"▲":"▼"}${Math.abs(p).toFixed(1)}% YoY</span></div>`;
+        const absPct=Math.abs(p);
+        const yoyText=absPct>=150?(absPct/100).toFixed(1)+"x":absPct.toFixed(1)+"%";
+        html+=`<div style="margin-top:4px;font-size:11px;"><span style="color:${col};font-weight:600">Net ${p>=0?"▲":"▼"}${yoyText} YoY</span></div>`;
       }
 
       tip.innerHTML=html;tip.classList.add("on");tip.style.left=(e.clientX+14)+"px";tip.style.top=(e.clientY-42)+"px";
@@ -2921,7 +3232,7 @@ function generate(){
         const totalH=col.reduce((a2,nd)=>a2+nd.value*n.ky,0)+NODE_PAD*(col.length-1);
         let y2=MARGIN.top+(IH-totalH)/2;
         col.forEach(nd=>{nd.y0=y2;nd.y1=y2+nd.value*n.ky;nd.ky=n.ky;y2=nd.y1+NODE_PAD;});
-        redrawAll();
+        window.redrawAll();
       };
       showCtxMenu(e,n,renameFn,resetFn,redrawAll);
     };
@@ -3052,6 +3363,30 @@ function generate(){
     if(wrap&&wrap.scrollWidth>wrap.clientWidth){
       wrap.scrollLeft=(wrap.scrollWidth-wrap.clientWidth)/2;
     }
+    // update mini map after chart is rendered
+    updateMiniMap();
+  });
+
+  // listen for scroll events to update mini map viewport
+  const wrap=document.getElementById("wrap");
+  wrap.addEventListener("scroll",updateMiniMapViewport);
+  window.addEventListener("resize",()=>{updateMiniMap();updateMiniMapViewport();});
+
+  // mini map click/drag to scroll
+  const miniMap=document.getElementById("miniMap");
+  let isDraggingMiniMap=false;
+  miniMap.addEventListener("mousedown",e=>{
+    isDraggingMiniMap=true;
+    scrollToMiniMapPosition(e);
+    e.preventDefault();
+  });
+  document.addEventListener("mousemove",e=>{
+    if(isDraggingMiniMap){
+      scrollToMiniMapPosition(e);
+    }
+  });
+  document.addEventListener("mouseup",()=>{
+    isDraggingMiniMap=false;
   });
 
   // restore node positions from shared URL if present
@@ -3078,7 +3413,7 @@ function generate(){
         }
       });
     }
-    redrawAll();
+    window.redrawAll();
     window._pendingNodePos=null;
   }
 
@@ -3589,7 +3924,7 @@ function showCtxMenu(e, node, renameFn, resetFn, redrawFn){
   const STEP=20; // px per click
   const doResize=delta=>{
     // Get current chart height from input
-    const chartH=parseInt(document.getElementById("inHeight").value)||520;
+    const chartH=parseInt(document.getElementById("inHeight").value)||600;
     // Account for margins (top: 32, bottom: 52)
     const maxBarY=chartH-52; // bottom margin
     const minBarY=32; // top margin
