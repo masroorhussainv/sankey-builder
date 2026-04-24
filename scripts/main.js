@@ -3125,48 +3125,6 @@ async function exportAllChartsPDF(){
     doc.setFont("helvetica","normal");doc.setFontSize(9);doc.setTextColor(120,120,120);
     const wmText=[meta.COMPANY,meta.PERIOD,meta.SCOPE,`${cur} ${unit}`].filter(Boolean).join(" · ");
     doc.text(wmText,pw-14,ph-4,{align:"right"});
-
-    // ── Page 2: Flow Data Table ─────────────────────────────────────────────────
-    doc.addPage();
-    doc.setFillColor(255,255,255);doc.rect(0,0,pw,ph,"F");
-
-    doc.setFont("helvetica","bold");doc.setFontSize(13);doc.setTextColor(26,26,46);
-    doc.text(`${chart.name} — Flow Data`,14,12);
-    doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,150,150);
-    doc.text([meta.COMPANY,meta.PERIOD,meta.SCOPE,`${cur} ${unit}`].filter(Boolean).join(" · "),14,18);
-    doc.setDrawColor(224,224,224);doc.line(14,21,pw-14,21);
-
-    // table headers
-    const hasYoY=parsed.hasYoY;
-    const cols=hasYoY
-      ?[{h:"Source",w:55},{h:"Target",w:55},{h:`${meta.PERIOD||"Current"}`,w:35},{h:"Prior Year",w:35},{h:"Change",w:25}]
-      :[{h:"Source",w:65},{h:"Target",w:65},{h:`Value (${cur} ${unit})`,w:50}];
-    let tx=14,ty=27;
-    doc.setFillColor(248,249,250);doc.rect(14,ty-4,pw-28,8,"F");
-    doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(100,100,100);
-    cols.forEach(c=>{doc.text(c.h,tx,ty);tx+=c.w;});
-
-    ty+=6;doc.setFont("helvetica","normal");doc.setFontSize(8);
-    parsed.links.forEach((l,i)=>{
-      if(ty>ph-14){doc.addPage();ty=20;doc.setFont("helvetica","bold");doc.setFontSize(8);doc.setTextColor(100,100,100);tx=14;cols.forEach(c=>{doc.text(c.h,tx,ty);tx+=c.w;});ty+=6;doc.setFont("helvetica","normal");}
-      if(i%2===0){doc.setFillColor(248,249,250);doc.rect(14,ty-4,pw-28,6,"F");}
-      doc.setTextColor(26,26,46);tx=14;
-      const srcName=parsed.nodeNames[l.s]||`Source ${l.s}`;
-      const tgtName=parsed.nodeNames[l.t]||`Target ${l.t}`;
-      doc.text(srcName,tx,ty);tx+=cols[0].w;
-      doc.text(tgtName,tx,ty);tx+=cols[1].w;
-      doc.text(fmtVal(l.v),tx,ty);tx+=cols[2].w;
-      if(hasYoY){
-        doc.text(l.prior!=null?fmtVal(l.prior):"—",tx,ty);tx+=cols[3].w;
-        if(l.prior!=null&&l.prior>0){
-          const pct=(l.v-l.prior)/l.prior*100;
-          doc.setTextColor(pct>=0?22:220,pct>=0?197:38,pct>=0?90:38);
-          doc.text((pct>=0?"+":"-")+Math.abs(pct).toFixed(1)+"%",tx,ty);
-          doc.setTextColor(26,26,46);
-        }else{doc.text("—",tx,ty);}
-      }
-      ty+=6;
-    });
   }
 
   // Restore original chart state
