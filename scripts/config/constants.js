@@ -5,9 +5,13 @@ const APP_THEMES = [
   {name:"Indigo",    accent:"#4f46e5", dark:"#3730a3"},
   {name:"Teal",      accent:"#0d9488", dark:"#0f766e"},
   {name:"Rose",      accent:"#e11d48", dark:"#be123c"},
+  {name:"Violet",    accent:"#7c3aed", dark:"#6d28d9"},
+  {name:"Sky",       accent:"#0284c7", dark:"#0369a1"},
   {name:"Emerald",   accent:"#059669", dark:"#047857"},
+  {name:"Orange",    accent:"#ea580c", dark:"#c2410c"},
+  {name:"Charcoal",  accent:"#374151", dark:"#1f2937"},
 ];
-let activeTheme=APP_THEMES[5]; // Default: Emerald
+let activeTheme = APP_THEMES.find(t=>t.name==="Emerald");
 
 // ─── CONSTANTS ─────────────────────────────────────────────────────────────────
 const CONSTANTS = {

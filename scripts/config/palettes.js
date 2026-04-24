@@ -28,3 +28,4 @@ const PALETTES={
   "Retro":         ["#264653","#2a9d8f","#e9c46a","#f4a261","#e76f51","#606c38","#dda15e","#bc6c25","#457b9d","#1d3557","#e63946","#6d6875","#b5838d","#e5989b","#a8dadc","#ffb4a2","#ffcdb2","#f1faee","#457b9d","#52796f"],
 };
 let activePalette="Vivid";
+const getPalette=()=>PALETTES[activePalette];
