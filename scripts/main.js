@@ -910,6 +910,17 @@ window.addEventListener('DOMContentLoaded',()=>{
     checkbox.checked=show;
     if(show) toggleChartBoundary(true);
   }
+
+  // Load shadow intensity preference
+  const shadowIntensity=localStorage.getItem('shadowIntensity');
+  if(shadowIntensity){
+    const slider=document.getElementById('inShadowIntensity');
+    const display=document.getElementById('inShadowIntensityVal');
+    if(slider && display){
+      slider.value=shadowIntensity;
+      display.textContent=shadowIntensity+'%';
+    }
+  }
 });
 
 // ─── SIDEBAR TABS ─────────────────────────────────────────────────────────────
@@ -1877,14 +1888,16 @@ function generate(){
   // defs
   const defs=document.createElementNS(NS,"defs");svgEl.appendChild(defs);
 
-  // subtle shadow for node bars
+  // subtle shadow for node bars (intensity controlled by slider)
+  const shadowIntensity=parseInt(document.getElementById("inShadowIntensity").value)||20;
+  const shadowOpacity=(shadowIntensity/100).toFixed(2);
   const shadowFilter=document.createElementNS(NS,"filter");
   shadowFilter.setAttribute("id","barShadow");
   shadowFilter.setAttribute("x","-20%");shadowFilter.setAttribute("y","-10%");
   shadowFilter.setAttribute("width","140%");shadowFilter.setAttribute("height","120%");
   const feShadow=document.createElementNS(NS,"feDropShadow");
   feShadow.setAttribute("dx","1");feShadow.setAttribute("dy","1");
-  feShadow.setAttribute("stdDeviation","1");feShadow.setAttribute("flood-opacity","0.2");
+  feShadow.setAttribute("stdDeviation","1");feShadow.setAttribute("flood-opacity",shadowOpacity);
   shadowFilter.appendChild(feShadow);
   defs.appendChild(shadowFilter);
 

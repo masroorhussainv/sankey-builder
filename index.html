@@ -164,6 +164,15 @@
         </div>
       </div>
       <div class="field">
+        <label>Bar Shadow</label>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="range" id="inShadowIntensity" min="0" max="100" value="20" step="5"
+            style="flex:1;accent-color:var(--accent);cursor:pointer;"
+            oninput="document.getElementById('inShadowIntensityVal').textContent=this.value+'%';localStorage.setItem('shadowIntensity',this.value);if(currentNodes)generate();"/>
+          <span id="inShadowIntensityVal" style="font-size:11px;color:var(--accent);min-width:38px;">20%</span>
+        </div>
+      </div>
+      <div class="field">
         <label>Short Labels</label>
         <div style="display:flex;align-items:center;gap:8px;">
           <input type="checkbox" id="inShortNames" style="width:auto;cursor:pointer;" checked
