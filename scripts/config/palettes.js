@@ -27,5 +27,5 @@ const PALETTES={
   "Jewel":         ["#9b2335","#c0392b","#e74c3c","#d35400","#e67e22","#f39c12","#f1c40f","#27ae60","#1abc9c","#2980b9","#8e44ad","#2c3e50","#16a085","#1a5276","#6c3483","#7b241c","#78281f","#1b2631","#145a32","#154360"],
   "Retro":         ["#264653","#2a9d8f","#e9c46a","#f4a261","#e76f51","#606c38","#dda15e","#bc6c25","#457b9d","#1d3557","#e63946","#6d6875","#b5838d","#e5989b","#a8dadc","#ffb4a2","#ffcdb2","#f1faee","#457b9d","#52796f"],
 };
-let activePalette="Vivid";
+let activePalette="Nordic";
 const getPalette=()=>PALETTES[activePalette];
