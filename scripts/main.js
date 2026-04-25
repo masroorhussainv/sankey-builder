@@ -2174,10 +2174,14 @@ function generate(){
     dragging=null;
     document.body.style.userSelect="";
     // Save positions after drag ends
-    if(currentNodes){
-      const chartKey=chartsData[activeChartIndex]?.id||"current";
-      const positions=currentNodes.map(n=>({name:n.name,y0:n.y0,y1:n.y1}));
-      chartPositions.set(chartKey,positions);
+    try{
+      if(currentNodes && currentNodes.length>0){
+        const chartKey=chartsData[activeChartIndex]?.id||"current";
+        const positions=currentNodes.map(n=>({name:n.name,y0:n.y0,y1:n.y1}));
+        chartPositions.set(chartKey,positions);
+      }
+    }catch(e){
+      console.error("Error saving positions:", e);
     }
   };
   // mousemove/mouseup on document so drag works even when mouse leaves SVG bounds
@@ -2447,9 +2451,15 @@ function generate(){
         col.forEach(nd=>{nd.y0=y2;nd.y1=y2+nd.value*n.ky;nd.ky=n.ky;y2=nd.y1+NODE_PAD;});
         window.redrawAll();
         // Save positions after reset
-        const chartKey=chartsData[activeChartIndex]?.id||"current";
-        const positions=currentNodes.map(n=>({name:n.name,y0:n.y0,y1:n.y1}));
-        chartPositions.set(chartKey,positions);
+        try{
+          if(currentNodes && currentNodes.length>0){
+            const chartKey=chartsData[activeChartIndex]?.id||"current";
+            const positions=currentNodes.map(n=>({name:n.name,y0:n.y0,y1:n.y1}));
+            chartPositions.set(chartKey,positions);
+          }
+        }catch(e){
+          console.error("Error saving positions after reset:", e);
+        }
       };
       showCtxMenu(e,n,renameFn,resetFn,redrawAll);
     };
