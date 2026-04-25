@@ -1561,12 +1561,12 @@ function startMetaEdit(chipEl, field){
       document.getElementById("inScope").value.trim()||""
     );
     // update subtitle scope chip
-    const cur=getCurrencySymbol(),unit=getUnit();
+    const cur=getCurrencySymbol();
     const sc=document.getElementById("inScope").value.trim();
     document.getElementById("chartSubtitle").innerHTML=
       renderMetaChip("scope",sc,"font-size:11px;color:#666;letter-spacing:.06em;text-transform:uppercase;")+
       (sc?`<span style="color:#ccc;font-size:10px;margin:0 3px;">·</span>`:"")+
-      `<span style="font-size:11px;color:#666;letter-spacing:.06em;text-transform:uppercase;">${cur} ${unit}</span>`;
+      `<span style="font-size:11px;color:#666;letter-spacing:.06em;text-transform:uppercase;">${cur}</span>`;
     // update watermark
     const wmEl=document.getElementById("svg").querySelector("text:last-child");
     if(wmEl) wmEl.textContent=[currentCompany,currentYear,currentScope,`${cur} ${unit}`].filter(Boolean).join(" · ");
@@ -1791,11 +1791,11 @@ function generate(){
   // render inline-editable header chips
   renderChartHeader(company,year,scope);
 
-  const unit=getUnit(),cur=getCurrencySymbol();
+  const cur=getCurrencySymbol();
   document.getElementById("chartSubtitle").innerHTML=
     renderMetaChip("scope",scope,"font-size:11px;color:#666;letter-spacing:.06em;text-transform:uppercase;")+
     (scope?`<span style="color:#ccc;font-size:10px;">·</span>`:"")+
-    `<span style="font-size:11px;color:#666;letter-spacing:.06em;text-transform:uppercase;">${cur} ${unit}</span>`;
+    `<span style="font-size:11px;color:#666;letter-spacing:.06em;text-transform:uppercase;">${cur}</span>`;
 
   const H=parseInt(document.getElementById("inHeight").value)||600;
   console.log('[Generate] Using height H =', H, 'from input value:', document.getElementById("inHeight").value);
