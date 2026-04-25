@@ -48,6 +48,7 @@ function extractMetadata(data){
 let chartsData=[]; // Array of chart objects
 let activeChartIndex=0;
 let chartPositions=new Map(); // Store y-positions for each chart to prevent jumping
+let labelShortNameOverrides=new Map(); // Store per-label short name overrides (node.name -> boolean)
 
 function renderTabs(){
   const container=document.getElementById("tabsContainer");
@@ -2024,8 +2025,10 @@ function generate(){
     nodes.forEach(n=>{
       n._rect.setAttribute("y",n.y0);n._rect.setAttribute("height",Math.max(n.y1-n.y0,2));
 
-      // Update label text based on short names toggle
-      const displayName=useShortNames&&n.shortName?n.shortName:n.name;
+      // Update label text based on short names toggle (per-label override takes precedence)
+      const labelOverride=labelShortNameOverrides.get(n.name);
+      const useShort=labelOverride!==undefined?labelOverride:(useShortNames&&n.shortName!==null);
+      const displayName=useShort&&n.shortName?n.shortName:n.name;
       console.log('[redrawAll] Node:', n.name, 'shortName:', n.shortName, 'displayName:', displayName);
       const words=displayName.split(" ");
       const maxChars=22;
@@ -3175,7 +3178,15 @@ function showCtxMenu(e, node, renameFn, resetFn, redrawFn){
   document.getElementById("ctxRename").onclick=()=>{
     hideCtxMenu();
     const v=window.prompt("Rename node:",node.name);
-    if(v&&v.trim()&&v.trim()!==node.name) renameFn(v.trim());
+    if(v&&v.trim()&&v.trim()!==node.name){
+      const oldName=node.name;
+      renameFn(v.trim());
+      // Update override map key if name changed
+      if(labelShortNameOverrides.has(oldName)){
+        labelShortNameOverrides.set(v.trim(), labelShortNameOverrides.get(oldName));
+        labelShortNameOverrides.delete(oldName);
+      }
+    }
   };
   // +/- resize buttons — keep menu open, click repeatedly
   const STEP=20; // px per click
@@ -3204,6 +3215,14 @@ function showCtxMenu(e, node, renameFn, resetFn, redrawFn){
   };
   document.getElementById("ctxGrow").onclick=e=>{e.stopPropagation();doResize(STEP);};
   document.getElementById("ctxShrink").onclick=e=>{e.stopPropagation();doResize(-STEP);};
+  // Toggle short/full name for this bar
+  const currentOverride=labelShortNameOverrides.get(node.name);
+  const isShort=currentOverride!==undefined?currentOverride:(node.shortName!==null);
+  document.getElementById("ctxToggleLabel").onclick=()=>{
+    hideCtxMenu();
+    labelShortNameOverrides.set(node.name, !isShort);
+    window.redrawAll();
+  };
   document.getElementById("ctxHighlight").onclick=()=>{
     hideCtxMenu();
     if(window.currentLinkPaths&&window.currentLinks){
