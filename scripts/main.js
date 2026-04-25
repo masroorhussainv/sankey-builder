@@ -1998,7 +1998,7 @@ function generate(){
       ts.textContent=p.text;wm.appendChild(ts);
     });
   }
-  buildWatermark(company,year,scope,`${cur} ${unit}`);
+  buildWatermark(company,year,scope,cur);
   svgEl.appendChild(wm);
 
   function recomputeLinks(){
@@ -2439,7 +2439,7 @@ function generate(){
         const tspans=[...t1.querySelectorAll("tspan")];
         if(tspans.length){tspans[0].textContent=newName;for(let i=1;i<tspans.length;i++)tspans[i].textContent="";}
         else t1.textContent=newName;
-        if(wm) buildWatermark(company,year,scope,`${cur} ${unit}`);
+        if(wm) buildWatermark(company,year,scope,cur);
       };
       const resetFn=()=>{
         // reset to original y position from layout
@@ -2489,7 +2489,7 @@ function generate(){
           const tspans=[...t1.querySelectorAll("tspan")];
           if(tspans.length){tspans[0].textContent=v;for(let i=1;i<tspans.length;i++)tspans[i].textContent="";}
           else t1.textContent=v;
-          buildWatermark(company,year,scope,`${cur} ${unit}`);
+          buildWatermark(company,year,scope,cur);
         }
         inp.remove();
       };
