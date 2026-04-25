@@ -1213,7 +1213,10 @@ function buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,colSpacing=
   });
 
   // ── Pass 2: Smart reordering based on weighted source positions ─────────────────
-  // For columns 2+, reorder nodes to align with their source nodes, reducing crossings
+  // DISABLED: Keep descending value order from Pass 1
+  // Original logic tried to reduce link crossings by aligning with source positions,
+  // but user prefers strict descending value order in each column.
+  /*
   for(let colIdx=1;colIdx<numCols;colIdx++){
     const col=byCol[colIdx];
     if(!col||col.length<=1) continue;
@@ -1251,6 +1254,7 @@ function buildLayout(nodeNames,rawLinks,IW,IH,NODE_W,NODE_PAD,MARGIN,colSpacing=
       newY=node.y1+spacing;
     });
   }
+  */
 
   // store initial y0 for clamping — prevent nodes from straying too far from initial layout
   nodes.forEach(n=>{n.initY0=n.y0;n.initY1=n.y1;});
