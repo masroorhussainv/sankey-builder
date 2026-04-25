@@ -2027,7 +2027,7 @@ function generate(){
 
       // Update label text based on short names toggle (per-label override takes precedence)
       const labelOverride=labelShortNameOverrides.get(n.name);
-      const useShort=labelOverride!==undefined?labelOverride:(useShortNames&&n.shortName!==null);
+      const useShort=labelOverride!==undefined?labelOverride:(useShortNames&&n.shortName);
       const displayName=useShort&&n.shortName?n.shortName:n.name;
       console.log('[redrawAll] Node:', n.name, 'shortName:', n.shortName, 'displayName:', displayName);
       const words=displayName.split(" ");
@@ -3216,8 +3216,9 @@ function showCtxMenu(e, node, renameFn, resetFn, redrawFn){
   document.getElementById("ctxGrow").onclick=e=>{e.stopPropagation();doResize(STEP);};
   document.getElementById("ctxShrink").onclick=e=>{e.stopPropagation();doResize(-STEP);};
   // Toggle short/full name for this bar
+  const useShortNames=document.getElementById("inShortNames").checked;
   const currentOverride=labelShortNameOverrides.get(node.name);
-  const isShort=currentOverride!==undefined?currentOverride:(node.shortName!==null);
+  const isShort=currentOverride!==undefined?currentOverride:(useShortNames&&node.shortName);
   document.getElementById("ctxToggleLabel").onclick=()=>{
     hideCtxMenu();
     labelShortNameOverrides.set(node.name, !isShort);
