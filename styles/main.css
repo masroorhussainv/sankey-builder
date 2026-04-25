@@ -210,8 +210,8 @@ svg{display:block;}
 .label-edit{position:fixed;background:#fff;border:1px solid var(--accent);border-radius:6px;padding:4px 8px;font-size:12px;outline:none;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.15);min-width:120px;}
 
 /* inline-editable chart header chips */
-.meta-field{display:inline-flex;align-items:center;gap:4px;cursor:pointer;border-radius:4px;padding:2px 5px;transition:background .15s;}
-.meta-field:hover{background:#f0f2f5;}
+.meta-field{display:inline-flex;align-items:center;gap:4px;cursor:pointer;border:1px solid #e5e7eb;border-radius:4px;padding:2px 5px;transition:background .15s,border-color .15s;}
+.meta-field:hover{background:#f0f2f5;border-color:var(--accent);}
 .meta-field .meta-val{font-weight:inherit;color:inherit;}
 .meta-field .meta-pencil{font-size:11px;color:#bbb;opacity:0;transition:opacity .15s;}
 .meta-field:hover .meta-pencil{opacity:1;}
