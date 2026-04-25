@@ -1791,7 +1791,7 @@ function generate(){
   // render inline-editable header chips
   renderChartHeader(company,year,scope);
 
-  const cur=getCurrencySymbol();
+  const unit=getUnit(),cur=getCurrencySymbol();
   document.getElementById("chartSubtitle").innerHTML=
     renderMetaChip("scope",scope,"font-size:11px;color:#666;letter-spacing:.06em;text-transform:uppercase;")+
     (scope?`<span style="color:#ccc;font-size:10px;">·</span>`:"")+
